@@ -15,7 +15,7 @@ int main() {
 	memset(&bss, 0, &endOfBinary - &bss);
 
 	//All the following code may be removed 
-	*v = 'X';
+	*v = 'Y';
 
 	//Test if BSS is properly set up
 	if (var1 == 0 && var2 == 0)

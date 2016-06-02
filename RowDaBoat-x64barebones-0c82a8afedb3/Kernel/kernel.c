@@ -80,15 +80,20 @@ void * initializeKernelBinary()
 	return getStackBase();
 }
 
+void load_idt();
+
 int main()
 {	
+	load_idt();
+
+	uint64_t value = ((EntryPoint)sampleCodeModuleAddress)();
 	ncPrint("[Kernel Main]");
 	ncNewline();
 	ncPrint("  Sample code module at 0x");
 	ncPrintHex((uint64_t)sampleCodeModuleAddress);
 	ncNewline();
 	ncPrint("  Calling the sample code module returned: ");
-	ncPrintHex(((EntryPoint)sampleCodeModuleAddress)());
+	ncPrintHex(value);
 	ncNewline();
 	ncNewline();
 
