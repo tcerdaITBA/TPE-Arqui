@@ -1,12 +1,14 @@
 #include <stdint.h>
 #include "include/idtLoader.h"
 #include "include/defs.h"
+#include "include/interrupts.h"
 
 
 DESCR_INT idt[0xA];	// IDT de 10 entradas
 IDTR idtr;			// IDTR
 
 void _lidt (IDTR *i);
+void __lidt();
 void setup_IDT_entry (int index, uint8_t selector, uint64_t offset, uint8_t access);
 
 void load_idt()
@@ -19,7 +21,7 @@ void load_idt()
 	idtr.base += (uint64_t) &idt;
 	idtr.limit = (uint16_t) sizeof(idt)-1;
 	
-	_lidt (&idtr);	
+	__lidt();	
 
 
 	//Todas las interrupciones deshabilidas.
@@ -33,8 +35,8 @@ void load_idt()
 void setup_IDT_entry (int index, uint8_t selector, uint64_t offset, uint8_t access) {
   idt[index].selector = selector;
   idt[index].offset_l = offset & 0xFFFF;
-  idt[index].offset_m = offset & 0xFFFF0000;
-  idt[index].offset_h = offset >> 32;
+  idt[index].offset_m = (offset >> 16) & 0xFFFF;
+  idt[index].offset_h = (offset >> 32) & 0xFFFFFFFF;
   idt[index].access = access;
   idt[index].cero = 0;
   idt[index].other_cero = (uint64_t) 0;

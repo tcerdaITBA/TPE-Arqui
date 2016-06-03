@@ -3,8 +3,8 @@ GLOBAL _cli
 GLOBAL _sti
 GLOBAL picMasterMask
 GLOBAL picSlaveMask
-GLOBAL int_08_hand
 GLOBAL _lidt
+GLOBAL __lidt
 GLOBAL haltcpu
 
 GLOBAL _irq00Handler
@@ -16,16 +16,49 @@ GLOBAL _irq05Handler
 
 
 EXTERN irqDispatcher
+EXTERN idtr
 
-%macro irqHandlerMaster 1
-	push ds
-	push es
+%macro pushState 0  ; copiado de RowDaBoat/Proyect Wyrm
 	push rax
 	push rbx
 	push rcx
 	push rdx
 	push rdi
 	push rsi
+	push r8
+	push r9
+	push r10
+	push r11
+	push r12
+	push r13
+	push r14
+	push r15
+	push fs
+	push gs
+%endmacro
+
+%macro popState 0
+	pop gs
+	pop fs
+	pop r15
+	pop r14
+	pop r13
+	pop r12
+	pop r11
+	pop r10
+	pop r9
+	pop r8
+	pop rsi
+	pop rdi
+	pop rbp
+	pop rdx
+	pop rcx
+	pop rbx
+	pop rax
+%endmacro
+
+%macro irqHandlerMaster 1
+	pushState
 
 	mov rax, %1
 	mov rdi, rax ; pasaje de parametro
@@ -35,15 +68,8 @@ EXTERN irqDispatcher
 	mov al, 20h
 	out 20h, al
 
-	pop rsi
-	pop rdi
-	pop rdx
-	pop rcx
-	pop rbx
-	pop rax
-	pop es
-	pop ds
-	iret
+	popState
+	iretq
 %endmacro
 
 
@@ -63,7 +89,7 @@ _sti:
 picMasterMask:
 	push rbp
     mov rbp, rsp
-    mov ax, [ss:rbp+8]
+    mov ax, [ss:rbp+16]
     out	21h,al
     pop rbp
     retn
@@ -71,10 +97,14 @@ picMasterMask:
 picSlaveMask:
 	push    rbp
     mov     rbp, rsp
-    mov     ax, [ss:rbp+8]  ; ax = mascara de 16 bits
+    mov     ax, [ss:rbp+16]  ; ax = mascara de 16 bits
     out	0A1h,al
     pop     rbp
     retn
+
+__lidt:
+	lidt [idtr]
+	ret
 
 _lidt:				; Carga el IDTR
     push    rbp
