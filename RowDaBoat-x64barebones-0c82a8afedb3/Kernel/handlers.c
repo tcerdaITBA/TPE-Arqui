@@ -1,12 +1,14 @@
-#include "include/handlers.h"
+#include <stdint.h>
+#include "videoDriver.h"
+#include "keyboardDriver.h"
+#include "handlers.h"
 
 static int i = 0;
-static char* video = 0xB8000;
 
 static void int_08();
 static void int_09();
 
-void irqDispatcher(uint32_t irq) {
+void irqDispatcher(int irq) {
 	switch (irq) {
 		case 0:
 			int_08();
@@ -19,9 +21,11 @@ void irqDispatcher(uint32_t irq) {
 }
 
 void int_08() {
-	video[i++] = i;
+	int c = get_key();
+	print_num(i++,0,0);
 }
 
 void int_09() {
-	return;
+	int c = get_key();
+	print_num(c,3,3);
 }

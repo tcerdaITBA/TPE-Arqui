@@ -4,7 +4,6 @@ GLOBAL _sti
 GLOBAL picMasterMask
 GLOBAL picSlaveMask
 GLOBAL _lidt
-GLOBAL __lidt
 GLOBAL haltcpu
 
 GLOBAL _irq00Handler
@@ -18,7 +17,7 @@ GLOBAL _irq05Handler
 EXTERN irqDispatcher
 EXTERN idtr
 
-%macro pushState 0  ; copiado de RowDaBoat/Proyect Wyrm
+%macro pushState 0  ; fuente: RowDaBoat/Proyect Wyrm
 	push rax
 	push rbx
 	push rcx
@@ -89,7 +88,7 @@ _sti:
 picMasterMask:
 	push rbp
     mov rbp, rsp
-    mov ax, [ss:rbp+16]
+    mov ax, di
     out	21h,al
     pop rbp
     retn
@@ -97,22 +96,17 @@ picMasterMask:
 picSlaveMask:
 	push    rbp
     mov     rbp, rsp
-    mov     ax, [ss:rbp+16]  ; ax = mascara de 16 bits
+    mov     ax, di  ; ax = mascara de 16 bits
     out	0A1h,al
     pop     rbp
     retn
-
-__lidt:
-	lidt [idtr]
-	ret
 
 _lidt:				; Carga el IDTR
     push    rbp
     mov     rbp, rsp
     push    rbx
-    mov     rbx, [ss: rbp + 10] ; ds:bx = puntero a IDTR
-	rol	rbx,16
-	lidt    [ds: rbx]          ; carga IDTR
+    mov     rbx, rdi ; puntero a IDTR
+    lidt    [rbx]          ; carga IDTR
     pop     rbx
     pop     rbp
     retn

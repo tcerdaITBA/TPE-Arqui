@@ -1,7 +1,7 @@
 #include <stdint.h>
-#include "include/idtLoader.h"
-#include "include/defs.h"
-#include "include/interrupts.h"
+#include "idtLoader.h"
+#include "defs.h"
+#include "interrupts.h"
 
 
 DESCR_INT idt[0xA];	// IDT de 10 entradas
@@ -21,11 +21,11 @@ void load_idt()
 	idtr.base += (uint64_t) &idt;
 	idtr.limit = (uint16_t) sizeof(idt)-1;
 	
-	__lidt();	
+	_lidt(&idtr);	
 
 
 	//Todas las interrupciones deshabilidas.
-	picMasterMask(0xFC); 
+	picMasterMask(0xFD); 
 	picSlaveMask(0xFF);
         
 	_sti();
