@@ -3,8 +3,10 @@
 
 void set_color(char color);
 void print_str(const char *str, int row, int col);
+char current_color();
 void put_char(char c);
 void put(const char *str, int len);
+void put_str(const char *str);
 void print_char(char c, int row, int col);
 void print_num(int num, int row, int col);
 void print(const char *str, int len, int row, int col);

@@ -12,7 +12,7 @@ static const char map[] = { '\0', '\0', '1', '2', '3', '4', '5', '6', '7', '8', 
 static int len = sizeof(map);
 
 int get_char() {
-	char k;
+	int k;
 	if ((k = get_key()) > 0 && k < len && map[k] != '\0')
 		return map[k];
 	return -1;

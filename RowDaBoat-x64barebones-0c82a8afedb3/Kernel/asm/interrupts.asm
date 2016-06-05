@@ -12,16 +12,21 @@ GLOBAL _irq02Handler
 GLOBAL _irq03Handler
 GLOBAL _irq04Handler
 GLOBAL _irq05Handler
+GLOBAL _syscallHandler
 
 
 EXTERN irqDispatcher
+EXTERN syscallDispatcher
 EXTERN idtr
+
+SECTION .text
 
 %macro pushState 0  ; fuente: RowDaBoat/Proyect Wyrm
 	push rax
 	push rbx
 	push rcx
 	push rdx
+	push rbp
 	push rdi
 	push rsi
 	push r8
@@ -32,13 +37,9 @@ EXTERN idtr
 	push r13
 	push r14
 	push r15
-	push fs
-	push gs
 %endmacro
 
 %macro popState 0
-	pop gs
-	pop fs
 	pop r15
 	pop r14
 	pop r13
@@ -59,8 +60,7 @@ EXTERN idtr
 %macro irqHandlerMaster 1
 	pushState
 
-	mov rax, %1
-	mov rdi, rax ; pasaje de parametro
+	mov rdi, %1 ; pasaje de parametro
 	call irqDispatcher
 	
 	;signal pic EOI (End of Interrupt)
@@ -73,7 +73,6 @@ EXTERN idtr
 
 
 
-SECTION .text
 
 _cli:
 	cli
@@ -135,6 +134,14 @@ _irq04Handler:
 ;USB
 _irq05Handler:
 	irqHandlerMaster 5
+
+_syscallHandler:
+	pushState
+	mov rdi,rax ; primer parametro
+	mov rsi,rbx ; segundo parametro
+	call syscallDispatcher  ; en rdx y rcx ya se encuentran los correspondientes valores
+	popState
+	iretq
 
 haltcpu:
 	cli

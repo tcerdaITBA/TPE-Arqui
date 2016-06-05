@@ -86,14 +86,13 @@ int main()
 {	
 	load_idt();
 
-	uint64_t value = ((EntryPoint)sampleCodeModuleAddress)();
 	ncPrint("[Kernel Main]");
 	ncNewline();
 	ncPrint("  Sample code module at 0x");
 	ncPrintHex((uint64_t)sampleCodeModuleAddress);
 	ncNewline();
 	ncPrint("  Calling the sample code module returned: ");
-	ncPrintHex(value);
+	ncPrintHex(((EntryPoint)sampleCodeModuleAddress)());
 	ncNewline();
 	ncNewline();
 
@@ -106,10 +105,7 @@ int main()
 
 	ncPrint("[Finished]");
 
-
-	while (1) {
+	while (1);
 	
-	}
-
 	return 0;
 }

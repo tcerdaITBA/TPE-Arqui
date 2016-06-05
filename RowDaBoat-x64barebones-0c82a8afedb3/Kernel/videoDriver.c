@@ -25,6 +25,10 @@ static unsigned int count_digits(int num) {
 	return digits;
 }
 
+char current_color() {
+	return color;
+}
+
 void set_color(char c) {
 	color = c;
 }
@@ -49,6 +53,11 @@ void put(const char *str, int len) {
 	int i;
 	for (i = 0; i < len; i++)
 		put_char(str[i]);
+}
+
+void put_str(const char *str) {
+	while(*str != '\0')
+		put_char(*str++);
 }
 
 

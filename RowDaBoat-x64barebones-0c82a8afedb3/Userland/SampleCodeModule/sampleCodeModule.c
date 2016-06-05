@@ -1,6 +1,5 @@
 #include <stdint.h>
 
-char * v = (char*)0xB8000 + 79 * 2;
 
 extern char bss;
 extern char endOfBinary;
@@ -9,19 +8,18 @@ static int var1 = 0;
 static int var2 = 0;
 
 void * memset(void * destiny, int32_t c, uint64_t length);
+void write(unsigned int fd, void * buffer, unsigned int bytes);
 
 int main() {
 	//Clean BSS
 	memset(&bss, 0, &endOfBinary - &bss);
 
-	//All the following code may be removed 
-	*v = 'Y';
+	char str[] = "HOLA DESDE USERLAND";
+	int len = sizeof(str);
 
-	//Test if BSS is properly set up
-	if (var1 == 0 && var2 == 0)
-		return 0xDEADC0DE;
+	write(1,str,len);
 
-	return 0xDEADBEEF;
+	return 0;
 }
 
 void * memset(void * destiation, int32_t c, uint64_t length) {

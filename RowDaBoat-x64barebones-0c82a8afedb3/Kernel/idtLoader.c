@@ -3,19 +3,19 @@
 #include "defs.h"
 #include "interrupts.h"
 
-
-DESCR_INT idt[0xA];	// IDT de 10 entradas
+DESCR_INT idt[255];	// IDT de 255 entradas
 IDTR idtr;			// IDTR
 
 void _lidt (IDTR *i);
-void __lidt();
 void setup_IDT_entry (int index, uint8_t selector, uint64_t offset, uint8_t access);
 
 void load_idt()
 {
 
-	setup_IDT_entry (0x08, 0x08, (uint64_t)&_irq00Handler, ACS_INT);
-	setup_IDT_entry (0x09, 0x08, (uint64_t)&_irq01Handler, ACS_INT);
+	// TODO: preguntar/buscar porq anda con 0x20 y 0x21
+	setup_IDT_entry (0x20, 0x08, (uint64_t)&_irq00Handler, ACS_INT);
+	setup_IDT_entry (0x21, 0x08, (uint64_t)&_irq01Handler, ACS_INT);
+	setup_IDT_entry (0x80, 0x08, (uint64_t)&_syscallHandler, ACS_INT);
 
 	idtr.base = 0;
 	idtr.base += (uint64_t) &idt;
@@ -24,11 +24,12 @@ void load_idt()
 	_lidt(&idtr);	
 
 
-	//Todas las interrupciones deshabilidas.
-	picMasterMask(0xFD); 
+	//Solo interrupcion de teclado y timer tick habilitadas 
+	picMasterMask(0xFC); 
 	picSlaveMask(0xFF);
         
 	_sti();
+
 	
 }
 
