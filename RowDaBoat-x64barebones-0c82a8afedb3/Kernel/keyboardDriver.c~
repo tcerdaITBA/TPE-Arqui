@@ -74,5 +74,4 @@ int get_char() {
 	ret_index = 0;
     if (k > 0 && k < len && kbdus[k] != 0)
 	return kbdus[k];
-    return -1;
 }

@@ -2,5 +2,6 @@
 #define __KEYBOARD__DRIVER__H__
 
 int get_char();
+void store_scancode();
 
 #endif

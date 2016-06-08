@@ -63,8 +63,10 @@ void put_str(const char *str) {
 
 void put_char(char c) {
 	if (c == '\b') {
-		cursor--;
-		print_char(' ', ROW(cursor), COL(cursor));
+		if (cursor > 0) {
+	    	    cursor--;
+		    print_char(' ', ROW(cursor), COL(cursor));
+		}
 	}
 	else if (c == '\n') {
 		cursor += WIDTH - COL(cursor); /* cursor al comienzo de nueva linea */
