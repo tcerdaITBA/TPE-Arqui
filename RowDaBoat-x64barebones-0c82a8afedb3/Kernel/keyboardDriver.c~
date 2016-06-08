@@ -56,8 +56,8 @@ static unsigned int store_index = 0;
 static int buff_size = 0;
 
 void store_scancode() {
-    int k = get_key();
-    if (k > 0 && buff_size != BUFFSIZE) {  // buffer no lleno
+    unsigned char k = get_key();
+    if (k < 128 && buff_size != BUFFSIZE) {  // buffer no lleno
 	buff_size++;
 	buffer[store_index++] = k;  // guarda el scancode de la tecla
 	if (store_index == BUFFSIZE)
@@ -74,4 +74,5 @@ int get_char() {
 	ret_index = 0;
     if (k > 0 && k < len && kbdus[k] != 0)
 	return kbdus[k];
+    return -1;
 }
