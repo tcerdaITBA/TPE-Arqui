@@ -30,17 +30,17 @@ void int_08() {
 
 void int_09() {
     store_scancode();
-//	int c = get_char();
-//	if (c != -1)
-//		put_char(c);
+	int c = get_char();
+	if (c != -1)
+		put_char(c);
 }
 
 void syscallDispatcher(uint64_t rax, uint64_t rbx, uint64_t rdx, uint64_t rcx) {
 	switch (rax) {
-		case(3):
+		case 3:
 			sys_read(rbx, (char *) rcx, rdx);
 			break;
-		case(4):
+		case 4:
 			sys_write(rbx, (const char *) rcx, rdx);
 			break;
 	}

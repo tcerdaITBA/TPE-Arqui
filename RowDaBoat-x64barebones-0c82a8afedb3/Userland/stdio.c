@@ -1,7 +1,7 @@
-#include "syscalls.h"
+#include "stdio.h"
 
 void putchar(int c) {
-    write(STDOUT, &c, 1);
+	write(STDOUT, &c, 1);
 }
 
 int getchar() {

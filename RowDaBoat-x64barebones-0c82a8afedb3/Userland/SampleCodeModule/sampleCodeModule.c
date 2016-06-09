@@ -1,6 +1,5 @@
 #include <stdint.h>
 #include "syscalls.h"
-#include "stdio.h"
 
 extern char bss;
 extern char endOfBinary;
@@ -14,9 +13,7 @@ int main() {
 	char str[] = "HOLA DESDE USERLAND";
 	int len = sizeof(str);
 
-	write(STDOUT, str, len);
-	write(1, str, len);
-	write(2, str, len);
+	write(0, str, len);
 
 	return 0;
 }

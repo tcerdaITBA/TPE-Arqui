@@ -9,14 +9,14 @@ void sys_write(unsigned int fds, const char * str, unsigned int length) {
 		put(str, length);
 		set_color(backup_color);
 	}
-	else
+	else if (fds == STDOUT)
 		put(str, length);
 }
 
 void sys_read(unsigned int fds, char * buffer, unsigned int bytes) {
     if (fds == STDIN) {
-	for (int i = 0; i < bytes; i++) {
-	    buffer[i] = get_char();
-	}
+		for (int i = 0; i < bytes; i++) {
+	    	buffer[i] = get_char();
+		}
     }
 }
