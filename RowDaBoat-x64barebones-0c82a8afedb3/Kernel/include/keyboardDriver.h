@@ -3,5 +3,6 @@
 
 int get_char();
 void store_scancode();
+int has_key();
 
 #endif

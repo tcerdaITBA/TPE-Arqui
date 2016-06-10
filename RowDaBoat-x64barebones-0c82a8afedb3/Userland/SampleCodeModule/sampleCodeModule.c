@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include "stdio.h"
 #include "syscalls.h"
 
 extern char bss;
@@ -11,9 +12,16 @@ int main() {
 	memset(&bss, 0, &endOfBinary - &bss);
 
 	char str[] = "HOLA DESDE USERLAND";
-	int len = sizeof(str);
+	char str2[] = "CHAU DESDE USERLAND";
 
-	write(0, str, len);
+	for (int i = 0; str[i] != '\0'; i++)
+		putchar(str[i]);
+
+	while(getchar()!='\n');
+
+	for (int i = 0; str2[i] != '\0'; i++)
+		putchar(str2[i]);
+
 
 	return 0;
 }

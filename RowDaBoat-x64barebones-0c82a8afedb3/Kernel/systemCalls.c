@@ -1,6 +1,7 @@
 #include "videoDriver.h"
 #include "keyboardDriver.h"
 #include "systemCalls.h"
+#include "interrupts.h"
 
 void sys_write(unsigned int fds, const char * str, unsigned int length) {
 	if (fds == STDERR) {
@@ -14,9 +15,16 @@ void sys_write(unsigned int fds, const char * str, unsigned int length) {
 }
 
 void sys_read(unsigned int fds, char * buffer, unsigned int bytes) {
+	unsigned int i = 0;
+	char c;
     if (fds == STDIN) {
-		for (int i = 0; i < bytes; i++) {
-	    	buffer[i] = get_char();
+		while (i < bytes) {
+			c = get_char();
+			if (c != -1) {
+				buffer[i++] = c;
+			} else {
+				_hlt();  // TODO: porq no anda sin esto???????????????
+			}
 		}
     }
 }

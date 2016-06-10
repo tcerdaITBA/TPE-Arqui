@@ -1,10 +1,10 @@
 #include "keyboardDriver.h"
 
-#include "videoDriver.h"
-
 #define BUFFSIZE 128
 
 char get_key();
+int key_pressed();
+
 
 /* KBDUS means US Keyboard Layout. This is a scancode table
 *  used to layout a standard US keyboard. I have left some
@@ -58,23 +58,23 @@ static unsigned int store_index = 0;
 static int buff_size = 0;
 
 void store_scancode() {
+  if (buff_size == BUFFSIZE)
+    return;
   char k = get_key();
-  if (k < 128 && buff_size != BUFFSIZE) {  // buffer no lleno
+  if (k > 0 && k < 128) {
     buff_size++;
     buffer[store_index++] = k;  // guarda el scancode de la tecla
-	if (store_index == BUFFSIZE)
-    store_index = 0;
   }
+  if (store_index == BUFFSIZE)
+    store_index = 0;
 }
 
 int get_char() {
-  while (buff_size == 0)
-	;
+  if (buff_size == 0)
+    return -1;
   char k = buffer[ret_index++];
   buff_size--;
   if (ret_index == BUFFSIZE)
     ret_index = 0;
-  if (k < len && kbdus[k] != 0)
-    return kbdus[k];
-  return -1;
+  return kbdus[k];
 }

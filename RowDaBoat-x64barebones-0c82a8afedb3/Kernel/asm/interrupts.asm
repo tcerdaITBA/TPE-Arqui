@@ -5,6 +5,7 @@ GLOBAL picMasterMask
 GLOBAL picSlaveMask
 GLOBAL _lidt
 GLOBAL haltcpu
+GLOBAL _hlt
 
 GLOBAL _irq00Handler
 GLOBAL _irq01Handler
@@ -71,7 +72,10 @@ SECTION .text
 	iretq
 %endmacro
 
-
+_hlt:
+	sti
+	hlt
+	ret
 
 
 _cli:

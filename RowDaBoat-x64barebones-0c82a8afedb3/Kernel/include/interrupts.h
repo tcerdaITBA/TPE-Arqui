@@ -23,11 +23,11 @@ void _cli(void);
 
 void _sti(void);
 
+void _hlt(void);
+
 void picMasterMask(uint8_t mask);
 
 void picSlaveMask(uint8_t mask);
-
-void int_80_hand();
 
 void lidt(IDTR *idtr);
 
