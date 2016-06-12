@@ -5,7 +5,7 @@
 char get_key();
 int key_pressed();
 
-
+// Fuente: www.osdever.net/bkerndev/Docs/keyboard.htm
 /* KBDUS means US Keyboard Layout. This is a scancode table
 *  used to layout a standard US keyboard. I have left some
 *  comments in to give you an idea of what key is what, even

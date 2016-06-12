@@ -1,9 +1,11 @@
 #include "videoDriver.h"
 #include "strings.h"
+
 #define MAX_DIGITS 15
 
 #define ROW(p) ((p)/WIDTH)
 #define COL(p) ((p)%WIDTH)
+#define CURSOR_LIMIT HEIGHT*WIDTH
 
 static char *video = (char *) 0xB8000;
 static char color = DEFAULT_COLOR;
@@ -63,10 +65,8 @@ void put_str(const char *str) {
 
 void put_char(char c) {
 	if (c == '\b') {
-		if (cursor > 0) {
-	    	    cursor--;
-		    print_char(' ', ROW(cursor), COL(cursor));
-		}
+		cursor--;
+		print_char(' ', ROW(cursor), COL(cursor));
 	}
 	else if (c == '\n') {
 		cursor += WIDTH - COL(cursor); /* cursor al comienzo de nueva linea */
@@ -78,6 +78,11 @@ void put_char(char c) {
 		print_char(c, ROW(cursor), COL(cursor));
 		cursor++;
 	}
+
+	if (cursor < 0)
+		cursor = 0;
+	if (cursor > CURSOR_LIMIT)
+		cursor = CURSOR_LIMIT;
 }
 
 void print_num(int num, int row, int col) {
