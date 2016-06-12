@@ -7,11 +7,7 @@
 
 
 char get_key();
-int key_pressed();
-int isShiftKey(char k);
-int processKeyScanCode(char k);
-int chooseKeyboard(char k);
-int isAlpha(char k);
+
 
 static int len = sizeof(kbdus);
 static char buffer[BUFFSIZE];
