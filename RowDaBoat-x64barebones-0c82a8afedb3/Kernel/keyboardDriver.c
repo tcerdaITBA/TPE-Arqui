@@ -87,11 +87,12 @@ int processKeyScanCode(char k){
 }
 
 int chooseKeyboard(char k) {
-  if(shiftPressed)
+  if(capsLockActivated && !shiftPressed)
+    return capskbdus[k];
+  if(!capsLockActivated && shiftPressed)
     return shiftkbdus[k];
-  if((capsLockPressed|| capsLockActivated) && isAlpha(k)) {
-    return shiftkbdus[k];
-  }
+  if(capsLockActivated && shiftPressed)
+    return isAlpha(k) ? kbdus[k] : shiftkbdus[k];
   return kbdus[k];
 }
 
