@@ -96,7 +96,7 @@ int chooseKeyboard(char k) {
 }
 
 int isAlpha(char k) {
-  if(( k> QPOSITION && k< PPOSITION) || (k > APOSITION && k < LPOSITION) || (k > ZPOSITION && k< LPOSITION)) 
+  if(( k >= QPOSITION && k <= PPOSITION) || (k >= APOSITION && k <= LPOSITION) || (k >= ZPOSITION && k <= MPOSITION)) 
     return TRUE;
   return FALSE;
 }
