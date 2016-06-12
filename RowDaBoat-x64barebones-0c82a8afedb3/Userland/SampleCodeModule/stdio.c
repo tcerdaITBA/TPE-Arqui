@@ -43,7 +43,7 @@ static int printx(int value) {
 
 
 /* Imprime a pantalla con el formato indicado. Solo soporta los siguientes
-** simbolos: d,i,s,x,b.
+** simbolos: d,i,s,x,b,c.
 ** Retorna la cantidad de caracteres escritos.
 ** En caso de simbolo invalido imprime todos los caracteres hasta la ocurrencia
 ** de dicho simbolo donde deja de imprimir y retorna.
@@ -77,6 +77,10 @@ int printf(const char *format, ...) {
 				case 'b':
 					len += printb(va_arg(args, int));
 					break;
+				case 'c':
+					putchar(va_arg(args,int) & 0xFF);
+					len++;
+					break;
 				case '%':
 					putchar('%');
 					len++;
@@ -86,5 +90,6 @@ int printf(const char *format, ...) {
 			}
 		}
 	}
+	va_end(args);
 	return len;
 }

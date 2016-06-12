@@ -19,7 +19,7 @@ int main() {
 		putchar(str[i]);
 
 	printf(" se escriberon %d caracteres detras mio", printf("hola soy printf %d",-50));
-
+	printf("%s y %s%c? Mejor solo %d %s", str, str2, '?', 1, "saludo\n");
 	while(getchar()!='\n');
 
 	for (int i = 0; str2[i] != '\0'; i++)
