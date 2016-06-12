@@ -5,5 +5,6 @@
 
 int getchar();
 void putchar(int c);
+int printf(const char *format, ...);
 
 #endif

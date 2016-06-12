@@ -1,11 +1,12 @@
 #include <stdint.h>
 #include "stdio.h"
-#include "syscalls.h"
 
 extern char bss;
 extern char endOfBinary;
 
 void * memset(void * destiny, int32_t c, uint64_t length);
+
+static int prints(const char *str, ...);
 
 int main() {
 	//Clean BSS
@@ -17,11 +18,12 @@ int main() {
 	for (int i = 0; str[i] != '\0'; i++)
 		putchar(str[i]);
 
+	printf(" se escriberon %d caracteres detras mio", printf("hola soy printf %d",-50));
+
 	while(getchar()!='\n');
 
 	for (int i = 0; str2[i] != '\0'; i++)
 		putchar(str2[i]);
-
 
 	return 0;
 }
