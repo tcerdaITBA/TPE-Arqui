@@ -8,7 +8,6 @@
 #define COL(p) ((p)%WIDTH)
 #define CURSOR_LIMIT HEIGHT*WIDTH
 
-static char *video = (char *) 0xB8000;
 static char color = DEFAULT_COLOR;
 static int cursor = 0; /* solo para put_char por ahora */
 
@@ -17,27 +16,31 @@ static unsigned char ** VBEPhysBasePtr = (unsigned char**) 0x0005C28;
 
 static unsigned int count_digits(int num);
 static char valid_pos(int row, int col);
-static void turnOn(int x, int y);
-static void fill(char red, char green, char blue, unsigned char* VBEAdress);
 static void print_char_line(char line, int x, int y);
+static int valid_pixel(int x, int y);
 
-static void fill(char red, char green, char blue, unsigned char* VBEAdress) {
+static int valid_pixel(int x, int y) {
+	return (x >= 0 && x <= SCREEN_WIDTH && y >= 0 && y <= SCREEN_HEIGHT);
+}
+
+int fill(char red, char green, char blue, int x, int y) {
+	if (!valid_pixel(x, y))
+		return 0;
+
+	unsigned char * linearVESABuffer = *VBEPhysBasePtr;
+	unsigned char * VBEAdress = linearVESABuffer + 3 * (x + y * SCREEN_WIDTH);
 	VBEAdress[0] = blue;
 	VBEAdress[1] = green;
 	VBEAdress[2] = red;
+	return 1;
 }
 
 static void fillWhite(int x, int y) {
-	// las "coordenadas" de la pantalla empiezan arriba a la izquierda
-	unsigned char * linearVESABuffer = *VBEPhysBasePtr;
-	unsigned char * pos = linearVESABuffer + 3 * (x + y * SCREEN_WIDTH);
-	fill(255, 255, 255, pos); // pinta de blanco
+	fill(255, 255, 255, x, y); // pinta de blanco
 }
 
 static void fillBlack(int x, int y) {
-	unsigned char * linearVESABuffer = *VBEPhysBasePtr;
-	unsigned char * pos = linearVESABuffer + 3 * (x + y * SCREEN_WIDTH);
-	fill(0, 0, 0, pos); // pinta de negro
+	fill(0, 0, 0, x, y); // pinta de negro
 }
 
 void print_char(char c, int row, int col) {

@@ -8,5 +8,6 @@
 int sys_write(unsigned int fds, const char * str, unsigned int len);
 int sys_read(unsigned int fds, char * str, unsigned int len);
 int sys_time(int selection);
+int sys_paint(int color, int x, int y);
 
 #endif

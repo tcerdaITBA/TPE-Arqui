@@ -8,5 +8,6 @@
 int write(unsigned int fd, void *buffer, unsigned int bytes);
 int read(unsigned int fd, void *buffer, unsigned int bytes);
 int time(int selector);
+int paint(int color, int x, int y);
 
 #endif
