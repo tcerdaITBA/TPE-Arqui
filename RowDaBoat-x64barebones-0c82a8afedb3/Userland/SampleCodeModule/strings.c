@@ -24,7 +24,7 @@ int strcpyto(char * to, char * from, char limit) {
 	return strcpynto(to, from, limit, UINT_MAX);
 }
 
-int strcpynto(char * to, char * from, char limit, int n) {
+int strcpynto(char * to, char * from, char limit, unsigned int n) {
 	int i;
 	for (i = 0; i < n && from[i] != limit; i++) {
 		to[i] = from[i];
