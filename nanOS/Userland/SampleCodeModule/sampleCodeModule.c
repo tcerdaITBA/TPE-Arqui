@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include "time.h"
 #include "stdio.h"
+#include "paint.h"
 
 extern char bss;
 extern char endOfBinary;
@@ -11,14 +12,15 @@ int main() {
 	//Clean BSS
 	memset(&bss, 0, &endOfBinary - &bss);
 
-	printf("               ");
-	int min = minutes();
-	int sec = seconds();
-	int h = hour();
-	printf(" la hora %d:%d:%d\n ", hour(), minutes(), seconds());
-	printf(" LA HORA %d:%d:%d\n", h,min,sec);
+	int i;
+	int j;
+	for (j=0; j<16; j++) {
+		for (i=0; i < 1000; i++) {
+			paint_pixel(255,0,200,i,j);
+		}
+	}
 
-	while(getchar()!= 'p');
+	while(getchar() != 'p');
 
 	return 0;
 }

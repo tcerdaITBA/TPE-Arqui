@@ -2,6 +2,7 @@
 GLOBAL time
 GLOBAL write
 GLOBAL read
+GLOBAL paint
 
 section .text
 
