@@ -5,6 +5,7 @@
 #include <naiveConsole.h>
 
 #include "videoDriver.h"
+#include "fractals.c"
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -85,6 +86,8 @@ void * initializeKernelBinary()
 	ncPrint("[Done]");
 	ncNewline();
 	ncNewline();
+
+	drawJuliaFractal();
 
 	return getStackBase();
 }

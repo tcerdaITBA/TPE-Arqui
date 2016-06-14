@@ -8,11 +8,6 @@
 #define COL(p) ((p)%WIDTH)
 #define CURSOR_LIMIT HEIGHT*WIDTH
 
-#define SCREEN_HEIGHT 768
-#define SCREEN_WIDTH 1024
-#define CHAR_HEIGHT 16
-#define CHAR_WIDTH 8
-
 static char *video = (char *) 0xB8000;
 static char color = DEFAULT_COLOR;
 static int cursor = 0; /* solo para put_char por ahora */

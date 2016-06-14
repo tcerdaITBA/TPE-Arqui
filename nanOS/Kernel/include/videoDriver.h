@@ -12,6 +12,12 @@ void print_num(int num, int row, int col);
 void print(const char *str, int len, int row, int col);
 void clear();
 
+
+#define SCREEN_HEIGHT 768
+#define SCREEN_WIDTH 1024
+#define CHAR_HEIGHT 16
+#define CHAR_WIDTH 8
+
 #define DEFAULT_COLOR 0x0F
 #define ERROR_COLOR 0X0C
 #define CLEAR_COLOR 0x00
