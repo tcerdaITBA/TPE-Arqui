@@ -38,3 +38,15 @@ time:
     mov rsp,rbp
     pop rbp
     ret
+
+paint:
+    push rbp
+    mov rbp,rsp
+    mov rax,6    ; syscall paint
+    mov rbx,rdi  ; color
+    mov rcx,rsi  ; posición x
+	    ; en rdx ya se encuentra la posición en y
+    int 80h
+    mov rsp,rbp
+    pop rbp
+    ret

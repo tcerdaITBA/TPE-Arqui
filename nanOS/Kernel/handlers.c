@@ -30,9 +30,6 @@ void int_20() {
 
 void int_21() {
 	store_scancode();
-//	int c = get_char();
-//	if (c != -1)
-//		put_char(c);
 }
 
 uint64_t syscallDispatcher(uint64_t rax, uint64_t rbx, uint64_t rdx, uint64_t rcx) {
@@ -43,6 +40,8 @@ uint64_t syscallDispatcher(uint64_t rax, uint64_t rbx, uint64_t rdx, uint64_t rc
 			return sys_write(rbx, (const char *) rcx, rdx);
 		case 5:
 			return sys_time(rbx);
+		case 6:
+			return sys_paint(rbx, rdx, rcx);
 	}
 	return -1;
 }

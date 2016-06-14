@@ -20,14 +20,14 @@ int sys_read(unsigned int fds, char * buffer, unsigned int bytes) {
 	unsigned int i = 0;
 	char c;
     if (fds == STDIN) {
-		while (i < bytes) {
-			c = get_char();
-			if (c != -1) {
-				buffer[i++] = c;
-			} else {
-				_hlt();  // TODO: porq no anda sin esto???????????????
+			while (i < bytes) {
+				c = get_char();
+				if (c != -1) {
+					buffer[i++] = c;
+				} else {
+					_hlt();  // TODO: porq no anda sin esto???????????????
+				}
 			}
-		}
     }
     return i;
 }
@@ -41,6 +41,13 @@ int sys_time(int selection) {
 	case 2:
 	    return hour();
     }
-
     return -1;
+}
+
+int sys_paint(int color, int x, int y) {
+	char r = (color >> 16) & 0xFF;
+	char g = (color >> 8) & 0xFF;
+	char b = color & 0xFF;
+
+	return fill(r,g,b,x,y); // 1 si fue un pixel válido, 0 sino.
 }
