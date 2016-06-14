@@ -35,13 +35,14 @@ void int_21() {
 //		put_char(c);
 }
 
-uint64_t syscallDispatcher(uint64_t rax, uint64_t rbx, uint64_t rdx, uint64_t rcx) {
+int syscallDispatcher(uint64_t rax, uint64_t rbx, uint64_t rdx, uint64_t rcx) {
 	switch (rax) {
 		case 3:
 			return sys_read(rbx, (char *) rcx, rdx);
 		case 4:
 			return sys_write(rbx, (const char *) rcx, rdx);
 		case 5:
+			print_num(sys_time(rbx), 0, 6);
 			return sys_time(rbx);
 	}
 	return -1;

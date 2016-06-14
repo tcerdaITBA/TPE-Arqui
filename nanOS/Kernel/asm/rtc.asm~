@@ -12,12 +12,12 @@ extract:
 	out 70h, al
 	in al, 71h
 	or al, byte 00000100b
-	out 71h, al
+	out 71h, al 
 	pop rax
 	out 70h, al
 	in  al, 71h
 	movzx rax, al
-	mov rsp,rbp
+	mov rsp,rsp
 	pop rbp
 	ret
 
@@ -28,7 +28,7 @@ seconds:
 	mov al, 0
 	call extract
 
-	mov rsp,rbp
+	mov rsp,rsp
 	pop rbp
 
 	ret
@@ -40,7 +40,7 @@ minutes:
 	mov al, 2
 	call extract
 
-	mov rsp,rbp
+	mov rsp,rsp
 	pop rbp
 
 	ret
@@ -52,7 +52,7 @@ hour:
 	mov al, 4
 	call extract
 
-	mov rsp,rbp
+	mov rsp,rsp
 	pop rbp
 
 	ret

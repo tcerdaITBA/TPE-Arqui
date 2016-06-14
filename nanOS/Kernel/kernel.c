@@ -21,7 +21,7 @@ static void * const sampleDataModuleAddress = (void*)0x500000;
 static unsigned char ** VBE = (unsigned char**) 0x0005C28;
 static int pixelIndex = 0;
 
-int mandelbrotSet();
+void mandelbrotSet();
 void color(char red, char green, char blue);
 
 typedef int (*EntryPoint)();

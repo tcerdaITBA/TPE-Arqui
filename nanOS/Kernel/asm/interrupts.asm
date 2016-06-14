@@ -37,11 +37,9 @@ SECTION .text
 	push r12
 	push r13
 	push r14
-	push r15
 %endmacro
 
 %macro popState 0
-	pop r15
 	pop r14
 	pop r13
 	pop r12
@@ -63,7 +61,7 @@ SECTION .text
 
 	mov rdi, %1 ; pasaje de parametro
 	call irqDispatcher
-	
+
 	;signal pic EOI (End of Interrupt)
 	mov al, 20h
 	out 20h, al
@@ -118,7 +116,7 @@ _lidt:				; Carga el IDTR
 ;8254 Timer (Timer Tick)
 _irq00Handler:
 	irqHandlerMaster 0
-	
+
 ;Keyboard
 _irq01Handler:
 	irqHandlerMaster 1
@@ -130,11 +128,11 @@ _irq02Handler:
 ;Serial Port 2 and 4
 _irq03Handler:
 	irqHandlerMaster 3
-	
-;Serial Port 1 and 3	
+
+;Serial Port 1 and 3
 _irq04Handler:
 	irqHandlerMaster 4
-	
+
 ;USB
 _irq05Handler:
 	irqHandlerMaster 5
@@ -143,8 +141,10 @@ _syscallHandler:
 	pushState
 	mov rdi,rax ; primer parametro
 	mov rsi,rbx ; segundo parametro
-	call syscallDispatcher  ; en rdx y rcx ya se encuentran los correspondientes valores
+	call syscallDispatcher ; en rdx y rcx ya se encuentran los correspondientes valores
+	mov r15, rax
 	popState
+	mov rax, r15
 	iretq
 
 haltcpu:

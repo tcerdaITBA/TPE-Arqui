@@ -16,6 +16,15 @@ int getchar() {
     return c;
 }
 
+int readline(char *str, int maxlen) {
+    int i;
+    int c;
+    for (i = 0; i < maxlen-1 && (c=getchar()) != '\n'; i++)
+	str[i] = c;
+    str[i] = '\0';
+    return i;
+}
+
 static int prints(const char *str) {
 	int i;
 	for (i=0; str[i] != '\0'; i++)
@@ -23,7 +32,7 @@ static int prints(const char *str) {
 	return i;
 }
 
-static int printi(int64_t value) {
+static int printi(int value) {
 	char buffer[SIZE]; // buffer para guardar el resultado de itoa
 	itoa(value, buffer, 10); // guarda en buffer el string del valor en base 10
 	return prints(buffer);
@@ -60,13 +69,13 @@ int printf(const char *format, ...) {
 		if(c != '%') {
 			putchar(c);
 			len++;
-		} 
+		}
 		else {
 			symbol = *format++;
 			switch(symbol) {
-				case 'd': 
+				case 'd':
 				case 'i':
-					len += printi(va_arg(args, int64_t));
+					len += printi(va_arg(args, int));
 					break;
 				case 's':
 					len += prints(va_arg(args, char *));
