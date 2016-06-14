@@ -15,10 +15,10 @@ int main() {
 	int min = minutes();
 	int sec = seconds();
 	int h = hour();
-	//hour(), min, seconds();
 	printf(" la hora %d:%d:%d\n ", hour(), minutes(), seconds());
 	printf(" LA HORA %d:%d:%d\n", h,min,sec);
 
+	while(getchar()!= 'p');
 
 	return 0;
 }
