@@ -5,7 +5,8 @@
 #define STDIN 1
 #define STDERR 2
 
-void sys_write(unsigned int fds, const char * str, unsigned int len);
-void sys_read(unsigned int fds, char * str, unsigned int len);
+int sys_write(unsigned int fds, const char * str, unsigned int len);
+int sys_read(unsigned int fds, char * str, unsigned int len);
+int sys_time(int selection);
 
 #endif

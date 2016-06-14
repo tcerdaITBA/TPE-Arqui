@@ -19,7 +19,7 @@ static void * const sampleDataModuleAddress = (void*)0x500000;
 static unsigned char ** VBE = (unsigned char**) 0x0005C28;
 static int pixelIndex = 0;
 
-int mandelbrotSet();
+void mandelbrotSet();
 void color(char red, char green, char blue);
 
 typedef int (*EntryPoint)();
@@ -85,7 +85,7 @@ void * initializeKernelBinary()
 	ncNewline();
 
 
-	mandelbrotSet();
+//	mandelbrotSet();
 
 	return getStackBase();
 }
@@ -98,7 +98,7 @@ void color(char red, char green, char blue)
 	linearVESABuffer[pixelIndex++] = red;
 }
 
-int mandelbrotSet()
+void mandelbrotSet()
 {
     int w = 768, h = 1024, x, y;
     //each iteration, it calculates: newz = oldz*oldz + p, where p is the current pixel, and oldz stars at the origin

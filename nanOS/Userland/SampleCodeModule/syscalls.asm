@@ -1,4 +1,5 @@
 
+GLOBAL time
 GLOBAL write
 GLOBAL read
 
@@ -27,3 +28,13 @@ write:
 	mov rsp,rbp
 	pop rbp
 	ret
+
+time:
+    push rbp
+    mov rbp,rsp
+    mov rax,5    ; syscall time
+    mov rbx,rdi  ; segundos, minutos o la hora
+    int 80h
+    mov rsp,rbp
+    pop rbp
+    ret
