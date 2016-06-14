@@ -3,6 +3,9 @@
 
 int shell();
 void execute(char * cmd);
+void help();
+void fractals();
+void time();
 
 #define MAX_CMD_SIZE 256 // 2^16 bytes buffer size.
 #define CMD_SAVED 16
@@ -13,40 +16,55 @@ cuando se le acaba la capacidad
 
 int shell() {
     int run = 1;
-    int c;
-    char cmd_index = 0;
-    char current_cmd[MAX_CMD_SIZE];
-    char cmd_buffer[CMD_SAVED][MAX_CMD_SIZE];
+    char buffer[MAX_CMD_SIZE]:
+    int len = MAX_CMD_SIZE;
 
     while (run) {
-        c = getchar();
-        if (c == '\n') {
-            // ejecuta el comando ingresado
-            current_cmd[cmd_index] = '\0';
-            execute(current_cmd);
-            cmd_index = 0;
-        } else if (cmd_index < MAX_CMD_SIZE) {
-            // imprime el caracter ingresado y lo guarda
-            putchar(c);
-            current_cmd[cmd_index++] = c;
-        } else {
-            // hacer algo cuando el comando queda muy grande.
-        }
+        readline(buffer, len);
+        
+        execute(buffer);
     }
+    return 0;
 }
+
+/*Array de punteros a funcion coincidente con la posicion de los nombres de los comandos*/
+static void (*functionsArray[10])() = {help,fractals,getTime, sleep};
+/*Array de nombres de los comandos */
+static char* functionsName[10] = {"help", "fractals", "time", "sleep"};
 
 void execute(char * cmd) {
-    char * str1 = "echo";
-
-    char option[16];
-    int index = strcpynto(option, cmd, ' ', 15);
-    option[index] = '\0';
-
-    if (strcmp(option, str1) == 0) {
-        printf("%s\n", cmd+index);
+    int i = 0;
+    //TODO: caso echo 
+    
+    //if (strcmp(cmd, "echo") == 0) {    //caso de echo (i=0)
+    //    printf("%s\n", cmd+5);
+    //} else {
+ 
+    for(i = 0; i < 10; i++) {
+        if(strcmp(cmd,functionsName[i])){
+             (*functionsArray[i])(); 
+        }
     }
+
+
 }
 
-int main(int argc, char const *argv[]) {
-    shell();
+//Funciones vacias para probar que compile
+void help(){
+
 }
+
+void fractals(){
+
+}
+
+void getTime() {
+
+}
+
+void sleep() {
+
+}
+//int main(int argc, char const *argv[]) {
+//  shell();
+//}
