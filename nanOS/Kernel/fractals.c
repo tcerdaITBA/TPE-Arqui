@@ -3,30 +3,30 @@
 ** Fractal de Julia -> http://lodev.org/cgtutor/juliamandelbrot.html
 */
 #include "videoDriver.h"
+#include "fractals.h"
 
 static int Clamp(int i);
-void HsvToRgb(double h, double S, double V, int *r, int *g, int *b);
-int drawJuliaFractal();
+static void HsvToRgb(double h, double S, double V, int *r, int *g, int *b);
 
-int drawJuliaFractal()
+void drawJuliaFractal()
 {
   //each iteration, it calculates: new = old*old + c, where c is a constant and old starts at current pixel
   double cRe, cIm;           //real and imaginary part of the constant c, determinate shape of the Julia Set
   double newRe, newIm, oldRe, oldIm;   //real and imaginary parts of new and old
-  double zoom = 1, moveX = 0, moveY = 0; //you can change these to zoom and change position
-  int maxIterations = 300; //after how much iterations the function should stop
+  double zoom = 1, moveX = 0.087, moveY = -0.014; //you can change these to zoom and change position
+  int maxIterations = 10; //after how much iterations the function should stop
 
   //pick some values for the constant c, this determines the shape of the Julia Set
-  cRe = -0.7;
-  cIm = 0.27015;
+  cRe = -0.77097;
+  cIm = -0.08545;
 
   //loop through every pixel
-  for(int y = 0; y < HEIGHT; y++)
-  for(int x = 0; x < WIDTH; x++)
+  for(int y = 0; y < SCREEN_HEIGHT; y++)
+  for(int x = 0; x < SCREEN_WIDTH; x++)
   {
     //calculate the initial real and imaginary part of z, based on the pixel location and zoom and position values
-    newRe = 1.5 * (x - WIDTH / 2) / (0.5 * zoom * WIDTH) + moveX;
-    newIm = (y - HEIGHT / 2) / (0.5 * zoom * HEIGHT) + moveY;
+    newRe = 1.5 * (x - SCREEN_WIDTH / 2) / (0.5 * zoom * SCREEN_WIDTH) + moveX;
+    newIm = (y - SCREEN_HEIGHT / 2) / (0.5 * zoom * SCREEN_HEIGHT) + moveY;
     //i will represent the number of iterations
     int i;
     //start the iteration process
@@ -43,13 +43,13 @@ int drawJuliaFractal()
     }
     //use color model conversion to get rainbow palette, make brightness black if maxIterations reached
     int * outr, * outg, * outb;
-    HSVtoRGB(i % 256, 255, 255 * (i < maxIterations), outr, outg, outb);
+    HsvToRgb(i % 256, 255, 255 * (i < maxIterations), outr, outg, outb);
     //draw the pixel
-    fill(outr, outg, outb, x, y);
+    fill(*outr, *outg, *outb, x, y);
   }
 }
 
-void HsvToRgb(double h, double S, double V, int *r, int *g, int *b)
+static void HsvToRgb(double h, double S, double V, int *r, int *g, int *b)
 {
   double H = h;
   while (H < 0) { H += 360; };

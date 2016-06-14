@@ -1,6 +1,6 @@
-##ifndef _FRACTALS_H
-#define  _FRACTALS_H
+#ifndef _FRACTALS_H_
+#define _FRACTALS_H_
 
-int drawJuliaFractal();
+void drawJuliaFractal();
 
 #endif
