@@ -1,5 +1,6 @@
 #include "videoDriver.h"
 #include "strings.h"
+#include "font.h"
 
 #define MAX_DIGITS 15
 
@@ -7,12 +8,71 @@
 #define COL(p) ((p)%WIDTH)
 #define CURSOR_LIMIT HEIGHT*WIDTH
 
+#define SCREEN_HEIGHT 768
+#define SCREEN_WIDTH 1024
+#define CHAR_HEIGHT 16
+#define CHAR_WIDTH 8
+
 static char *video = (char *) 0xB8000;
 static char color = DEFAULT_COLOR;
 static int cursor = 0; /* solo para put_char por ahora */
 
+static unsigned char ** VBEPhysBasePtr = (unsigned char**) 0x0005C28;
+//static int pixeCursor = 0;
+
 static unsigned int count_digits(int num);
 static char valid_pos(int row, int col);
+static void turnOn(int x, int y);
+static void fill(char red, char green, char blue, unsigned char* VBEAdress);
+static void print_char_line(char line, int x, int y);
+
+static void fill(char red, char green, char blue, unsigned char* VBEAdress) {
+	VBEAdress[0] = blue;
+	VBEAdress[1] = green;
+	VBEAdress[2] = red;
+}
+
+static void fillWhite(int x, int y) {
+	// las "coordenadas" de la pantalla empiezan arriba a la izquierda
+	unsigned char * linearVESABuffer = *VBEPhysBasePtr;
+	unsigned char * pos = linearVESABuffer + 3 * (x + y * SCREEN_WIDTH);
+	fill(255, 255, 255, pos); // pinta de blanco
+}
+
+static void fillBlack(int x, int y) {
+	unsigned char * linearVESABuffer = *VBEPhysBasePtr;
+	unsigned char * pos = linearVESABuffer + 3 * (x + y * SCREEN_WIDTH);
+	fill(0, 0, 0, pos); // pinta de negro
+}
+
+void print_char(char c, int row, int col) {
+	if (valid_pos(row, col)) { // Ver que onda los tamaños
+		int y = row * CHAR_HEIGHT;
+		int x = col * CHAR_WIDTH;
+
+		int i = 0;
+		unsigned char * char_map = pixel_map(c); // Donde empiezan los mapeos a ascii en el arreglo font.
+
+		for(i = 0; i < CHAR_HEIGHT; i++) {
+			unsigned char pixel = char_map[i];
+			print_char_line(pixel, x, y+i);
+		}
+	}
+}
+
+static void print_char_line(char line, int x, int y) {
+	char mask[] = {128, 64, 32, 16, 8, 4, 2, 1};
+	int j = 0;
+	char aux;
+	for (j = 0; j < CHAR_WIDTH; j++) {
+		aux = line & mask[j];
+		if (aux != 0) { // Tiene que escribir en ese lugar
+			fillWhite(x+j, y);
+		} else {
+			fillBlack(x+j, y);
+		}
+	}
+}
 
 static char valid_pos(int row, int col) {
 	return row < HEIGHT && col < WIDTH && row >= 0 && col >= 0;
@@ -43,13 +103,15 @@ void print_str(const char *str, int row, int col) {
 	cursor = backup;
 }
 
+/*
 void print_char(char c, int row, int col) {
 	if (valid_pos(row, col)) {
-		int position = (WIDTH*row + col)*2; /* duplica debido a los colores */
+		int position = (WIDTH*row + col)*2;  duplica debido a los colores
 		video[position] = c;
 		video[position+1] = color;
 	}
 }
+*/
 
 void put(const char *str, int len) {
 	int i;
