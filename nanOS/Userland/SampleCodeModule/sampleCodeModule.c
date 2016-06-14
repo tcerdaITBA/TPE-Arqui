@@ -19,6 +19,7 @@ int main() {
 	printf(" la hora %d:%d:%d\n ", hour(), minutes(), seconds());
 	printf(" LA HORA %d:%d:%d\n", h,min,sec);
 
+
 	return 0;
 }
 
