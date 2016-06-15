@@ -13,7 +13,6 @@ static char color = DEFAULT_COLOR;
 static int cursor = 0; /* solo para put_char por ahora */
 
 static unsigned char ** VBEPhysBasePtr = (unsigned char**) 0x0005C28;
-//static int pixeCursor = 0;
 
 static unsigned int count_digits(int num);
 static char valid_pos(int row, int col);

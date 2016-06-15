@@ -12,17 +12,7 @@ int main() {
 	//Clean BSS
 	memset(&bss, 0, &endOfBinary - &bss);
 
-	int i;
-	int j;
-	int c;
-	int sentinel = '\n';
-
-	while( getchar() != sentinel) ;
-
-	drawJuliaFractal(1024, 768, 0.83035, 0.0659505, -0.1220261, 128, -0.6548832, -0.4477065);
-
-	while( getchar() != sentinel) ;
-
+	shell();
 
 	return 0;
 }
