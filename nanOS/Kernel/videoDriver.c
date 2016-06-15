@@ -1,6 +1,7 @@
 #include "videoDriver.h"
 #include "strings.h"
 #include "font.h"
+#include "lib.h"
 
 #define MAX_DIGITS 15
 
@@ -18,9 +19,28 @@ static unsigned int count_digits(int num);
 static char valid_pos(int row, int col);
 static void print_char_line(char line, int x, int y);
 static int valid_pixel(int x, int y);
+static void scrollUp();
+static void clear_line(int line);
 
 static int valid_pixel(int x, int y) {
 	return (x >= 0 && x <= SCREEN_WIDTH && y >= 0 && y <= SCREEN_HEIGHT);
+}
+
+static void scrollUp() {
+	unsigned char * linearVESABuffer = *VBEPhysBasePtr;
+	unsigned char * second_line = linearVESABuffer + (3 * SCREEN_WIDTH * CHAR_HEIGHT);
+	uint64_t length = (SCREEN_HEIGHT * SCREEN_WIDTH * 3) - 
+						(CHAR_HEIGHT * SCREEN_WIDTH * 3);
+	memcpy(linearVESABuffer, second_line, length);
+	clear_line(HEIGHT - 1);
+}
+
+static void clear_line(int line) {
+	if (line >= 0 && line < HEIGHT) {
+		int i;
+		for (i=0; i < WIDTH; i++)
+			print_char(' ', line, i);
+	}
 }
 
 int fill(char red, char green, char blue, int x, int y) {
@@ -122,7 +142,6 @@ void put_str(const char *str) {
 		put_char(*str++);
 }
 
-
 void put_char(char c) {
 	if (c == '\b') {
 		cursor--;
@@ -141,8 +160,10 @@ void put_char(char c) {
 
 	if (cursor < 0)
 		cursor = 0;
-	if (cursor > CURSOR_LIMIT)
-		cursor = CURSOR_LIMIT;
+	if (cursor >= CURSOR_LIMIT) {
+		scrollUp();
+		cursor = CURSOR_LIMIT - WIDTH;
+	}
 }
 
 void print_num(int num, int row, int col) {
