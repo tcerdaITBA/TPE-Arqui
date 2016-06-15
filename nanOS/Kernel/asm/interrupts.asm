@@ -37,9 +37,11 @@ SECTION .text
 	push r12
 	push r13
 	push r14
+	push r15
 %endmacro
 
 %macro popState 0
+	pop r15
 	pop r14
 	pop r13
 	pop r12
@@ -138,16 +140,20 @@ _irq05Handler:
 	irqHandlerMaster 5
 
 _syscallHandler:
+
 	pushState
 	mov rdi,rax ; primer parametro
 	mov rsi,rbx ; segundo parametro
 	call syscallDispatcher ; en rdx y rcx ya se encuentran los correspondientes valores
-	mov r15, rax
+	mov [aux], rax
 	popState
-	mov rax, r15
+	mov rax, [aux]
 	iretq
 
 haltcpu:
 	cli
 	hlt
 	ret
+
+section .bss
+	aux: resq 1
