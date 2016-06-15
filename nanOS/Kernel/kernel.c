@@ -93,15 +93,6 @@ void load_idt();
 int main()
 {
 	load_idt();
-
-
-
-		print_char('f', 0, 0);
-
-		drawJuliaFractal();
-		print_char('x', 0, 0);
-		print_char('x', 0, 2);
-		print_char('x', 0, 4);
 		
 	ncPrint("[Kernel Main]");
 	ncNewline();

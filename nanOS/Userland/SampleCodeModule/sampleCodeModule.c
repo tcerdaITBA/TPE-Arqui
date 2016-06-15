@@ -14,13 +14,15 @@ int main() {
 
 	int i;
 	int j;
-	for (j=0; j<16; j++) {
-		for (i=0; i < 1000; i++) {
-			paint_pixel(255,0,200,i,j);
-		}
-	}
+	int c;
+	int sentinel = '\n';
 
-	while(getchar() != 'p');
+	while( getchar() != sentinel) ;
+
+	drawJuliaFractal();
+
+	while( getchar() != sentinel) ;
+
 
 	return 0;
 }
