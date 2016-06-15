@@ -7,7 +7,6 @@
 
 static void HsvToRgb(unsigned char *r, unsigned char *g, unsigned char *b, unsigned char h, unsigned char s, unsigned char v);
 
-
 void drawJuliaFractal(unsigned int sw, unsigned int sh, double zoom, double moveX, double moveY, unsigned int maxIterations, double cRe, double cIm)
 {
   //each iteration, it calculates: new = old*old + c, where c is a constant and old starts at current pixel

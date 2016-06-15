@@ -28,7 +28,7 @@ int shell() {
         readline(buffer, len);
         execute(buffer);
     }
-
+    printf("outwhile\n");
     return 0;
 }
 
@@ -49,10 +49,11 @@ void execute(char * cmd) {
       printf("in fractals\n");
       fractals();
       paint_pixel(255, 255, 255, 50, 50);
-      putchar('M');
+      //putchar('M');
       //printf("out fractals\n");
     } else if (strcmp(cmd, "help") == 0) {
       help();
+      //putchar('M');
     } else if (strcmp(cmd, "clear") == 0) {
       clear();
     } else {
@@ -70,7 +71,18 @@ void execute(char * cmd) {
 
 //Funciones vacias para probar que compile
 static void help(){
-  printf("FUNCIONES DISPONIBLES:\n1- fractals\n2-clock\n"); // TODO
+  int i = 100;
+  int count = 0;
+  while(count < 1) {
+    for (int k = 0; k < 1024; k++) {
+      for (int l = 0; l < 768; l++) {
+        i *= 33;
+        paint_pixel(i%200, i%255, (i+4980)%200, k, l);
+      }
+    }
+    count++;
+  }
+  //printf("FUNCIONES DISPONIBLES:\n1- fractals\n2-clock\n"); // TODO
 }
 
 static void fractals() {
