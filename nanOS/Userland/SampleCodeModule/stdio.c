@@ -19,8 +19,12 @@ int getchar() {
 int readline(char *str, int maxlen) {
     int i;
     int c;
-    for (i = 0; i < maxlen-1 && (c=getchar()) != '\n'; i++)
-		str[i] = c;
+    for (i = 0; i < maxlen-1 && (c=getchar()) != '\n'; i++) {
+			if (c != '\b')
+				str[i] = c;
+			else if (i > 0)
+				i--;
+		}
     str[i] = '\0';
     return i;
 }

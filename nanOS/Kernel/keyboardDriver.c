@@ -28,13 +28,13 @@ void store_scancode() {
   char k = get_key();
 
   if (k > 0 && k < TOPCHARCODE) { /*Se apreto una tecla */
-    
+
     if(!processKeyScanCode(k)) { //caso de un caracter a imprimir en pantalla
       buff_size++;
-      buffer[store_index++] = k;  // guarda el scancode de la tecla 
+      buffer[store_index++] = k;  // guarda el scancode de la tecla
     }
   } else if (k < 0) { /*Se solto una tecla */
-        processKeyScanCode(k + TOPCHARCODE);   
+        processKeyScanCode(k + TOPCHARCODE);
     }
   if (store_index == BUFFSIZE)
     store_index = 0;
@@ -68,7 +68,7 @@ int processKeyScanCode(char k){
     case CAPSLOCK:
           capsLockPressed = !capsLockPressed;
           capsLockPressedCount += 1;
-          if(capsLockPressedCount % 2 == 0) { //fue apretado y soltado 
+          if(capsLockPressedCount % 2 == 0) { //fue apretado y soltado
             capsLockActivated = !capsLockActivated;
             capsLockPressedCount = 0;
           }
@@ -78,7 +78,7 @@ int processKeyScanCode(char k){
      //     altgrPressed = !altgrPressed;
       //    return TRUE;
         //  break;
-    default: 
+    default:
           return FALSE;
           break;
   }
@@ -87,6 +87,8 @@ int processKeyScanCode(char k){
 }
 
 int chooseKeyboard(char k) {
+  if (kbdus[k] == 0) // no es imprimible
+    return -1;
   if(capsLockActivated && !shiftPressed)
     return capskbdus[k];
   if(!capsLockActivated && shiftPressed)
@@ -97,7 +99,7 @@ int chooseKeyboard(char k) {
 }
 
 int isAlpha(char k) {
-  if(( k >= QPOSITION && k <= PPOSITION) || (k >= APOSITION && k <= LPOSITION) || (k >= ZPOSITION && k <= MPOSITION)) 
+  if(( k >= QPOSITION && k <= PPOSITION) || (k >= APOSITION && k <= LPOSITION) || (k >= ZPOSITION && k <= MPOSITION))
     return TRUE;
   return FALSE;
 }
