@@ -29,7 +29,7 @@ static int valid_pixel(int x, int y) {
 static void scrollUp() {
 	unsigned char * linearVESABuffer = *VBEPhysBasePtr;
 	unsigned char * second_line = linearVESABuffer + (3 * SCREEN_WIDTH * CHAR_HEIGHT);
-	uint64_t length = (SCREEN_HEIGHT * SCREEN_WIDTH * 3) - 
+	uint64_t length = (SCREEN_HEIGHT * SCREEN_WIDTH * 3) -
 						(CHAR_HEIGHT * SCREEN_WIDTH * 3);
 	memcpy(linearVESABuffer, second_line, length);
 	clear_line(HEIGHT - 1);
@@ -120,16 +120,6 @@ void print_str(const char *str, int row, int col) {
 		put_char(*str++);
 	cursor = backup;
 }
-
-/*
-void print_char(char c, int row, int col) {
-	if (valid_pos(row, col)) {
-		int position = (WIDTH*row + col)*2;  duplica debido a los colores
-		video[position] = c;
-		video[position+1] = color;
-	}
-}
-*/
 
 void put(const char *str, int len) {
 	int i;

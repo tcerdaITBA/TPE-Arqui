@@ -19,7 +19,7 @@ int main() {
 
 	while( getchar() != sentinel) ;
 
-	drawJuliaFractal();
+	drawJuliaFractal(1024, 768, 0.83035, 0.0659505, -0.1220261, 128, -0.6548832, -0.4477065);
 
 	while( getchar() != sentinel) ;
 

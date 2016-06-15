@@ -1,16 +1,6 @@
-// (c) 2009, 2010 Lutz Sammer, License: AGPLv3
+#define CHAR_WIDTH 8
+#define CHAR_HEIGHT 16
 
-	/// bitmap font structure
-struct bitmap_font {
-	unsigned char Width;		///< max. character width
-	unsigned char Height;		///< character height
-	unsigned short Chars;		///< number of characters in font
-	const unsigned char *Widths;	///< width of each character
-	const unsigned short *Index;	///< encoding to character index
-	const unsigned char *Bitmap;	///< bitmap of all characters
-};
-
-	/// @{ defines to have human readable font files
 #define ________ 0x00
 #define _______X 0x01
 #define ______X_ 0x02
@@ -267,4 +257,3 @@ struct bitmap_font {
 #define XXXXXX_X 0xFD
 #define XXXXXXX_ 0xFE
 #define XXXXXXXX 0xFF
-	/// @}

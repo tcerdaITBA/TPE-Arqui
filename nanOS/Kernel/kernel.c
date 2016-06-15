@@ -5,7 +5,6 @@
 #include <naiveConsole.h>
 
 #include "videoDriver.h"
-#include "fractals.h"
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -93,7 +92,7 @@ void load_idt();
 int main()
 {
 	load_idt();
-		
+
 	ncPrint("[Kernel Main]");
 	ncNewline();
 	ncPrint("  Sample code module at 0x");
