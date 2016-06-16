@@ -26,6 +26,7 @@ int shell() {
 
 
     while (run) {
+        putchar('>');
         readline(buffer, len);
         execute(buffer);
     }
@@ -53,8 +54,10 @@ void execute(char * cmd) {
       //putchar('M');
     } else if (strcmp(cmd, "clear") == 0) {
       clear();
+    } else if (strcmp(cmd, "time") == 0) {
+      getTime();
     } else {
-      printf("unsupported\n");
+      printf("Command Not Found\n");
     }
 /*
     for(i = 0; i < 10; i++) {
@@ -66,9 +69,17 @@ void execute(char * cmd) {
 
 }
 
-//Funciones vacias para probar que compile
 static void help(){
-  printf("FUNCIONES DISPONIBLES:\n1- fractals\n2-clock\n"); // TODO
+
+  printf("HELP FUNCTION -- shows the principal User Commands and its description\n\n");
+  printf(" 1- echo [args...]");
+  printf("    Write arguments to the standard output. Display the args, separated by a single space character\n");
+  printf("                      and followed by a newline, on the standard output.\n");
+
+  printf(" 2- clear             Clear the terminal screen.\n");
+  printf(" 3- time              Display the current time on the standard output using 24hr format [hh:mm:ss]\n");
+  printf(" 4- fractals          Display a new fractal drawing on the standard output\n\n");
+
 }
 
 static void fractals() {
@@ -77,7 +88,7 @@ static void fractals() {
 
 static void getTime() {
   int h = hour(), m = minutes(), s = seconds();
-  printf("Hora actual: %d:%d:%d\n", h, m, s);
+  printf("Current Tme: %d:%d:%d\n", h, m, s);
 }
 
 static void clear() {
