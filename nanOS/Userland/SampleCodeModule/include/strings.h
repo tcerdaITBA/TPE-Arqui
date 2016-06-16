@@ -7,5 +7,6 @@ int strncmp(char * s, char * t, unsigned int n);
 int strcpyto(char * to, char * from, char limit);
 int strcpynto(char * to, char * from, char limit, unsigned int n);
 int itoa(int value, char *str, int base);
+int atoi(const char *str);
 
 #endif

@@ -16,6 +16,10 @@ int setGMT(int gmt) {
 	return 0;
 }
 
+int getGMT(int gmt) {
+	return GMT;
+}
+
 int seconds() {
     return time(0);
 }
@@ -25,5 +29,5 @@ int minutes() {
 }
 
 int hour() {
-    return time(2) + GMT;
+    return (time(2) + GMT) % 24;
 }

@@ -9,8 +9,12 @@ static void help();
 static void fractals();
 static void clear();
 static void getTime();
-static void echo(char * str);
+static void echo(const char * str);
 static void printWithTimeFormat(unsigned int n);
+static void set_GMT(const char *str);
+
+#define UNSUPPORTED_COMMAND "Unsupported Command\n"
+#define INVALID_ARGUMENTS "Invalid Arguments\n"
 
 #define MAX_CMD_SIZE 256
 #define CMD_SAVED 16
@@ -21,7 +25,7 @@ int shell() {
     int len = MAX_CMD_SIZE;
 
     while (run) {
-        putchar('>');
+        printf("> ");
         readline(buffer, len);
         if (buffer[0] != '\0') // Se escribio algo
             execute(buffer);
@@ -41,10 +45,20 @@ void execute(char * cmd) {
       clear();
     else if (strcmp(cmd, "time") == 0)
       getTime();
-    else if (strncmp(cmd, "echo", 4) == 0 && cmd[4] == ' ')
-        echo(cmd + 5);
+    else if (strncmp(cmd, "echo", 4) == 0)
+      echo(cmd + 4);
+    else if (strncmp(cmd, "set GMT ", 8) == 0)
+      set_GMT(cmd + 8);
     else
-      printf("Unsupported Command\n");
+      printf(UNSUPPORTED_COMMAND);
+}
+
+static void set_GMT (const char *str) {
+  int valid = setGMT(atoi(str));
+  if (valid)
+    getTime();
+  else
+    printf(INVALID_ARGUMENTS);
 }
 
 static void help(){
@@ -55,6 +69,7 @@ static void help(){
 
   printf(" clear             Clear the terminal screen.\n");
   printf(" time              Display the current time on the standard output using 24hr format [hh:mm:ss]\n");
+  printf(" set GMT [GMT]     Set new Greenwich Mean Time. Displays new current time afterwards.")
   printf(" fractals          Display a new fractal drawing on the standard output\n\n");
 }
 
@@ -66,7 +81,7 @@ static void fractals() {
 
 static void getTime() {
   int h = hour(), m = minutes(), s = seconds();
-  printf("Hora actual - ");
+  printf("Current time - ");
   printWithTimeFormat(h);
   printf(":");
   printWithTimeFormat(m);
@@ -89,6 +104,10 @@ static void clear() {
   putchar('\t'); // Vuelve el cursor al inicio de la pantalla
 }
 
-static void echo(char * str) {
-  printf("%s\n", str);
+static void echo(const char * str) {
+  int valid = str[0] == ' ';
+  if (str[0] == ' ' && str[0] == '\0')
+    printf("%s\n", str+valid);
+  else
+    printf(UNSUPPORTED_COMMAND);
 }

@@ -1,5 +1,6 @@
 #include "strings.h"
 #include "limits.h"
+#include "ctype.h"
 
 int str_len(char *str) {
 	int i;
@@ -71,4 +72,25 @@ int itoa(int value, char *str, int base) {
 	}
 
 	return len;
+}
+
+int atoi(const char *str) {
+	while (isspace(*str))
+		str++;
+
+	int num = 0;
+	int sign = 1;
+	if (*str == '-') {
+		str++;
+		sign = -1;
+	}
+	else if (*str == '+')
+		str++;
+
+	while (*str != '\0' && isdigit(*str)) {
+		num = num * 10 + (*str) - '0';
+		str++;
+	}
+
+	return num * sign;
 }
