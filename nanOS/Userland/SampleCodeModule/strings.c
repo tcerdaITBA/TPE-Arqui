@@ -14,7 +14,8 @@ int strcmp(char * s, char * t) {
 
 int strncmp(char * s, char * t, unsigned int n) {
 	int i;
-	for (i = 0; i < n && s[i] != '\0' && t[i] != '\0' && s[i] == t[i]; i++);
+	for (i = 0; i < n-1 && s[i] != '\0' && t[i] != '\0' && s[i] == t[i]; i++)
+		;
 	return s[i]-t[i];
 }
 

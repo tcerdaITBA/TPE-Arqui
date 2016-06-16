@@ -12,20 +12,27 @@ void putchar(int c) {
 int getchar() {
     int c;
     read(STDIN, &c, 1);
-    putchar(c);
     return c;
 }
 
 int readline(char *str, int maxlen) {
     int i;
     int c;
-    for (i = 0; i < maxlen-1 && (c=getchar()) != '\n'; i++) {
-		if (c != '\b')
+    for (i = 0; i < maxlen-1 && (c = getchar()) != '\n'; i++) {
+		if (c != '\b') {
 			str[i] = c;
-		else if (i > 0)
+			putchar(c);
+		}
+		else if (i > 0) {
 			i -= 2;
+			putchar(c);
+		}
+		else // c == '\b' && i <= 0
+			i = 0; // No se que hacer aca para que no se borre lo que no es del comando
+					// que se esta ingresando en el momento
 	}
     str[i] = '\0';
+	putchar('\n');
     return i;
 }
 
