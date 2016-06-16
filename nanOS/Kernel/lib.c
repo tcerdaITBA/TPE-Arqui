@@ -1,5 +1,9 @@
 #include <stdint.h>
 
+#define MEM_START 0x1000000
+
+static char* mem = MEM_START;
+
 void * memset(void * destination, int32_t c, uint64_t length)
 {
 	uint8_t chr = (uint8_t)c;
@@ -47,4 +51,14 @@ void * memcpy(void * destination, const void * source, uint64_t length)
 	}
 
 	return destination;
+}
+
+void * malloc (int size) {
+	void * result = mem;
+	mem += size;
+	return result;
+}
+
+void free(void * ptr){
+	return;
 }
