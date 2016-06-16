@@ -18,7 +18,6 @@ static int shiftPressed = FALSE;
 static int capsLockPressed = FALSE;
 static int capsLockPressedCount = 0;
 static int capsLockActivated = FALSE;
-//static int altgrPressed = FALSE;
 
 
 void store_scancode() {
@@ -74,10 +73,6 @@ int processKeyScanCode(char k){
           }
           return TRUE;
           break;
-   // case ALTGR:
-     //     altgrPressed = !altgrPressed;
-      //    return TRUE;
-        //  break;
     default:
           return FALSE;
           break;
