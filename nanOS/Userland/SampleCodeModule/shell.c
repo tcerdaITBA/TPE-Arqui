@@ -21,7 +21,7 @@ int shell() {
     int len = MAX_CMD_SIZE;
 
     while (run) {
-        printf(":>> ");
+        putchar('>');
         readline(buffer, len);
         if (buffer[0] != '\0') // Se escribio algo
             execute(buffer);
@@ -39,23 +39,23 @@ void execute(char * cmd) {
       help();
     else if (strcmp(cmd, "clear") == 0)
       clear();
-    else if (strcmp(cmd, "clock") == 0)
+    else if (strcmp(cmd, "time") == 0)
       getTime();
-    else if (strncmp(cmd, "echo", 4) == 0 && cmd[4] == ' ') {
+    else if (strncmp(cmd, "echo", 4) == 0 && cmd[4] == ' ')
         echo(cmd + 5);
-    }
-
     else
       printf("Unsupported Command\n");
 }
 
 static void help(){
-  printf("-- FUNCIONES DISPONIBLES --\n\n \
-fractals - muestra en pantalla un fractal (Julia's Set)\n \
-clock - imprime en pantalla la hora actual\n \
-clear - limpia la pantalla y vuelve el cursor al inicio\n \
-echo - imprime en pantalla un mensaje dado (echo [mensaje])\n \
-    ");
+  printf("HELP FUNCTION -- shows the principal User Commands and its description\n\n");
+  printf(" echo [args...]");
+  printf("    Write arguments to the standard output. Display the args, separated by a single space character\n");
+  printf("                      and followed by a newline, on the standard output.\n");
+
+  printf(" clear             Clear the terminal screen.\n");
+  printf(" time              Display the current time on the standard output using 24hr format [hh:mm:ss]\n");
+  printf(" fractals          Display a new fractal drawing on the standard output\n\n");
 }
 
 static void fractals() {
