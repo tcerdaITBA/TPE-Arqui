@@ -40,11 +40,11 @@ void drawJuliaFractal(unsigned int sw, unsigned int sh, double zoom, double move
       if((newRe * newRe + newIm * newIm) > 4) break;
     }
     //use color model conversion to get rainbow palette, make brightness black if maxIterations reached
-    int * outr, * outg, * outb;
-    HsvToRgb(outr, outg, outb, i % 256, 255, 255 * (i < maxIterations));
+    unsigned char outr, outg, outb;
+    HsvToRgb(&outr, &outg, &outb, i % 256, 255, 255 * (i < maxIterations));
 
     //draw the pixel
-    paint_pixel(*outr, *outg, *outb, x, y);
+    paint_pixel(outr, outg, outb, x, y);
   }
 }
 

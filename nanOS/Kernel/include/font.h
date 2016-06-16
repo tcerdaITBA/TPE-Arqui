@@ -1,5 +1,11 @@
+#ifndef FONT_H
+#define FONT_H
+
+unsigned char * pixel_map(int c);
+
 #define CHAR_WIDTH 8
 #define CHAR_HEIGHT 16
+
 
 #define ________ 0x00
 #define _______X 0x01
@@ -257,3 +263,5 @@
 #define XXXXXX_X 0xFD
 #define XXXXXXX_ 0xFE
 #define XXXXXXXX 0xFF
+
+#endif

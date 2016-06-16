@@ -3,6 +3,7 @@
 #include "fractals.h"
 #include "time.h"
 #include "shell.h"
+#include "paint.h"
 
 static void help();
 static void fractals();
@@ -46,11 +47,7 @@ void execute(char * cmd) {
     //} else {
 
     if (strcmp(cmd, "fractals") == 0) {
-      printf("in fractals\n");
       fractals();
-      paint_pixel(255, 255, 255, 50, 50);
-      //putchar('M');
-      //printf("out fractals\n");
     } else if (strcmp(cmd, "help") == 0) {
       help();
       //putchar('M');
@@ -71,18 +68,7 @@ void execute(char * cmd) {
 
 //Funciones vacias para probar que compile
 static void help(){
-  int i = 100;
-  int count = 0;
-  while(count < 1) {
-    for (int k = 0; k < 1024; k++) {
-      for (int l = 0; l < 768; l++) {
-        i *= 33;
-        paint_pixel(i%200, i%255, (i+4980)%200, k, l);
-      }
-    }
-    count++;
-  }
-  //printf("FUNCIONES DISPONIBLES:\n1- fractals\n2-clock\n"); // TODO
+  printf("FUNCIONES DISPONIBLES:\n1- fractals\n2-clock\n"); // TODO
 }
 
 static void fractals() {
@@ -96,7 +82,7 @@ static void getTime() {
 
 static void clear() {
   int rows = 768/16;
-  for (int i = 0; i < rows; i++)
+  for (int i = 0; i < 2*rows; i++)
     printf("\n");
 
   putchar('\t');
