@@ -2,6 +2,5 @@
 #define _SHELL_H_
 
 int shell();
-void execute(char * cmd);
 
 #endif

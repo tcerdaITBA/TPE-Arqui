@@ -7,6 +7,8 @@
 #define BUFFER_SIZE 1024
 #define AUX_SIZE 64
 
+#define SPACE 1
+
 static unsigned char buffer[BUFFER_SIZE];
 static int buffi = 0;
 static void fill_buffer();
@@ -28,12 +30,38 @@ int getchar() {
     return c;
 }
 
-int readline(char *str, int maxlen) {
-    int i, c;
+int readline(char *str, unsigned int maxlen) {
+    unsigned int i;
+    int c;
     for (i = 0; i < maxlen-1 && (c = getchar()) != '\n'; i++) 
 			str[i] = c;
     str[i] = '\0';
     return i;
+}
+
+/*
+** Igual que readline pero no se borran los espacios iniciales y finales 
+** de la cadena como tambien los espacios repetidos.
+*/
+int readline_no_spaces(char *str, unsigned int maxlen) {
+	unsigned int i = 0;
+	int c;
+	char state = SPACE;
+	while ((c = getchar()) != '\n' && i < maxlen-1) {
+		if (state != SPACE) {
+			str[i++] = c;
+			if (isspace(c))
+				state = SPACE;
+		}
+		else if (!isspace(c)) {
+			str[i++] = c;
+			state = !SPACE;
+		}
+	}
+	if (i > 0 && isspace(str[i-1]))
+		i--;  // Se borra el utimo espacio si lo hay
+	str[i] = '\0';
+	return i;
 }
 
 static int prints(const char *str) {

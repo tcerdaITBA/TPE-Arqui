@@ -35,6 +35,6 @@ int hour() {
 	return h < 0 ? h + 24 : h - 24;
 }
 
-void sleep(unsigned long int milliseconds) {
+void sleep(uint64_t milliseconds) {
 	wait(milliseconds);
 }
