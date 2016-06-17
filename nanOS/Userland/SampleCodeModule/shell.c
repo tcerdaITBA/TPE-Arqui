@@ -95,7 +95,7 @@ static void fractals() {
   int index = seconds() % FRACTALS_QTY; //fractal al azar
   drawJuliaFractal(1024, 768, param[index].zoom, param[index].moveX, param[index].moveY, param[index].maxIterations, param[index].cRe, param[index].cIm);
 
-  //sleep(1000);
+  sleep(5000);
   //clear();
 }
 

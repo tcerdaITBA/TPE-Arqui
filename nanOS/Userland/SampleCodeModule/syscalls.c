@@ -18,3 +18,7 @@ int time(int selector) {
 int paint(int color, int x, int y) {
     return _int80h(6, color, x, y);
 }
+
+int wait(unsigned long int milliseconds) {
+	return _int80h(7, milliseconds, 0, 0);
+}

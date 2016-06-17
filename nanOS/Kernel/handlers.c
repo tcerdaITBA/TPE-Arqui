@@ -3,8 +3,7 @@
 #include "keyboardDriver.h"
 #include "handlers.h"
 #include "systemCalls.h"
-
-static int i = 0;
+#include "timer.h"
 
 static void int_20();
 static void int_21();
@@ -23,9 +22,7 @@ void irqDispatcher(uint64_t irq) {
 }
 
 void int_20() {
-	if (i % 90 == 0) // pasaron 5 segundos aprox
-		print_num(i,0,0);
-	i++;
+	timer_handler();
 }
 
 void int_21() {
@@ -42,6 +39,8 @@ uint64_t syscallDispatcher(uint64_t rax, uint64_t rbx, uint64_t rdx, uint64_t rc
 			return sys_time(rbx);
 		case 6:
 			return sys_paint(rbx, rcx, rdx);
+		case 7:
+			return sys_wait(rbx); // Devuelve 1 si se pudo esperar la cantidad indicada de milisegundos
 	}
 	return -1;
 }

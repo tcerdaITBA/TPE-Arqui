@@ -3,6 +3,7 @@
 #include "systemCalls.h"
 #include "interrupts.h"
 #include "rtc.h"
+#include "timer.h"
 
 int sys_write(unsigned int fds, const char * str, unsigned int length) {
 	if (fds == STDERR) {
@@ -25,7 +26,7 @@ int sys_read(unsigned int fds, char * buffer, unsigned int bytes) {
 				if (c != -1) {
 					buffer[i++] = c;
 				} else {
-					_hlt();  // TODO: porq no anda sin esto???????????????
+					_hlt();
 				}
 			}
     }
@@ -50,4 +51,8 @@ int sys_paint(int color, int x, int y) {
 	char b = color & 0xFF;
 
 	return fill(r,g,b,x,y); // 1 si fue un pixel válido, 0 sino.
+}
+
+int sys_wait(uint64_t milliseconds) {
+	return sleep(milliseconds);
 }

@@ -5,6 +5,7 @@
 #define MAX_GMT 14
 #define DEFAULT_GMT -3 // Argentina GMT
 
+void sleep(unsigned long int milliseconds);
 int seconds();
 int minutes();
 int hour();
