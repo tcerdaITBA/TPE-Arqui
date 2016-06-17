@@ -4,12 +4,12 @@
 #include "paint.h"
 #include "fractals.h"
 #include "strings.h"
+#include "ctype.h"
 
 extern char bss;
 extern char endOfBinary;
 
 void * memset(void * destiny, int32_t c, uint64_t length);
-void fractals();
 int shell();
 
 int main() {

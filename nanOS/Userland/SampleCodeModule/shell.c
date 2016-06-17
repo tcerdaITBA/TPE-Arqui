@@ -71,14 +71,6 @@ void execute(char * cmd) {
       printf(UNSUPPORTED_COMMAND);
 }
 
-static void set_GMT (const char *str) {
-  int valid = setGMT(atoi(str));
-  if (valid)
-    getTime();
-  else
-    printf(INVALID_ARGUMENTS);
-}
-
 static void help(){
   printf("HELP FUNCTION -- shows the principal User Commands and its description\n\n");
   printf(" echo [args...]");
@@ -87,8 +79,16 @@ static void help(){
 
   printf(" clear             Clear the terminal screen.\n");
   printf(" time              Display the current time on the standard output using 24hr format [hh:mm:ss]\n");
-  printf(" set GMT [GMT]     Set new Greenwich Mean Time. Displays new current time afterwards.")
+  printf(" set GMT [GMT]     Set new Greenwich Mean Time. Displays new current time afterwards\n");
   printf(" fractals          Display a new fractal drawing on the standard output\n\n");
+}
+
+static void set_GMT (const char *str) {
+  int valid = setGMT(atoi(str));
+  if (valid)
+    getTime();
+  else
+    printf(INVALID_ARGUMENTS);
 }
 
 static void fractals() {
@@ -101,7 +101,7 @@ static void fractals() {
 
 static void getTime() {
   int h = hour(), m = minutes(), s = seconds();
-  printf("Current time - ");
+  printf("Current time: ");
   printWithTimeFormat(h);
   printf(":");
   printWithTimeFormat(m);
@@ -125,9 +125,9 @@ static void clear() {
 }
 
 static void echo(const char * str) {
-  int valid = str[0] == ' ';
-  if (str[0] == ' ' && str[0] == '\0')
-    printf("%s\n", str+valid);
+  int spaced = str[0] == ' ' ;
+  if (spaced || str[0] == '\0')
+    printf("%s\n", str+spaced);
   else
     printf(UNSUPPORTED_COMMAND);
 }

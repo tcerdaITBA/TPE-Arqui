@@ -29,5 +29,8 @@ int minutes() {
 }
 
 int hour() {
-    return (time(2) + GMT) % 24;
+   	int h = time(2) + GMT;
+	if (h >= 0 && h <= 23)
+		return h;
+	return h < 0 ? h + 24 : h - 24;
 }
