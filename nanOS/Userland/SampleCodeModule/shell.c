@@ -1,9 +1,7 @@
 #include "stdio.h"
 #include "strings.h"
 #include "fractals.h"
-#include "time.h"
 #include "shell.h"
-#include "paint.h"
 #include "commands.h"
 
 #define UNSUPPORTED_COMMAND "Unsupported Command\n"
@@ -21,6 +19,8 @@ int shell() {
     int len = MAX_CMD_SIZE;
     int name_len;
     int valid;
+
+    set_fractals_resolution(screen_Xresolution(), screen_Yresolution()); // fractales en resolucion bien manija
 
     while (run) {
         printf("> ");

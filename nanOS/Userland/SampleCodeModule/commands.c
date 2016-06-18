@@ -119,8 +119,8 @@ static void printWithTimeFormat(unsigned int n) {
 static int clear(const char *args) {
   int rows = text_rows();
   for (int i = 0; i < 2*rows; i++)
-    printf("\n");
-  putchar('\t'); // Vuelve el cursor al inicio de la pantalla
+    putchar('\n');
+  putchar('\r'); // Vuelve el cursor al inicio de la pantalla
   return VALID;
 }
 

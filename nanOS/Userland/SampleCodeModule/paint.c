@@ -1,5 +1,4 @@
 #include "syscalls.h"
-#include "stdio.h"
 #include "paint.h"
 
 int paint_pixel(char red, char green, char blue, int x, int y) {

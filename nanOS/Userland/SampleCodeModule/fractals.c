@@ -4,15 +4,31 @@
 */
 #include "paint.h"
 #include "fractals.h"
+#include "syscalls.h"
+
+#define DEFAULT_WIDTH 800
+#define DEFAULT_HEIGHT 600
+
+static int screen_width = DEFAULT_WIDTH;
+static int screen_height = DEFAULT_HEIGHT;
 
 static void HsvToRgb(unsigned char *r, unsigned char *g, unsigned char *b, unsigned char h, unsigned char s, unsigned char v);
 
+int set_fractals_resolution(int w_res, int h_res) {
+  if (w_res < 0 || h_res < 0 || w_res > screen_Xresolution() || h_res > screen_Yresolution())
+    return 0; // resolucion invalida
+
+  screen_width = w_res;
+  screen_height = h_res;
+  return 1;
+}
+
 void drawJuliaFractal(double zoom, double moveX, double moveY, unsigned int maxIterations, double cRe, double cIm)
 {
+
   //each iteration, it calculates: new = old*old + c, where c is a constant and old starts at current pixel
   //real and imaginary part of the constant c, determinate shape of the Julia Set
-  int screen_width = screen_Xresolution();
-  int screen_height = screen_Yresolution();
+
   double newRe, newIm, oldRe, oldIm;   //real and imaginary parts of new and old
   //you can change these to zoom and change position
   //after how much iterations the function should stop

@@ -9,7 +9,6 @@
 char get_key();
 
 
-static int len = sizeof(kbdus);
 static char buffer[BUFFSIZE];
 static unsigned int ret_index = 0;
 static unsigned int store_index = 0;
@@ -24,7 +23,7 @@ void store_scancode() {
   if (buff_size == BUFFSIZE)
     return;
 
-  char k = get_key();
+  char k = get_key(); // Funcion de Assembler que devuelve el scancode
 
   if (k > 0 && k < TOPCHARCODE) { /*Se apreto una tecla */
 

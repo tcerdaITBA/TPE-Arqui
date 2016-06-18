@@ -148,7 +148,8 @@ static void fill_buffer() { // llena el buffer hasta '\n' o se supero su capacid
 
 		if (c == '\b' && i > 0) { // si hay algo para borrar borra del buffer y la pantalla
 			i--;
-			putchar(c);  // Se borra el caracter de la pantalla
+			if (buffer[i] != '\t')
+				putchar(c);  // Se borra el caracter de la pantalla si no era un tab
 		}
 
 		else if (c != '\b') {

@@ -2,7 +2,7 @@
 
 #define MEM_START 0x1000000
 
-static char* mem = MEM_START;
+static void* mem = (void*) MEM_START;
 
 void * memset(void * destination, int32_t c, uint64_t length)
 {

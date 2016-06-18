@@ -89,6 +89,7 @@ void load_idt();
 int main()
 {
 	load_idt();
+	load_vDriver();
 
 	ncPrint("[Kernel Main]");
 	ncNewline();

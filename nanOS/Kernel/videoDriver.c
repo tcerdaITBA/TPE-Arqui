@@ -11,6 +11,9 @@
 
 static char color = DEFAULT_COLOR;
 static int cursor = 0; /* solo para put_char por ahora */
+static int x_res = 0;
+static int y_res = 0;
+
 
 static unsigned int count_digits(int num);
 static char valid_pos(int row, int col);
@@ -21,26 +24,30 @@ static void clear_line(int line);
 static unsigned char * video_base_ptr();
 static int get_res(unsigned char * ptr);
 
-// TODO VBEPhysBasePtr tendria que ir en otro lugar?
 static unsigned char * video_base_ptr() {
 	unsigned char ** VBEPhysBasePtr = (unsigned char**) 0x0005C28;
 	return * VBEPhysBasePtr;
 }
 
 int scr_x_res() {
-	return get_res((unsigned char *)0x0005C12);
+	return x_res;
 }
 
 int scr_y_res() {
-	return get_res((unsigned char *)0x0005C14);
+	return y_res;
 }
 
 int text_rows() {
-	return HEIGHT; //TODO hacerlo bien
+	return HEIGHT;
 }
 
 int text_cols() {
 	return WIDTH;
+}
+
+void load_vDriver(int x, int y) {
+	x_res = get_res((unsigned char *)0x0005C12);
+	y_res = get_res((unsigned char *)0x0005C14);
 }
 
 // Agarra dos bytes que son los correspondientes a la resolucion en VESA.
@@ -74,6 +81,14 @@ static void clear_line(int line) {
 	}
 }
 
+static void fillWhite(int x, int y) {
+	fill(255, 255, 255, x, y); // pinta de blanco
+}
+
+static void fillBlack(int x, int y) {
+	fill(0, 0, 0, x, y); // pinta de negro
+}
+
 int fill(char red, char green, char blue, int x, int y) {
 	if (!valid_pixel(x, y))
 		return 0;
@@ -84,14 +99,6 @@ int fill(char red, char green, char blue, int x, int y) {
 	VBEAdress[1] = green;
 	VBEAdress[2] = red;
 	return 1;
-}
-
-static void fillWhite(int x, int y) {
-	fill(255, 255, 255, x, y); // pinta de blanco
-}
-
-static void fillBlack(int x, int y) {
-	fill(0, 0, 0, x, y); // pinta de negro
 }
 
 void print_char(char c, int row, int col) {
@@ -171,14 +178,14 @@ void put_char(char c) {
 	else if (c == '\n') {
 		cursor += WIDTH - COL(cursor); /* cursor al comienzo de nueva linea */
 	}
-	else if (c == '\t') { /* reset cursor */
+	else if (c == '\r') { /* reset cursor */
 		cursor = 0;
-	}
-	else {
+	} 
+	else if (c != '\t') { /* tab no hace nada */
 		print_char(c, ROW(cursor), COL(cursor));
 		cursor++;
 	}
-
+	
 	if (cursor < 0)
 		cursor = 0;
 	if (cursor >= CURSOR_LIMIT) {

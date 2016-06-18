@@ -140,7 +140,6 @@ _irq05Handler:
 	irqHandlerMaster 5
 
 _syscallHandler:
-
 	pushState
 	mov rdi,rax ; primer parametro
 	mov rsi,rbx ; segundo parametro
