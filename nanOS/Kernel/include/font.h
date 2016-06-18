@@ -6,7 +6,6 @@ unsigned char * pixel_map(int c);
 #define CHAR_WIDTH 8
 #define CHAR_HEIGHT 16
 
-
 #define ________ 0x00
 #define _______X 0x01
 #define ______X_ 0x02

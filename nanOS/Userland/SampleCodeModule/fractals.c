@@ -7,11 +7,12 @@
 
 static void HsvToRgb(unsigned char *r, unsigned char *g, unsigned char *b, unsigned char h, unsigned char s, unsigned char v);
 
-void drawJuliaFractal(unsigned int sw, unsigned int sh, double zoom, double moveX, double moveY, unsigned int maxIterations, double cRe, double cIm)
+void drawJuliaFractal(double zoom, double moveX, double moveY, unsigned int maxIterations, double cRe, double cIm)
 {
   //each iteration, it calculates: new = old*old + c, where c is a constant and old starts at current pixel
   //real and imaginary part of the constant c, determinate shape of the Julia Set
-  int screen_width = sw, screen_height = sh;
+  int screen_width = screen_Xresolution();
+  int screen_height = screen_Yresolution();
   double newRe, newIm, oldRe, oldIm;   //real and imaginary parts of new and old
   //you can change these to zoom and change position
   //after how much iterations the function should stop

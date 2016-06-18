@@ -22,3 +22,11 @@ int paint(int color, int x, int y) {
 int wait(unsigned long int milliseconds) {
 	return _int80h(7, milliseconds, 0, 0);
 }
+
+int screen_Xresolution() {
+    return _int80h(8, 0, 0, 0);
+}
+
+int screen_Yresolution() {
+    return _int80h(8, 1, 0, 0);
+}

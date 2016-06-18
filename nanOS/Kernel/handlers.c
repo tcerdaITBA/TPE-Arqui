@@ -41,6 +41,8 @@ uint64_t syscallDispatcher(uint64_t rax, uint64_t rbx, uint64_t rdx, uint64_t rc
 			return sys_paint(rbx, rcx, rdx);
 		case 7:
 			return sys_wait(rbx); // Devuelve 1 si se pudo esperar la cantidad indicada de milisegundos
+		case 8:
+			return sys_screen_res(rbx); // rbx = 0 -> xRes; rbx = 1 -> yRes;
 	}
 	return -1;
 }

@@ -1,6 +1,6 @@
 #include "strings.h"
 
-#define UINT_MAX 4294967295 //TODO: limits.h
+#define UINT_MAX 4294967295
 
 int str_len(char *str) {
 	int i;

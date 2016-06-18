@@ -56,3 +56,13 @@ int sys_paint(int color, int x, int y) {
 int sys_wait(uint64_t milliseconds) {
 	return sleep(milliseconds);
 }
+
+int sys_screen_res(uint64_t selection) {
+	switch (selection) {
+		case 0: // screen width
+			return scr_x_res();
+		case 1: // screen height
+			return scr_y_res();
+	}
+	return -1;
+}

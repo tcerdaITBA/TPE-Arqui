@@ -12,21 +12,45 @@
 static char color = DEFAULT_COLOR;
 static int cursor = 0; /* solo para put_char por ahora */
 
-static unsigned char ** VBEPhysBasePtr = (unsigned char**) 0x0005C28;
-
 static unsigned int count_digits(int num);
 static char valid_pos(int row, int col);
 static void print_char_line(char line, int x, int y);
 static int valid_pixel(int x, int y);
 static void scrollUp();
 static void clear_line(int line);
+static unsigned char * video_base_ptr();
+static int get_res(unsigned char * ptr);
+
+// TODO VBEPhysBasePtr tendria que ir en otro lugar?
+static unsigned char * video_base_ptr() {
+	unsigned char ** VBEPhysBasePtr = (unsigned char**) 0x0005C28;
+	return * VBEPhysBasePtr;
+}
+
+int scr_x_res() {
+	return get_res((unsigned char *)0x0005C12);
+}
+
+int scr_y_res() {
+	return get_res((unsigned char *)0x0005C14);
+}
+
+// Agarra dos bytes que son los correspondientes a la resolucion en VESA.
+static int get_res(unsigned char * ptr) {
+	unsigned char * res_byte = ptr;
+    int res = 0;
+    res += *(res_byte+1);
+    res = res << 8;
+    res += *res_byte;
+	return res;
+}
 
 static int valid_pixel(int x, int y) {
 	return (x >= 0 && x <= SCREEN_WIDTH && y >= 0 && y <= SCREEN_HEIGHT);
 }
 
 static void scrollUp() {
-	unsigned char * linearVESABuffer = *VBEPhysBasePtr;
+	unsigned char * linearVESABuffer = video_base_ptr();
 	unsigned char * second_line = linearVESABuffer + (3 * SCREEN_WIDTH * CHAR_HEIGHT);
 	uint64_t length = (SCREEN_HEIGHT * SCREEN_WIDTH * 3) -
 						(CHAR_HEIGHT * SCREEN_WIDTH * 3);
@@ -46,7 +70,7 @@ int fill(char red, char green, char blue, int x, int y) {
 	if (!valid_pixel(x, y))
 		return 0;
 
-	unsigned char * linearVESABuffer = *VBEPhysBasePtr;
+	unsigned char * linearVESABuffer = video_base_ptr();
 	unsigned char * VBEAdress = linearVESABuffer + 3 * (x + y * SCREEN_WIDTH);
 	VBEAdress[0] = blue;
 	VBEAdress[1] = green;

@@ -28,7 +28,7 @@ static command commands[]= {{"help", help},
 							{"time", getTime},
 							{"clear", clear},
 							{"echo", echo},
-							};	
+							};
 
 
 // TODO: mover a fractals.c
@@ -133,7 +133,7 @@ static int echo(const char *args) {
 // TODO: mover logica a fractals.c
 static int fractals(const char *args) {
   int index = seconds() % FRACTALS_QTY; //fractal al azar
-  drawJuliaFractal(1024, 768, param[index].zoom, param[index].moveX, param[index].moveY, param[index].maxIterations, param[index].cRe, param[index].cIm);
+  drawJuliaFractal(param[index].zoom, param[index].moveX, param[index].moveY, param[index].maxIterations, param[index].cRe, param[index].cIm);
   sleep(5000); // TODO: meter en un define
   clear("");
   return VALID;
