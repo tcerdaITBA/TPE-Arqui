@@ -30,3 +30,11 @@ int screen_Xresolution() {
 int screen_Yresolution() {
     return _int80h(8, 1, 0, 0);
 }
+
+int text_rows() {
+    return _int80h(9, 0, 0, 0);
+}
+
+int text_cols() {
+    return _int80h(9, 1, 0, 0);
+}

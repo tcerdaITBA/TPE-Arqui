@@ -35,6 +35,14 @@ int scr_y_res() {
 	return get_res((unsigned char *)0x0005C14);
 }
 
+int text_rows() {
+	return HEIGHT; //TODO hacerlo bien
+}
+
+int text_cols() {
+	return WIDTH;
+}
+
 // Agarra dos bytes que son los correspondientes a la resolucion en VESA.
 static int get_res(unsigned char * ptr) {
 	unsigned char * res_byte = ptr;

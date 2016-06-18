@@ -13,5 +13,7 @@ int paint(int color, int x, int y);
 int wait(uint64_t milliseconds);
 int screen_Xresolution();
 int screen_Yresolution();
+int text_rows();
+int text_cols();
 
 #endif

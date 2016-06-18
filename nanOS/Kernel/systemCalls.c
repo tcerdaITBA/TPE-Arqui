@@ -66,3 +66,13 @@ int sys_screen_res(uint64_t selection) {
 	}
 	return -1;
 }
+
+int sys_text_space(uint64_t selection) {
+	switch (selection) {
+		case 0: // screen width
+			return text_rows();
+		case 1: // screen height
+			return text_cols();
+	}
+	return -1;
+}

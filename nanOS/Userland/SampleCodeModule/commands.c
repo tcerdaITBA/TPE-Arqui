@@ -5,6 +5,7 @@
 #include "time.h"
 #include "paint.h"
 #include "ctype.h"
+#include "syscalls.h"
 
 #define CMDS_SIZE (sizeof(commands)/sizeof(commands[0]))
 
@@ -116,7 +117,7 @@ static void printWithTimeFormat(unsigned int n) {
 }
 
 static int clear(const char *args) {
-  int rows = 48; // TODO hacer con el syscall de cantidad de filas de texto
+  int rows = text_rows();
   for (int i = 0; i < 2*rows; i++)
     printf("\n");
   putchar('\t'); // Vuelve el cursor al inicio de la pantalla

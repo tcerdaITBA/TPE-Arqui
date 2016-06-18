@@ -16,6 +16,8 @@ int fill(char red, char green, char blue, int x, int y);
 void clear();
 int scr_x_res();
 int scr_y_res();
+int text_rows();
+int text_cols();
 
 // TODO NO SE COMO HACER PARA QUE SE DEFINA ESTO UNA VEZ SOLA LLAMANDO A LA FUNCION
 #define SCREEN_HEIGHT scr_y_res()
