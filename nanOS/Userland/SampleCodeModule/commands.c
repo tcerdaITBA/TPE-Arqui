@@ -6,6 +6,7 @@
 #include "paint.h"
 #include "ctype.h"
 #include "syscalls.h"
+#include "stdlib.h"
 
 #define CMDS_SIZE (sizeof(commands)/sizeof(commands[0]))
 

@@ -4,6 +4,7 @@
 #include "interrupts.h"
 #include "rtc.h"
 #include "timer.h"
+#include "lib.h"
 
 int sys_write(unsigned int fds, const char * str, unsigned int length) {
 	if (fds == STDERR) {
@@ -75,4 +76,8 @@ int sys_text_space(uint64_t selection) {
 			return text_cols();
 	}
 	return -1;
+}
+
+uint64_t sys_malloc(uint64_t bytes) {
+	return (uint64_t) malloc(bytes);
 }

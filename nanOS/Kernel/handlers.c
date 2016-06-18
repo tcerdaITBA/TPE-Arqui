@@ -45,6 +45,8 @@ uint64_t syscallDispatcher(uint64_t rax, uint64_t rbx, uint64_t rdx, uint64_t rc
 			return sys_screen_res(rbx); // rbx = 0 -> xRes; rbx = 1 -> yRes;
 		case 9:
 			return sys_text_space(rbx); // rbx = 0 -> text_rows; rbx = 1 -> text_cols;
+		case 10:
+			return sys_malloc(rbx);
 	}
 	return -1;
 }

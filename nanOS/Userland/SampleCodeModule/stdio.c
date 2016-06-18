@@ -3,6 +3,7 @@
 #include "stdio.h"
 #include "strings.h"
 #include "ctype.h"
+#include "stdlib.h"
 
 #define BUFFER_SIZE 1024
 #define AUX_SIZE 64

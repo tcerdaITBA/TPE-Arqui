@@ -15,5 +15,6 @@ int screen_Xresolution();
 int screen_Yresolution();
 int text_rows();
 int text_cols();
+uint64_t reserve (unsigned int bytes);
 
 #endif

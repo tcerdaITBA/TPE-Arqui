@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include "syscalls.h"
 
-int _int80h(uint64_t rax, uint64_t rbx, uint64_t rcx,uint64_t rdx);
+uint64_t _int80h(uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx);
 
 int read(unsigned int fd, void *buffer, unsigned int bytes) {
     return _int80h(3, fd, (uint64_t) buffer, bytes);
@@ -37,4 +37,8 @@ int text_rows() {
 
 int text_cols() {
     return _int80h(9, 1, 0, 0);
+}
+
+uint64_t reserve (unsigned int bytes) {
+	return _int80h(10, bytes, 0, 0);
 }

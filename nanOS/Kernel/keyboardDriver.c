@@ -23,7 +23,7 @@ void store_scancode() {
   if (buff_size == BUFFSIZE)
     return;
 
-  char k = get_key(); // Funcion de Assembler que devuelve el scancode
+  int k = get_key(); // Funcion de Assembler que devuelve el scancode
 
   if (k > 0 && k < TOPCHARCODE) { /*Se apreto una tecla */
 
@@ -80,7 +80,7 @@ int processKeyScanCode(char k){
 
 }
 
-int chooseKeyboard(char k) {
+int chooseKeyboard(int k) {
   if (kbdus[k] == 0) // no es imprimible
     return -1;
   if(capsLockActivated && !shiftPressed)

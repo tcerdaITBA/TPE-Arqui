@@ -3,6 +3,7 @@
 #include "fractals.h"
 #include "shell.h"
 #include "commands.h"
+#include "stdlib.h"
 
 #define UNSUPPORTED_COMMAND "Unsupported Command\n"
 #define INVALID_ARGUMENTS "Invalid Arguments\n"
@@ -34,8 +35,6 @@ int shell() {
 
     return 0;
 }
-
-
 
 static int extract_cmd_name(char * cmd_name, const char * str) {
   int i;
