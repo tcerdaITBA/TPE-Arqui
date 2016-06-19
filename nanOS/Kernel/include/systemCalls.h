@@ -7,13 +7,13 @@
 
 #include <stdint.h>
 
-int sys_write(unsigned int fds, const char * str, unsigned int len);
-int sys_read(unsigned int fds, char * str, unsigned int len);
-int sys_time(int selection);
-int sys_paint(int color, int x, int y);
-int sys_wait(uint64_t milliseconds);
-int sys_screen_res(uint64_t selection);
-int sys_text_space(uint64_t selection);
+uint64_t sys_write(uint64_t fds, const char * str, uint64_t len);
+uint64_t sys_read(uint64_t fds, char * str, uint64_t len);
+uint64_t sys_time(uint64_t selection);
+uint64_t sys_paint(uint64_t color, uint64_t x, uint64_t y);
+uint64_t sys_wait(uint64_t milliseconds);
+uint64_t sys_screen_res(uint64_t selection);
+uint64_t sys_text_space(uint64_t selection);
 uint64_t sys_malloc(uint64_t bytes);
 
 #endif
