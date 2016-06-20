@@ -4,6 +4,7 @@
 #include "shell.h"
 #include "commands.h"
 #include "stdlib.h"
+#include "syscalls.h"
 
 #define UNSUPPORTED_COMMAND "Unsupported Command\n"
 #define INVALID_ARGUMENTS "Invalid Arguments\n"
@@ -21,6 +22,7 @@ int shell() {
     int name_len;
     int valid;
 
+    load_fractals(data_address());
     set_fractals_resolution(screen_Xresolution(), screen_Yresolution()); // fractales en resolucion bien manija
 
     while (run) {

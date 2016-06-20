@@ -5,6 +5,7 @@
 #include "rtc.h"
 #include "timer.h"
 #include "lib.h"
+#include "dirs.h"
 
 #define SYS_SIZE (sizeof(syscalls)/sizeof(syscalls[0]))
 
@@ -15,28 +16,16 @@ static uint64_t sys_wait_wr(uint64_t milliseconds, uint64_t unused1, uint64_t un
 static uint64_t sys_screen_res_wr(uint64_t selection, uint64_t unused1, uint64_t unused2);
 static uint64_t sys_text_space_wr(uint64_t selection, uint64_t unused1, uint64_t unused2);
 static uint64_t sys_malloc_wr(uint64_t bytes, uint64_t unused1, uint64_t unused2);
-
+static uint64_t sys_data_address_wr(uint64_t unused1, uint64_t unused2, uint64_t unused3);
 
 static uint64_t (*syscalls[]) (uint64_t,uint64_t,uint64_t) = { 0,0,0, sys_read_wr, sys_write_wr, sys_time_wr, 
 															   sys_paint, sys_wait_wr, sys_screen_res_wr, 
-															   sys_text_space_wr, sys_malloc_wr };
+															   sys_text_space_wr, sys_malloc_wr, sys_data_address_wr };
 
 uint64_t syscallDispatcher(uint64_t rax, uint64_t rbx, uint64_t rdx, uint64_t rcx) {
 	if (rax < SYS_SIZE && rax >= 3)
 		return (*syscalls[rax])(rbx,rcx,rdx);
 	return 0;
-}
-
-uint64_t sys_write(uint64_t fds, const char * str, uint64_t length) {
-	if (fds == STDERR) {
-		char backup_color = current_color();
-		set_color(ERROR_COLOR);
-		put(str, length);
-		set_color(backup_color);
-	}
-	else if (fds == STDOUT)
-		put(str, length);
-	return length;
 }
 
 uint64_t sys_read(uint64_t fds, char * buffer, uint64_t bytes) {
@@ -53,6 +42,18 @@ uint64_t sys_read(uint64_t fds, char * buffer, uint64_t bytes) {
 			}
     }
     return i;
+}
+
+uint64_t sys_write(uint64_t fds, const char * str, uint64_t length) {
+	if (fds == STDERR) {
+		char backup_color = current_color();
+		set_color(ERROR_COLOR);
+		put(str, length);
+		set_color(backup_color);
+	}
+	else if (fds == STDOUT)
+		put(str, length);
+	return length;
 }
 
 uint64_t sys_time(uint64_t selection) {
@@ -103,6 +104,10 @@ uint64_t sys_malloc(uint64_t bytes) {
 	return (uint64_t) malloc(bytes);
 }
 
+uint64_t sys_data_address() {
+	return DATA_ADDRESS;
+}
+
 /* WRAPPERS */
 /* Se usan para system calls que no reciben exactamente 3 parametros enteros.
 ** En la wrapper se filtran los parametros innecesarios y se hacen los casteos
@@ -136,4 +141,8 @@ static uint64_t sys_text_space_wr(uint64_t selection, uint64_t unused1, uint64_t
 
 static uint64_t sys_malloc_wr(uint64_t selection, uint64_t unused1, uint64_t unused2) {
 	return sys_malloc(selection);
+}
+
+static uint64_t sys_data_address_wr(uint64_t unused1, uint64_t unused2, uint64_t unused3) {
+	return sys_data_address();
 }

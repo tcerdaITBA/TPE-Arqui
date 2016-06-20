@@ -39,6 +39,10 @@ int text_cols() {
     return _int80h(9, 1, 0, 0);
 }
 
-uint64_t reserve (unsigned int bytes) {
-	return _int80h(10, bytes, 0, 0);
+void * reserve (unsigned int bytes) {
+	return (void *) _int80h(10, bytes, 0, 0);
+}
+
+void * data_address() {
+    return (void *) _int80h(11, 0, 0, 0);
 }

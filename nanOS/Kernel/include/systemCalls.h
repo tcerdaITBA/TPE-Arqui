@@ -15,5 +15,6 @@ uint64_t sys_wait(uint64_t milliseconds);
 uint64_t sys_screen_res(uint64_t selection);
 uint64_t sys_text_space(uint64_t selection);
 uint64_t sys_malloc(uint64_t bytes);
+uint64_t sys_data_address();
 
 #endif

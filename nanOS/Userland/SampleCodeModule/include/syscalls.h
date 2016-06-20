@@ -1,10 +1,11 @@
 #ifndef SYSCALLS_H
 #define SYSCALLS_H
 
+#include <stdint.h>
+
 #define STDOUT 0
 #define STDIN 1
 #define STDERR 2
-#include <stdint.h>
 
 int write(unsigned int fd, void *buffer, unsigned int bytes);
 int read(unsigned int fd, void *buffer, unsigned int bytes);
@@ -15,6 +16,7 @@ int screen_Xresolution();
 int screen_Yresolution();
 int text_rows();
 int text_cols();
-uint64_t reserve (unsigned int bytes);
+void * reserve (unsigned int bytes);
+void * data_address();
 
 #endif
