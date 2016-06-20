@@ -3,6 +3,8 @@
 
 #include "syscalls.h"
 
+int fractals_size();
+int draw_fractal(int index);
 void drawJuliaFractal(double zoom, double moveX, double moveY, unsigned int maxIterations, double cRe, double cIm);
 int set_fractals_resolution(int x_res, int y_res);
 

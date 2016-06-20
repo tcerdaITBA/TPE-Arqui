@@ -10,6 +10,8 @@
 
 #define CMDS_SIZE (sizeof(commands)/sizeof(commands[0]))
 
+#define SLEEP_TIME 5000
+
 static int help(const char *args);
 static int fractals(const char *args);
 static int clear(const char *args);
@@ -31,25 +33,6 @@ static command commands[]= {{"help", help},
 							{"clear", clear},
 							{"echo", echo},
 							};
-
-
-// TODO: mover a fractals.c
-#define FRACTALS_QTY (sizeof(param)/sizeof(param[0]))
-struct fractalParams{
-  double zoom;
-  double moveX;
-  double moveY;
-  unsigned int maxIterations;
-  double cRe;
-  double cIm;
-} param[] = {
-          {1265.76110029, 0.427834925, 0.42325986, 128, -0.6548832, -0.4477065},
-          {0.85035, 0.437267, -0.613638, 120, -0.47098, -0.68545},
-          {0.83035, 0.087267, -0.013638, 128, -0.77098, -0.08545},
-          {1265.7611, 0.20932, 0.10459, 256, -0.6448832, -0.447706},
-          {0.830350, 0.06595, -0.122026, 128, -0.654883, -0.4477065},
-          {1265.76110029, 0.2093925, 0.1045986, 128, -0.6548832, -0.4477065}
-        };
 
 /* EXECUTE */
 
@@ -82,10 +65,12 @@ static int help(const char *args){
   printf("    Write arguments to the standard output. Display the args, separated by a single space character\n");
   printf("                   and followed by a newline, on the standard output.\n");
 
-  printf(" clear             Clear the terminal screen.\n");
-  printf(" time              Display the current time on the standard output using 24hr format [hh:mm:ss]\n");
-  printf(" set_GMT [GMT]     Set new Greenwich Mean Time. Displays new current time afterwards\n");
-  printf(" fractals          Display a new fractal drawing on the standard output\n\n");
+  printf(" clear                Clear the terminal screen.\n");
+  printf(" time                 Display the current time on the standard output using 24hr format [hh:mm:ss]\n");
+  printf(" set_GMT [GMT]        Set new Greenwich Mean Time. Displays new current time afterwards\n");
+  printf(" fractals [*option]   Display a new fractal drawing on the standard output.\n");
+  printf("                      If a specific fractal is desired, a number from 1 to %d may be sent as parameter.\n", fractals_size());
+  printf("                      If no parameter is sent a random fractal will be drawed.\n\n");
   return VALID;
 }
 
@@ -132,11 +117,22 @@ static int echo(const char *args) {
   return VALID;
 }
 
-// TODO: mover logica a fractals.c
 static int fractals(const char *args) {
-  int index = seconds() % FRACTALS_QTY; //fractal al azar
-  drawJuliaFractal(param[index].zoom, param[index].moveX, param[index].moveY, param[index].maxIterations, param[index].cRe, param[index].cIm);
-  sleep(5000); // TODO: meter en un define
+  int index = -1;
+  int valid = 0;
+
+  if (args[0] == '\0') // No se enviaron parametros --> fractal al azar
+    index = seconds() % fractals_size();
+  else if (isdigit(args[1]))
+    index = atoi(args)-1;
+
+  if (index != -1)
+    valid = draw_fractal(index);
+
+  if (!valid)
+    return INVALID_ARGS;
+
+  sleep(SLEEP_TIME);
   clear("");
   return VALID;
 }

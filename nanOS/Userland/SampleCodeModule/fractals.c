@@ -14,6 +14,35 @@ static int screen_height = DEFAULT_HEIGHT;
 
 static void HsvToRgb(unsigned char *r, unsigned char *g, unsigned char *b, unsigned char h, unsigned char s, unsigned char v);
 
+#define FRACTALS_SIZE (sizeof(param)/sizeof(param[0]))
+
+struct fractalParams{
+  double zoom;
+  double moveX;
+  double moveY;
+  unsigned int maxIterations;
+  double cRe;
+  double cIm;
+} param[] = {
+          {1265.76110029, 0.427834925, 0.42325986, 128, -0.6548832, -0.4477065},
+          {0.85035, 0.437267, -0.613638, 120, -0.47098, -0.68545},
+          {0.83035, 0.087267, -0.013638, 128, -0.77098, -0.08545},
+          {1265.7611, 0.20932, 0.10459, 256, -0.6448832, -0.447706},
+          {0.830350, 0.06595, -0.122026, 128, -0.654883, -0.4477065},
+          {1265.76110029, 0.2093925, 0.1045986, 128, -0.6548832, -0.4477065}
+        };
+
+int fractals_size() {
+  return FRACTALS_SIZE;
+}
+
+int draw_fractal(int index) {
+  if (index < 0 || index >= FRACTALS_SIZE)
+    return 0;
+  drawJuliaFractal(param[index].zoom, param[index].moveX, param[index].moveY, param[index].maxIterations, param[index].cRe, param[index].cIm);
+  return 1;
+}
+
 int set_fractals_resolution(int w_res, int h_res) {
   if (w_res < 0 || h_res < 0 || w_res > screen_Xresolution() || h_res > screen_Yresolution())
     return 0; // resolucion invalida
