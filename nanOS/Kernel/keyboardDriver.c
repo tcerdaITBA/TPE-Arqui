@@ -18,7 +18,7 @@ static int capsLockPressed = FALSE;
 static int capsLockPressedCount = 0;
 static int capsLockActivated = FALSE;
 
-
+/* Guarda un scancode un el buffer*/
 void store_scancode() {
   if (buff_size == BUFFSIZE)
     return;
@@ -38,6 +38,7 @@ void store_scancode() {
     store_index = 0;
 }
 
+/* Obtiene la tecla correspondiente segun los flags activados */
 int get_char() {
   if (buff_size == 0)
     return -1;
@@ -48,11 +49,12 @@ int get_char() {
   return chooseKeyboard(k);
 }
 
+/* Retorna 1 si el scancode recibido es de Shift */
 int isShiftKey(char k) {
  return ((k == LSHIFTCODE) || (k == RSHIFTCODE));
 }
 
-/* Retorna TRUE si se toco algun caracter especial como SHIFT, CAPSLOCK */
+/* Retorna TRUE si se toco algun caracter especial como SHIFT, CAPSLOCK y modifica los flags correspondientes*/
 int processKeyScanCode(char k){
   switch(k){
     case RSHIFTCODE:
@@ -80,6 +82,8 @@ int processKeyScanCode(char k){
 
 }
 
+/* Retorna el caracter pedido eligiendo el teclado segun los flags que se encuentran activados.
+** en caso de no encontrarse el caracter retorna -1 */
 int chooseKeyboard(int k) {
   if (kbdus[k] == 0) // no es imprimible
     return -1;
@@ -92,6 +96,7 @@ int chooseKeyboard(int k) {
   return kbdus[k];
 }
 
+/* Retorna 1 si el scancode recibido equivale a una letra */
 int isAlpha(char k) {
   if(( k >= QPOSITION && k <= PPOSITION) || (k >= APOSITION && k <= LPOSITION) || (k >= ZPOSITION && k <= MPOSITION))
     return TRUE;

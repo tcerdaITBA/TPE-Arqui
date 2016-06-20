@@ -29,18 +29,21 @@ static unsigned char * video_base_ptr() {
 	return * VBEPhysBasePtr;
 }
 
+/* Retorna la resolucion de la pantalla(horizontal) */
 int scr_x_res() {
 	return x_res;
 }
 
+/* Retorna la resolucion de la pantalla(vertical) */
 int scr_y_res() {
 	return y_res;
 }
-
+/* Retorna la cantidad de filas de la pantalla */
 int text_rows() {
 	return HEIGHT;
 }
 
+/* Retorna la cantidad de columnas de la pantalla */
 int text_cols() {
 	return WIDTH;
 }
@@ -60,10 +63,12 @@ static int get_res(unsigned char * ptr) {
 	return res;
 }
 
+/* Retorna 1 si un pixel es válido, es decir, esta dentro de los limites de la pantalla */
 static int valid_pixel(int x, int y) {
 	return (x >= 0 && x <= SCREEN_WIDTH && y >= 0 && y <= SCREEN_HEIGHT);
 }
 
+/* Equivale a mover cada linea una fila hacia arriba, para generar un efecto de "Scroll Up" */
 static void scrollUp() {
 	unsigned char * linearVESABuffer = video_base_ptr();
 	unsigned char * second_line = linearVESABuffer + (3 * SCREEN_WIDTH * CHAR_HEIGHT);
@@ -73,6 +78,7 @@ static void scrollUp() {
 	clear_line(HEIGHT - 1);
 }
 
+/* Limpia una linea, es decir, coloca espacios en toda la fila */
 static void clear_line(int line) {
 	if (line >= 0 && line < HEIGHT) {
 		int i;
@@ -81,14 +87,17 @@ static void clear_line(int line) {
 	}
 }
 
+/*Pinta de blanco una posicion */
 static void fillWhite(int x, int y) {
 	fill(255, 255, 255, x, y); // pinta de blanco
 }
 
+/*Pinta de negro una posicion */
 static void fillBlack(int x, int y) {
 	fill(0, 0, 0, x, y); // pinta de negro
 }
 
+/* Pinta un pixel de un color recibido por parámetro como RGB */
 int fill(char red, char green, char blue, int x, int y) {
 	if (!valid_pixel(x, y))
 		return 0;
@@ -101,6 +110,7 @@ int fill(char red, char green, char blue, int x, int y) {
 	return 1;
 }
 
+/* Imprime un caracter en pantalla */
 void print_char(char c, int row, int col) {
 	if (valid_pos(row, col)) { // Ver que onda los tamaños
 		int y = row * CHAR_HEIGHT;
@@ -130,10 +140,12 @@ static void print_char_line(char line, int x, int y) {
 	}
 }
 
+/* Retorna 1 si la posicion row, col es válida, es decir esta dentro de los limites de la pantalla */
 static char valid_pos(int row, int col) {
 	return row < HEIGHT && col < WIDTH && row >= 0 && col >= 0;
 }
 
+/* Cuenta los digitos de un numero */
 static unsigned int count_digits(int num) {
 	int digits = 1;
 	if (num < 0)
@@ -151,6 +163,7 @@ void set_color(char c) {
 	color = c;
 }
 
+/* Imprime una cadena de caracteres en una fila y columna dados */
 void print_str(const char *str, int row, int col) {
 	int backup = cursor;
 	cursor = row * WIDTH + col;
@@ -158,18 +171,20 @@ void print_str(const char *str, int row, int col) {
 		put_char(*str++);
 	cursor = backup;
 }
-
+/* Imprime una cadena de caracteres hasta una longitud dada */
 void put(const char *str, int len) {
 	int i;
 	for (i = 0; i < len; i++)
 		put_char(str[i]);
 }
 
+/* Imprime una cadena de caracteres */
 void put_str(const char *str) {
 	while(*str != '\0')
 		put_char(*str++);
 }
 
+/* Imprime un caracter*/
 void put_char(char c) {
 	if (c == '\b') {
 		cursor--;
@@ -194,6 +209,7 @@ void put_char(char c) {
 	}
 }
 
+/* Imprime un numero*/
 void print_num(int num, int row, int col) {
 	unsigned int digits = count_digits(num);
 	char str[MAX_DIGITS];
@@ -215,6 +231,7 @@ void print_num(int num, int row, int col) {
 	print(str, digits, row, col);
 }
 
+/* Imprime una cadena de caracteres en una fila y columna dados*/
 void print(const char *str, int len, int row, int col) {
 	if (valid_pos(row, col)) {
 		int i;
@@ -223,7 +240,7 @@ void print(const char *str, int len, int row, int col) {
 			print_char(str[i], ROW(pos), COL(pos));
 	}
 }
-
+/* Limpia la pantalla */
 void clear() {
 	int i = 0;
 	char backup = color;

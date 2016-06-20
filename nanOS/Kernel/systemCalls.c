@@ -28,6 +28,7 @@ uint64_t syscallDispatcher(uint64_t rax, uint64_t rbx, uint64_t rdx, uint64_t rc
 	return 0;
 }
 
+/* SystemCall de Read para leer de entrada estándar*/
 uint64_t sys_read(uint64_t fds, char * buffer, uint64_t bytes) {
 	unsigned int i = 0;
 	char c;
@@ -44,6 +45,7 @@ uint64_t sys_read(uint64_t fds, char * buffer, uint64_t bytes) {
     return i;
 }
 
+/* SystemCall de Write para escribir a salida estándar*/
 uint64_t sys_write(uint64_t fds, const char * str, uint64_t length) {
 	if (fds == STDERR) {
 		char backup_color = current_color();
@@ -56,6 +58,7 @@ uint64_t sys_write(uint64_t fds, const char * str, uint64_t length) {
 	return length;
 }
 
+/* SystemCall de Time, retorna hora, minutos y segundos actuales */
 uint64_t sys_time(uint64_t selection) {
     switch(selection) {
 	case 0:
@@ -68,6 +71,7 @@ uint64_t sys_time(uint64_t selection) {
     return -1;
 }
 
+/* SystemCall de paint para pintar un pixel */
 uint64_t sys_paint(uint64_t color, uint64_t x, uint64_t y) {
 	char r = (color >> 16) & 0xFF;
 	char g = (color >> 8) & 0xFF;
@@ -76,10 +80,12 @@ uint64_t sys_paint(uint64_t color, uint64_t x, uint64_t y) {
 	return fill(r,g,b,x,y); // 1 si fue un pixel válido, 0 sino.
 }
 
+/* SystemCall de wait, Pone en espera a la pantalla por la cantidad de milisegundos pasados por parámetro*/
 uint64_t sys_wait(uint64_t milliseconds) {
 	return sleep(milliseconds);
 }
 
+/* SystemCall que retorna la resolucion de la pantalla*/
 uint64_t sys_screen_res(uint64_t selection) {
 	switch (selection) {
 		case 0: // screen width
@@ -90,6 +96,7 @@ uint64_t sys_screen_res(uint64_t selection) {
 	return -1;
 }
 
+/* SystemCall que retorna la cantidad de filas o columnas de la pantalla */
 uint64_t sys_text_space(uint64_t selection) {
 	switch (selection) {
 		case 0: // screen width
@@ -100,6 +107,7 @@ uint64_t sys_text_space(uint64_t selection) {
 	return -1;
 }
 
+/* SystemCall Malloc */
 uint64_t sys_malloc(uint64_t bytes) {
 	return (uint64_t) malloc(bytes);
 }
