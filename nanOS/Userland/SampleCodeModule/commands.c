@@ -8,6 +8,7 @@
 #include "syscalls.h"
 #include "stdlib.h"
 
+/* Longitud maxima de un comando ingresado por el usuario */
 #define CMDS_SIZE (sizeof(commands)/sizeof(commands[0]))
 
 #define SLEEP_TIME 5000
@@ -57,6 +58,7 @@ int execute(const char *name, const char *args) {
 
 /* COMANDOS */
 
+/* Muestra en pantalla texto de ayuda al usuario, por ejemplo comandos existentes */
 static int help(const char *args){
   if (args[0] != '\0')
 	return INVALID_ARGS;
@@ -74,6 +76,7 @@ static int help(const char *args){
   return VALID;
 }
 
+/* Setea GMT del reloj y muestra la hora actual en pantalla*/
 static int set_GMT (const char *args) {
   if (args[0] == '\0' || (args[1] != '-' && !isdigit(args[1])))
   	return INVALID_ARGS;
@@ -84,6 +87,7 @@ static int set_GMT (const char *args) {
   return VALID;
 }
 
+/*Imprime en pantalla la hora actual */
 static int getTime(const char *args) {
   int h = hour(), m = minutes(), s = seconds();
   printf("Current time: ");
@@ -96,12 +100,14 @@ static int getTime(const char *args) {
   return VALID;
 }
 
+/* Imprime un numero en formato [xx]*/
 static void printWithTimeFormat(unsigned int n) {
     if (n < 10)
         printf("0");
     printf("%d", n);
 }
 
+/* Limpia la pantalla de la terminal*/
 static int clear(const char *args) {
   int rows = text_rows();
   for (int i = 0; i < 2*rows; i++)
@@ -110,6 +116,7 @@ static int clear(const char *args) {
   return VALID;
 }
 
+/*Imprime la cadena de argumentos pasadas como parametros a salida estandar */
 static int echo(const char *args) {
   int spaced = args[0] == ' ' ;
   if (spaced || args[0] == '\0')
@@ -117,6 +124,11 @@ static int echo(const char *args) {
   return VALID;
 }
 
+/*
+** Muestra en pantalla imagenes de fractales.
+** En caso de recibir un numero como parámetro muestra el fractal correspondiente,
+** si no se recibió ningun parametro muestra un fractal al azar
+*/
 static int fractals(const char *args) {
   int index = -1;
   int valid = 0;

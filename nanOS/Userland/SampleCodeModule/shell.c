@@ -38,6 +38,7 @@ int shell() {
     return 0;
 }
 
+/* Retorna la longitud del comando ingresado y guarda su contenido en un vector recibido como parámetro */
 static int extract_cmd_name(char * cmd_name, const char * str) {
   int i;
   for (i = 0; str[i] != '\0' && str[i] != ' '; i++)
@@ -46,6 +47,7 @@ static int extract_cmd_name(char * cmd_name, const char * str) {
   return i;
 }
 
+/* Imprime en pantalla en caso de haber ingresado un comando inválido */
 static void handle_validity(int valid) {
   switch (valid) {
     case UNSUPPORTED:

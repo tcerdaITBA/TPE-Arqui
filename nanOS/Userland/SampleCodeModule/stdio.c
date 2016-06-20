@@ -14,6 +14,7 @@ static unsigned char buffer[BUFFER_SIZE];
 static int buffi = 0;
 static void fill_buffer();
 
+/*Imprime un caracter a salida estándar */
 void putchar(int c) {
 	write(STDOUT, &c, 1);
 }
@@ -65,6 +66,7 @@ int readline_no_spaces(char *str, unsigned int maxlen) {
 	return i;
 }
 
+/*Imprime una cadena de carateres a pantalla */
 static int prints(const char *str) {
 	int i;
 	for (i=0; str[i] != '\0'; i++)
@@ -72,16 +74,18 @@ static int prints(const char *str) {
 	return i;
 }
 
+/*Imprime un número entero en la pantalla */
 static int printi(int value, char aux[]) {
 	itoa(value, aux, 10); // guarda en buffer el string del valor en base 10
 	return prints(aux);
 }
 
+/*Imprime un numero binario en pantalla */
 static int printb(int value, char aux[]) {
 	itoa(value, aux, 2); // guarda en buffer el string del valor en base 2
 	return prints(aux);
 }
-
+/*Imprime un numero hexadecimal en pantalla */
 static int printx(int value, char aux[]) {
 	itoa(value, aux, 16); // guarda en buffer el string del valor en base 16
 	return prints(aux);
@@ -140,6 +144,7 @@ int printf(const char *format, ...) {
 	va_end(args);
 	return len;
 }
+
 
 static void fill_buffer() { // llena el buffer hasta '\n' o se supero su capacidad
 	unsigned char c; 

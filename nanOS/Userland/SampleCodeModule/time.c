@@ -16,18 +16,24 @@ int setGMT(int gmt) {
 	return 0;
 }
 
+/* Retorna el GMT actual */
 int getGMT(int gmt) {
 	return GMT;
 }
 
+/* Retorna los segundos */
 int seconds() {
     return time(0);
 }
 
+
+/* Retorna los minutos actuales*/
 int minutes() {
     return time(1);
 }
 
+
+/* Retorna la hora actual */
 int hour() {
    	int h = time(2) + GMT;
 	if (h >= 0 && h <= 23)
@@ -35,6 +41,7 @@ int hour() {
 	return h < 0 ? h + 24 : h - 24;
 }
 
+/* Pone al sistema en espera por una cantidad de milisegundos recibida por parámetro */
 void sleep(uint64_t milliseconds) {
 	wait(milliseconds);
 }

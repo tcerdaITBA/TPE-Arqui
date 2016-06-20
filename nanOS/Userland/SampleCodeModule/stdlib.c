@@ -51,16 +51,18 @@ void * memcpy(void * destination, const void * source, uint64_t length)
 	return destination;
 }
 
+/* Reserva espacio en memoria */
 void * malloc (int size) {
 	return (void *) reserve(size);
 }
 
+/* Libera espacio de memoria */
 void free(void * ptr){
 	return;
 }
 
-// Copia en str los valores ascii de los digitos de value en la base indicada.
-// Devuelve la cantidad de digitos copiados.
+/* Copia en str los valores ascii de los digitos de value en la base indicada.
+** Devuelve la cantidad de digitos copiados. */
 int itoa(int value, char *str, int base) {
 	char *p = str;
 	char *p1, *p2;
@@ -100,6 +102,7 @@ int itoa(int value, char *str, int base) {
 	return len;
 }
 
+/* A partir de un satring retorna su valor entero */
 int atoi(const char *str) {
 	while (isspace(*str))
 		str++;
