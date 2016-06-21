@@ -25,9 +25,4 @@ int text_cols();
 #define HEIGHT (SCREEN_HEIGHT/CHAR_HEIGHT)
 #define WIDTH (SCREEN_WIDTH/CHAR_WIDTH)
 
-#define DEFAULT_COLOR 0x0F
-#define ERROR_COLOR 0X0C
-#define CLEAR_COLOR 0x00
-
-
 #endif

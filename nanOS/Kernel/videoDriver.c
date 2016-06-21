@@ -13,7 +13,6 @@ static int cursor = 0;
 static int x_res = 0;
 static int y_res = 0;
 
-
 static unsigned int count_digits(int num);
 static char valid_pos(int row, int col);
 static void print_char_line(char line, int x, int y);
@@ -230,11 +229,8 @@ void print(const char *str, int len, int row, int col) {
 /* Limpia la pantalla */
 void clear() {
 	int i = 0;
-	char backup = color;
-	set_color(CLEAR_COLOR);
 	for (i = 0; i < WIDTH*HEIGHT; i ++)
 		print_char(' ',ROW(i), COL(i));
-	set_color(backup);
 	cursor = 0;
 }
 

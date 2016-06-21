@@ -1,7 +1,6 @@
 #include <stdint.h>
 #include "videoDriver.h"
 #include "keyboardDriver.h"
-#include "handlers.h"
 #include "systemCalls.h"
 #include "timer.h"
 

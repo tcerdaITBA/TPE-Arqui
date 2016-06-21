@@ -57,15 +57,11 @@ uint64_t sys_read(uint64_t fds, char * buffer, uint64_t bytes) {
 
 /* SystemCall de Write para escribir a salida estándar*/
 uint64_t sys_write(uint64_t fds, const char * str, uint64_t length) {
-	if (fds == STDERR) {
-		char backup_color = current_color();
-		set_color(ERROR_COLOR);
+	if (fds == STDOUT) {
 		put(str, length);
-		set_color(backup_color);
+		return length;
 	}
-	else if (fds == STDOUT)
-		put(str, length);
-	return length;
+	return 0;
 }
 
 /* SystemCall de Time, retorna hora, minutos y segundos actuales */
