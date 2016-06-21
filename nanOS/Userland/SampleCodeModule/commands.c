@@ -83,8 +83,8 @@ static int help(const char *args){
   printf(" fractals [*option]   Display a new fractal drawing on the standard output.\n");
   printf("                      If a specific fractal is desired, a number from 1 to %d may be sent as parameter.\n", fractals_size());
   printf("                      If no parameter is sent a random fractal will be drawed.\n");
-  printf(" char_color       colores\n\n");
-  printf(" bg_color       colores\n\n");
+  printf(" char_color [r,g,b]   Changes character color.\n");
+  printf(" bg_color   [r,g,b]   Changes background color. Clears screen.\n\n");
   return VALID;
 }
 

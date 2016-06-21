@@ -22,6 +22,8 @@ int text_rows();
 int text_cols();
 int set_bg_color(uint64_t r, uint64_t g, uint64_t b);
 int set_char_color(uint64_t r, uint64_t g, uint64_t b);
+void current_char_color(unsigned char *r, unsigned char *g, unsigned char *b);
+void current_bg_color(unsigned char *r, unsigned char *g, unsigned char *b);
 
 
 #define SCREEN_HEIGHT y_res

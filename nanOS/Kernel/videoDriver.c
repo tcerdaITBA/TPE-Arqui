@@ -10,7 +10,7 @@
 #define CURSOR_LIMIT HEIGHT*WIDTH
 
 typedef struct {
-	char red, green, blue;
+	unsigned char red, green, blue;
 } color;
 
 static int cursor = 0;
@@ -61,6 +61,18 @@ int text_cols() {
 void load_vDriver(int x, int y) {
 	x_res = get_res((unsigned char *)0x0005C12);
 	y_res = get_res((unsigned char *)0x0005C14);
+}
+
+void current_char_color(unsigned char *r, unsigned char *g, unsigned char *b) {
+	*r = char_color.red;
+	*g = char_color.green;
+	*b = char_color.blue;
+}
+
+void current_bg_color(unsigned char *r, unsigned char *g, unsigned char *b) {
+	*r = bg_color.red;
+	*g = bg_color.green;
+	*b = bg_color.blue;
 }
 
 // Agarra dos bytes que son los correspondientes a la resolucion en VESA.

@@ -13,10 +13,16 @@
 static unsigned char buffer[BUFFER_SIZE];
 static int buffi = 0;
 static void fill_buffer();
+static int fprintformat(unsigned int fds, const char *format, va_list args);
 
-/*Imprime un caracter a salida estándar */
+/* Imprime un caracter en el descriptor indicado */
+void fputchar(unsigned int fds, int c) {
+	write(fds, &c, 1);
+}
+
+/* Imprime un caracter a salida estándar */
 void putchar(int c) {
-	write(STDOUT, &c, 1);
+	fputchar(STDOUT, c);
 }
 
 /*
@@ -70,49 +76,58 @@ int readline_no_spaces(char *str, unsigned int maxlen) {
 }
 
 /*Imprime una cadena de carateres a pantalla */
-static int prints(const char *str) {
+static int prints(unsigned int fds, const char *str) {
 	int i;
 	for (i=0; str[i] != '\0'; i++)
-		putchar(str[i]);
+		fputchar(fds, str[i]);
 	return i;
 }
 
 /*Imprime un número entero en la pantalla */
-static int printi(int value, char aux[]) {
+static int printi(unsigned int fds,int value, char aux[]) {
 	itoa(value, aux, 10); // guarda en buffer el string del valor en base 10
-	return prints(aux);
+	return prints(fds, aux);
 }
 
 /*Imprime un numero binario en pantalla */
-static int printb(int value, char aux[]) {
+static int printb(unsigned int fds,int value, char aux[]) {
 	itoa(value, aux, 2); // guarda en buffer el string del valor en base 2
-	return prints(aux);
+	return prints(fds, aux);
 }
 /*Imprime un numero hexadecimal en pantalla */
-static int printx(int value, char aux[]) {
+static int printx(unsigned int fds,int value, char aux[]) {
 	itoa(value, aux, 16); // guarda en buffer el string del valor en base 16
-	return prints(aux);
+	return prints(fds, aux);
 }
 
 
-/* Imprime a pantalla con el formato indicado. Solo soporta los siguientes
+int printf(const char *format, ...) {
+	va_list args;
+	va_start(args, format);
+	return fprintformat(STDOUT, format, args);
+}
+
+int fprintf(unsigned int fds, const char *format, ...) {
+	va_list args;
+	va_start(args, format);
+	return fprintformat(fds, format, args);
+}
+
+/* Imprime en el descriptor fds con el formato indicado. Solo soporta los siguientes
 ** simbolos: d,i,s,x,b,c.
 ** Retorna la cantidad de caracteres escritos.
 ** En caso de simbolo invalido imprime todos los caracteres hasta la ocurrencia
 ** de dicho simbolo donde deja de imprimir y retorna.
 */
-int printf(const char *format, ...) {
+static int fprintformat(unsigned int fds, const char *format, va_list args) {
 	int len = 0; // cantidad de caracteres escritos
 	char aux[AUX_SIZE];
-	va_list args;
-
-	va_start(args, format);
 
 	while(*format != '\0') {
 		char c = *format++;
 		char symbol;
 		if(c != '%') {
-			putchar(c);
+			fputchar(fds,c);
 			len++;
 		}
 		else {
@@ -120,23 +135,23 @@ int printf(const char *format, ...) {
 			switch(symbol) {
 				case 'd':
 				case 'i':
-					len += printi(va_arg(args, int), aux);
+					len += printi(fds, va_arg(args, int), aux);
 					break;
 				case 's':
-					len += prints(va_arg(args, char *));
+					len += prints(fds, va_arg(args, char *));
 					break;
 				case 'x':
-					len += printx(va_arg(args, int), aux);
+					len += printx(fds, va_arg(args, int), aux);
 					break;
 				case 'b':
-					len += printb(va_arg(args, int), aux);
+					len += printb(fds, va_arg(args, int), aux);
 					break;
 				case 'c':
-					putchar(va_arg(args,int) & 0xFF);
+					fputchar(fds, va_arg(args,int) & 0xFF);
 					len++;
 					break;
 				case '%':
-					putchar('%');
+					fputchar(fds, '%');
 					len++;
 					break;
 				default:  // simbolo invalido. Termina la funcion y retorna

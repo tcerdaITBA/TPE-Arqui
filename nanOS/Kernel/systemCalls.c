@@ -7,6 +7,8 @@
 #include "lib.h"
 #include "dirs.h"
 
+#define ERR_COLOR 255,0,0  // Rojo
+
 #define SYS_SIZE (sizeof(syscalls)/sizeof(syscalls[0]))
 
 static uint64_t sys_write_wr(uint64_t fds, uint64_t str, uint64_t length);
@@ -57,9 +59,16 @@ uint64_t sys_read(uint64_t fds, char * buffer, uint64_t bytes) {
     return i;
 }
 
-/* SystemCall de Write para escribir a salida estándar*/
+/* SystemCall de Write para escribir a salida estándar */
 uint64_t sys_write(uint64_t fds, const char * str, uint64_t length) {
-	if (fds == STDOUT || fds == STDERR) {
+	if (fds == STDERR) {
+		unsigned char r,g,b; // Backup
+		current_char_color(&r,&g,&b);
+		set_char_color(ERR_COLOR);
+		put(str, length);
+		set_char_color(r,g,b);
+	} 
+	else if (fds == STDOUT) {
 		put(str, length);
 		return length;
 	}

@@ -29,7 +29,7 @@ int shell() {
     while (run) {
         printf("> ");
         readline_no_spaces(buffer, len);
-        if (buffer[0] != '\0') { // Se escribio algo
+        if (buffer[0] != '\0') { // Se escribió algo
           name_len = extract_cmd_name(cmd_name, buffer);
           arguments_flag = buffer[name_len] != '\0';
           valid = execute(cmd_name, buffer+name_len+arguments_flag); // Nombre y argumentos
