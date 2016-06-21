@@ -28,7 +28,9 @@ static uint64_t (*syscalls[]) (uint64_t,uint64_t,uint64_t) = { 0,0,0, 		/* 0, 1,
 															   sys_screen_res_wr,   /* 8 */
 															   sys_text_space_wr,   /* 9 */
 															   sys_malloc_wr,       /* 10 */
-															   sys_data_address_wr  /* 11 */
+															   sys_data_address_wr, /* 11 */
+															   sys_set_char_color,  /* 12 */
+															   sys_set_bg_color     /* 13 */
 															};
 
 /* Ejecuta la system call correspondiente al valor de rax */
@@ -121,6 +123,14 @@ uint64_t sys_malloc(uint64_t bytes) {
 /* System call que retorna la dirección del módulo de datos */
 uint64_t sys_data_address() {
 	return DATA_ADDRESS;
+}
+
+uint64_t sys_set_char_color(uint64_t r, uint64_t g, uint64_t b) {
+	return set_char_color(r,g,b);
+}
+
+uint64_t sys_set_bg_color(uint64_t r, uint64_t g, uint64_t b) {
+	return set_bg_color(r,g,b);
 }
 
 /* WRAPPERS */

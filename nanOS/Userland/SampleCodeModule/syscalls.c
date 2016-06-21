@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include "syscalls.h"
+#include "stdio.h"
 
 /* Contiene todas las llamadas a int80 */
 uint64_t _int80h(uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx);
@@ -57,4 +58,12 @@ void * reserve (unsigned int bytes) {
 /* SystemCall para obtener la direccion de memoria de datos */
 void * data_address() {
     return (void *) _int80h(11, 0, 0, 0);
+}
+
+int set_char_color (uint64_t r, uint64_t g, uint64_t b) {
+    return _int80h(12,r,g,b);
+}
+
+int set_bg_color (uint64_t r, uint64_t g, uint64_t b) {
+    return _int80h(13,r,g,b);
 }

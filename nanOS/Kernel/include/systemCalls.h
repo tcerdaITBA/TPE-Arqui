@@ -16,5 +16,7 @@ uint64_t sys_screen_res(uint64_t selection);
 uint64_t sys_text_space(uint64_t selection);
 uint64_t sys_malloc(uint64_t bytes);
 uint64_t sys_data_address();
+uint64_t sys_set_char_color(uint64_t r, uint64_t g, uint64_t b);
+uint64_t sys_set_bg_color(uint64_t r, uint64_t g, uint64_t b);
 
 #endif

@@ -18,5 +18,7 @@ int text_rows();
 int text_cols();
 void * reserve (unsigned int bytes);
 void * data_address();
+int set_char_color (uint64_t r, uint64_t g, uint64_t b);
+int set_bg_color (uint64_t r, uint64_t g, uint64_t b);
 
 #endif

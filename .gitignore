@@ -31,3 +31,12 @@
 # Debug files
 *.dSYM/
 *.su
+
+#Binary Files
+*.bin
+*.sys
+
+#The images
+*.img
+*.qcow2
+*.vmdk

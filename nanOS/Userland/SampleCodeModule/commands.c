@@ -8,6 +8,8 @@
 #include "syscalls.h"
 #include "stdlib.h"
 
+#include <stdint.h>
+
 /* Longitud maxima de un comando ingresado por el usuario */
 #define CMDS_SIZE (sizeof(commands)/sizeof(commands[0]))
 
@@ -20,6 +22,11 @@ static int getTime(const char *args);
 static int echo(const char *args);
 static void printWithTimeFormat(unsigned int n);
 static int set_GMT(const char *args);
+static int isnum(const char *str);
+static const char * next_arg (const char *args);
+static int change_char_color (const char *args);
+static int extract_colors (const char *args, int *r, int *g, int *b);
+static int change_bg_color (const char *args);
 
 /* Estructura que representa un comando de la Shell */
 typedef struct {
@@ -34,6 +41,8 @@ static command commands[]= {{"help", help},
 							{"time", getTime},
 							{"clear", clear},
 							{"echo", echo},
+              {"char_color", change_char_color},
+              {"bg_color", change_bg_color}
 							};
 
 /* EXECUTE */
@@ -43,8 +52,8 @@ static command commands[]= {{"help", help},
 ** Se asegura desde la shell que toda palabra se encuentra separada
 ** por un unico espacio y que no existen espacios al comienzo o al
 ** de la cadena.
-** Se asegura tambien que args[0] es un espacio en blanco (' ') si
-** se escribieron argumentos o caracter nulo ('\0') sino.
+** Se asegura tambien que args[0] es el caracter nulo ('\0') si no se 
+** enviaron argumentos o el comienzo del primer argumento sino.
 ** La funciones son responsables de parsear los argumentos, retornando
 ** INVALID_ARGS en caso de que estos sean incorrectos.
 */
@@ -62,7 +71,7 @@ int execute(const char *name, const char *args) {
 /* Muestra en pantalla texto de ayuda al usuario, por ejemplo comandos existentes */
 static int help(const char *args){
   if (args[0] != '\0')
-	return INVALID_ARGS;
+	 return INVALID_ARGS;
   printf("HELP FUNCTION -- shows the principal User Commands and its description\n\n");
   printf(" echo [args...]");
   printf("    Write arguments to the standard output. Display the args, separated by a single space character\n");
@@ -73,19 +82,34 @@ static int help(const char *args){
   printf(" set_GMT [GMT]        Set new Greenwich Mean Time. Displays new current time afterwards\n");
   printf(" fractals [*option]   Display a new fractal drawing on the standard output.\n");
   printf("                      If a specific fractal is desired, a number from 1 to %d may be sent as parameter.\n", fractals_size());
-  printf("                      If no parameter is sent a random fractal will be drawed.\n\n");
+  printf("                      If no parameter is sent a random fractal will be drawed.\n");
+  printf(" char_color       colores\n\n");
+  printf(" bg_color       colores\n\n");
   return VALID;
 }
 
 /* Setea GMT del reloj y muestra la hora actual en pantalla*/
 static int set_GMT (const char *args) {
-  if (args[0] == '\0' || (args[1] != '-' && !isdigit(args[1])))
+  if (args[0] == '\0' || !isnum(args))
   	return INVALID_ARGS;
   int valid = setGMT(atoi(args));
   if (!valid)
   	return INVALID_ARGS;
   getTime("");
   return VALID;
+}
+
+static int isnum(const char *str) {
+  if (!isdigit(str[0]) && str[0] != '-')
+    return 0;
+  if (str[0] == '-' && !isdigit(str[1]))
+    return 0;
+  int sign = str[0] == '-';
+  int i;
+  for (i = sign; str[i] != '\0' && str[i] != ' '; i++)
+    if (!isdigit(str[i]))
+      return 0;
+  return 1;
 }
 
 /*Imprime en pantalla la hora actual */
@@ -136,7 +160,7 @@ static int fractals(const char *args) {
 
   if (args[0] == '\0') // No se enviaron parametros --> fractal al azar
     index = seconds() % fractals_size();
-  else if (isdigit(args[1]))
+  else if (isnum(args) && (*next_arg(args)) == '\0') // se envió un solo parámetro y es un número
     index = atoi(args)-1;
 
   if (index != -1)
@@ -148,4 +172,42 @@ static int fractals(const char *args) {
   sleep(SLEEP_TIME);
   clear("");
   return VALID;
+}
+
+static int change_char_color (const char *args) {
+  int red, green, blue;
+  if(!extract_colors(args, &red, &green, &blue))
+    return INVALID_ARGS;
+  return set_char_color(red, green, blue) == 0 ? INVALID_ARGS : VALID;
+}
+
+static int change_bg_color (const char *args) {
+  int red, green, blue;
+  if(!extract_colors(args, &red, &green, &blue))
+    return INVALID_ARGS;
+  if(set_bg_color(red, green, blue)) {
+    clear("");
+    return VALID;
+  }
+  return INVALID_ARGS;
+}
+
+static const char * next_arg (const char *args) {
+  int i = 0;
+  while (args[i] != ' ' && args[i] != '\0')
+    i++;
+  return (args[i] == ' ') ? args+i+1 : args+i;
+}
+
+static int extract_colors (const char *args, int *r, int *g, int *b) {
+  const char *red = args;
+  args = next_arg(args);
+  const char *green = args;
+  const char *blue = next_arg(args);
+  if (!isnum(red) || !isnum (green) || !isnum (blue))
+    return 0;
+  *r = atoi(red);
+  *g = atoi(green);
+  *b = atoi(blue);
+  return 1;
 }

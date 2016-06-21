@@ -21,6 +21,7 @@ int shell() {
     int len = MAX_CMD_SIZE;
     int name_len;
     int valid;
+    int arguments_flag; // 1 si se enviaron argumentos
 
     load_fractals(data_address());
     set_fractals_resolution(screen_Xresolution(), screen_Yresolution()); // fractales en resolucion bien manija
@@ -30,7 +31,8 @@ int shell() {
         readline_no_spaces(buffer, len);
         if (buffer[0] != '\0') { // Se escribio algo
           name_len = extract_cmd_name(cmd_name, buffer);
-          valid = execute(cmd_name, buffer+name_len); // Nombre y argumentos
+          arguments_flag = buffer[name_len] != '\0';
+          valid = execute(cmd_name, buffer+name_len+arguments_flag); // Nombre y argumentos
           handle_validity(valid);
         }
     }

@@ -9,6 +9,10 @@
 #define COL(p) ((p)%WIDTH)
 #define CURSOR_LIMIT HEIGHT*WIDTH
 
+typedef struct {
+	char red, green, blue;
+} color;
+
 static int cursor = 0;
 static int x_res = 0;
 static int y_res = 0;
@@ -21,6 +25,13 @@ static void scroll();
 static void clear_line(int line);
 static unsigned char * video_base_ptr();
 static int get_res(unsigned char * ptr);
+static int set_color (color * c, uint64_t r, uint64_t g, uint64_t b);
+static int valid_colors(uint64_t r, uint64_t g, uint64_t b);
+static void fillChar(int x, int y);
+static void fillBackground(int x, int y);
+
+static color char_color = DEFAULT_CHAR_COLOR;
+static color bg_color = DEFAULT_BG_COLOR;
 
 static unsigned char * video_base_ptr() {
 	unsigned char ** VBEPhysBasePtr = (unsigned char**) 0x0005C28;
@@ -62,6 +73,12 @@ static int get_res(unsigned char * ptr) {
 	return res;
 }
 
+/* Retorna 1 si los colores corresponden a una configuracion RGB */
+static int valid_colors(uint64_t r, uint64_t g, uint64_t b) {
+	return r >= MIN_RGB && r <= MAX_RGB && g >= MIN_RGB 
+			&& g <= MAX_RGB && b >= MIN_RGB && b <= MAX_RGB;
+}
+
 /* Retorna 1 si un pixel es válido, es decir, esta dentro de los limites de la pantalla */
 static int valid_pixel(int x, int y) {
 	return (x >= 0 && x <= SCREEN_WIDTH && y >= 0 && y <= SCREEN_HEIGHT);
@@ -86,14 +103,31 @@ static void clear_line(int line) {
 	}
 }
 
+int set_bg_color(uint64_t r, uint64_t g, uint64_t b) {
+	return set_color(&bg_color, r, g, b);
+}
+
+int set_char_color(uint64_t r, uint64_t g, uint64_t b) {
+	return set_color(&char_color, r, g, b);
+}
+
+static int set_color (color * c, uint64_t r, uint64_t g, uint64_t b) {
+	if (!valid_colors(r,g,b))
+		return 0;
+	c->red = r;
+	c->green = g;
+	c->blue = b;
+	return 1;
+}
+
 /* Pinta de blanco un pixel */
-static void fillWhite(int x, int y) {
-	fill(255, 255, 255, x, y); // pinta de blanco
+static void fillChar(int x, int y) {
+	fill(char_color.red, char_color.green, char_color.blue, x, y); // pinta de blanco
 }
 
 /* Pinta de negro un pixel */
-static void fillBlack(int x, int y) {
-	fill(0, 0, 0, x, y); // pinta de negro
+static void fillBackground(int x, int y) {
+	fill(bg_color.red, bg_color.green, bg_color.blue, x, y); // pinta de negro
 }
 
 /* Pinta un pixel de un color recibido por parámetro como RGB */
@@ -132,9 +166,9 @@ static void print_char_line(char line, int x, int y) {
 	for (j = 0; j < CHAR_WIDTH; j++) {
 		aux = line & mask[j];
 		if (aux != 0) { // Tiene que escribir en ese lugar
-			fillWhite(x+j, y);
+			fillChar(x+j, y);
 		} else {
-			fillBlack(x+j, y);
+			fillBackground(x+j, y);
 		}
 	}
 }
@@ -230,7 +264,7 @@ void print(const char *str, int len, int row, int col) {
 void clear() {
 	int i = 0;
 	for (i = 0; i < WIDTH*HEIGHT; i ++)
-		print_char(' ',ROW(i), COL(i));
+		print_char(' ', ROW(i), COL(i));
 	cursor = 0;
 }
 
