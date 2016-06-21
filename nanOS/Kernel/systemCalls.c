@@ -57,7 +57,7 @@ uint64_t sys_read(uint64_t fds, char * buffer, uint64_t bytes) {
 
 /* SystemCall de Write para escribir a salida estándar*/
 uint64_t sys_write(uint64_t fds, const char * str, uint64_t length) {
-	if (fds == STDOUT) {
+	if (fds == STDOUT || fds == STDERR) {
 		put(str, length);
 		return length;
 	}
