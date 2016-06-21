@@ -32,6 +32,9 @@ int getchar() {
     return c;
 }
 
+/*
+** Lee una línea de entrada estándar de longitud como mucho maxlen y la guarda en str.
+*/
 int readline(char *str, unsigned int maxlen) {
     unsigned int i;
     int c;
@@ -43,7 +46,7 @@ int readline(char *str, unsigned int maxlen) {
 
 /*
 ** Igual que readline pero no se borran los espacios iniciales y finales 
-** de la cadena como tambien los espacios repetidos.
+** de la cadena como también los espacios repetidos.
 */
 int readline_no_spaces(char *str, unsigned int maxlen) {
 	unsigned int i = 0;
@@ -145,8 +148,8 @@ int printf(const char *format, ...) {
 	return len;
 }
 
-
-static void fill_buffer() { // llena el buffer hasta '\n' o se supero su capacidad
+/* LLena el buffer hasta un '\n' o hasta que se termine su capacidad */
+static void fill_buffer() {
 	unsigned char c; 
 	int i = 0;
 	do {

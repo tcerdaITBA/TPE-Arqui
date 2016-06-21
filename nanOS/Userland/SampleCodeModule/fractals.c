@@ -18,6 +18,7 @@ static int endOfParams(fractalParams p);
 static fractalParams * param;
 static int parameters_amount = 0;
 
+/* Carga el vector de parametros de fractales */
 void load_fractals(fractalParams * ptr) {
   param = (fractalParams *) ptr;
   while (!endOfParams(param[parameters_amount])) // Cuenta la cantidad de parametros
@@ -28,10 +29,12 @@ static int endOfParams(fractalParams p) {
   return p.zoom == -1 && p.moveX == -1 && p.moveY == -1 && p.maxIterations == 0 && p.cRe == -1 && p.cIm == -1;
 }
 
+/* Retorna la cantidad de fractales dibujables */
 int fractals_size() {
   return parameters_amount;
 }
 
+/* Dibuja un fractal */
 int draw_fractal(int index) {
   if (index < 0 || index >= fractals_size())
     return 0;
@@ -39,6 +42,7 @@ int draw_fractal(int index) {
   return 1;
 }
 
+/* Establece la resolución de los fractales a dibujar */
 int set_fractals_resolution(int w_res, int h_res) {
   if (w_res < 0 || h_res < 0 || w_res > screen_Xresolution() || h_res > screen_Yresolution())
     return 0; // resolucion invalida
@@ -48,6 +52,7 @@ int set_fractals_resolution(int w_res, int h_res) {
   return 1;
 }
 
+/* Dibuja un fractal con los parámetros dados */
 void drawJuliaFractal(double zoom, double moveX, double moveY, unsigned int maxIterations, double cRe, double cIm)
 {
 
@@ -90,6 +95,7 @@ void drawJuliaFractal(double zoom, double moveX, double moveY, unsigned int maxI
   }
 }
 
+/* Traduce colores HSV a RGB */
 static void HsvToRgb(unsigned char *r, unsigned char *g, unsigned char *b, unsigned char h, unsigned char s, unsigned char v)
 {
     unsigned char region, fpart, p, q, t;

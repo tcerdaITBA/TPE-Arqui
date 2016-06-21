@@ -18,10 +18,20 @@ static uint64_t sys_text_space_wr(uint64_t selection, uint64_t unused1, uint64_t
 static uint64_t sys_malloc_wr(uint64_t bytes, uint64_t unused1, uint64_t unused2);
 static uint64_t sys_data_address_wr(uint64_t unused1, uint64_t unused2, uint64_t unused3);
 
-static uint64_t (*syscalls[]) (uint64_t,uint64_t,uint64_t) = { 0,0,0, sys_read_wr, sys_write_wr, sys_time_wr, 
-															   sys_paint, sys_wait_wr, sys_screen_res_wr, 
-															   sys_text_space_wr, sys_malloc_wr, sys_data_address_wr };
+/* Vector de system calls */
+static uint64_t (*syscalls[]) (uint64_t,uint64_t,uint64_t) = { 0,0,0, 		/* 0, 1, 2 system calls reservados*/
+															   sys_read_wr,         /* 3 */
+															   sys_write_wr,        /* 4 */
+															   sys_time_wr,         /* 5 */
+															   sys_paint,           /* 6 */
+															   sys_wait_wr,         /* 7 */
+															   sys_screen_res_wr,   /* 8 */
+															   sys_text_space_wr,   /* 9 */
+															   sys_malloc_wr,       /* 10 */
+															   sys_data_address_wr  /* 11 */
+															};
 
+/* Ejecuta la system call correspondiente al valor de rax */
 uint64_t syscallDispatcher(uint64_t rax, uint64_t rbx, uint64_t rdx, uint64_t rcx) {
 	if (rax < SYS_SIZE && rax >= 3)
 		return (*syscalls[rax])(rbx,rcx,rdx);
@@ -112,6 +122,7 @@ uint64_t sys_malloc(uint64_t bytes) {
 	return (uint64_t) malloc(bytes);
 }
 
+/* System call que retorna la dirección del módulo de datos */
 uint64_t sys_data_address() {
 	return DATA_ADDRESS;
 }

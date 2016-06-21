@@ -18,14 +18,14 @@ static int capsLockPressed = FALSE;
 static int capsLockPressedCount = 0;
 static int capsLockActivated = FALSE;
 
-/* Guarda un scancode un el buffer*/
+/* Guarda un scancode en el buffer*/
 void store_scancode() {
   if (buff_size == BUFFSIZE)
     return;
 
   int k = get_key(); // Funcion de Assembler que devuelve el scancode
 
-  if (k > 0 && k < TOPCHARCODE) { /*Se apreto una tecla */
+  if (k > 0 && k < TOPCHARCODE) { /* Se apretó una tecla */
 
     if(!processKeyScanCode(k)) { //caso de un caracter a imprimir en pantalla
       buff_size++;

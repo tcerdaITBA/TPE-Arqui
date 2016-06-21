@@ -102,7 +102,7 @@ int itoa(int value, char *str, int base) {
 	return len;
 }
 
-/* A partir de un satring retorna su valor entero */
+/* A partir de un string retorna su valor entero */
 int atoi(const char *str) {
 	while (isspace(*str))
 		str++;

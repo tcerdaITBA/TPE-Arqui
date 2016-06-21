@@ -9,8 +9,7 @@
 #define COL(p) ((p)%WIDTH)
 #define CURSOR_LIMIT HEIGHT*WIDTH
 
-static char color = DEFAULT_COLOR;
-static int cursor = 0; /* solo para put_char por ahora */
+static int cursor = 0;
 static int x_res = 0;
 static int y_res = 0;
 
@@ -19,7 +18,7 @@ static unsigned int count_digits(int num);
 static char valid_pos(int row, int col);
 static void print_char_line(char line, int x, int y);
 static int valid_pixel(int x, int y);
-static void scrollUp();
+static void scroll();
 static void clear_line(int line);
 static unsigned char * video_base_ptr();
 static int get_res(unsigned char * ptr);
@@ -38,16 +37,17 @@ int scr_x_res() {
 int scr_y_res() {
 	return y_res;
 }
-/* Retorna la cantidad de filas de la pantalla */
+/* Retorna la cantidad de filas de la pantalla para caracteres */
 int text_rows() {
 	return HEIGHT;
 }
 
-/* Retorna la cantidad de columnas de la pantalla */
+/* Retorna la cantidad de columnas de la pantalla para caracteres */
 int text_cols() {
 	return WIDTH;
 }
 
+/* Carga las resoluciones de la pantalla */
 void load_vDriver(int x, int y) {
 	x_res = get_res((unsigned char *)0x0005C12);
 	y_res = get_res((unsigned char *)0x0005C14);
@@ -68,8 +68,8 @@ static int valid_pixel(int x, int y) {
 	return (x >= 0 && x <= SCREEN_WIDTH && y >= 0 && y <= SCREEN_HEIGHT);
 }
 
-/* Equivale a mover cada linea una fila hacia arriba, para generar un efecto de "Scroll Up" */
-static void scrollUp() {
+/* Equivale a mover cada linea una fila hacia arriba. La línea de la primer fila es perdida. */
+static void scroll() {
 	unsigned char * linearVESABuffer = video_base_ptr();
 	unsigned char * second_line = linearVESABuffer + (3 * SCREEN_WIDTH * CHAR_HEIGHT);
 	uint64_t length = (SCREEN_HEIGHT * SCREEN_WIDTH * 3) -
@@ -87,12 +87,12 @@ static void clear_line(int line) {
 	}
 }
 
-/*Pinta de blanco una posicion */
+/* Pinta de blanco un pixel */
 static void fillWhite(int x, int y) {
 	fill(255, 255, 255, x, y); // pinta de blanco
 }
 
-/*Pinta de negro una posicion */
+/* Pinta de negro un pixel */
 static void fillBlack(int x, int y) {
 	fill(0, 0, 0, x, y); // pinta de negro
 }
@@ -140,50 +140,6 @@ static void print_char_line(char line, int x, int y) {
 	}
 }
 
-/* Retorna 1 si la posicion row, col es válida, es decir esta dentro de los limites de la pantalla */
-static char valid_pos(int row, int col) {
-	return row < HEIGHT && col < WIDTH && row >= 0 && col >= 0;
-}
-
-/* Cuenta los digitos de un numero */
-static unsigned int count_digits(int num) {
-	int digits = 1;
-	if (num < 0)
-		num *= -1;
-	while ((num /= 10) > 0)
-		digits++;
-	return digits;
-}
-
-char current_color() {
-	return color;
-}
-
-void set_color(char c) {
-	color = c;
-}
-
-/* Imprime una cadena de caracteres en una fila y columna dados */
-void print_str(const char *str, int row, int col) {
-	int backup = cursor;
-	cursor = row * WIDTH + col;
-	while (*str != '\0')
-		put_char(*str++);
-	cursor = backup;
-}
-/* Imprime una cadena de caracteres hasta una longitud dada */
-void put(const char *str, int len) {
-	int i;
-	for (i = 0; i < len; i++)
-		put_char(str[i]);
-}
-
-/* Imprime una cadena de caracteres */
-void put_str(const char *str) {
-	while(*str != '\0')
-		put_char(*str++);
-}
-
 /* Imprime un caracter*/
 void put_char(char c) {
 	if (c == '\b') {
@@ -204,9 +160,40 @@ void put_char(char c) {
 	if (cursor < 0)
 		cursor = 0;
 	if (cursor >= CURSOR_LIMIT) {
-		scrollUp();
+		scroll();
 		cursor = CURSOR_LIMIT - WIDTH;
 	}
+}
+
+/* DEBUG KERNEL 
+** Las funciones debajo son de uso exclusivo para debuggear kernel.
+*/
+
+/* Retorna 1 si la posicion row, col es válida, es decir esta dentro de los limites de la pantalla */
+static char valid_pos(int row, int col) {
+	return row < HEIGHT && col < WIDTH && row >= 0 && col >= 0;
+}
+
+
+/* Imprime una cadena de caracteres en una fila y columna dados */
+void print_str(const char *str, int row, int col) {
+	int backup = cursor;
+	cursor = row * WIDTH + col;
+	while (*str != '\0')
+		put_char(*str++);
+	cursor = backup;
+}
+/* Imprime una cadena de caracteres hasta una longitud dada */
+void put(const char *str, int len) {
+	int i;
+	for (i = 0; i < len; i++)
+		put_char(str[i]);
+}
+
+/* Imprime una cadena de caracteres */
+void put_str(const char *str) {
+	while(*str != '\0')
+		put_char(*str++);
 }
 
 /* Imprime un numero*/
@@ -249,4 +236,14 @@ void clear() {
 		print_char(' ',ROW(i), COL(i));
 	set_color(backup);
 	cursor = 0;
+}
+
+/* Cuenta los digitos de un numero */
+static unsigned int count_digits(int num) {
+	int digits = 1;
+	if (num < 0)
+		num *= -1;
+	while ((num /= 10) > 0)
+		digits++;
+	return digits;
 }

@@ -21,9 +21,10 @@ static int echo(const char *args);
 static void printWithTimeFormat(unsigned int n);
 static int set_GMT(const char *args);
 
+/* Estructura que representa un comando de la Shell */
 typedef struct {
-	const char * name;
-	int (*function) (const char *str);
+	const char * name;  /* Nombre del comando */
+	int (*function) (const char *str);  /* Funcion correspondiente al comando */
 } command;
 
 /* COMMANDS ARRAY */

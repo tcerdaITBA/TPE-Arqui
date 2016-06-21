@@ -7,7 +7,7 @@ _int80h:
     push rbp
     mov rbp,rsp
 
-    push rbx
+    push rbx  ; backups
     push r12
     push r13
     push r15
