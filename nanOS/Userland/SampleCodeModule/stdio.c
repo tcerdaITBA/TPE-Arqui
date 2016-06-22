@@ -51,7 +51,50 @@ int readline(char *str, unsigned int maxlen) {
 }
 
 /*
-** Igual que readline pero no se borran los espacios iniciales y finales 
+** Simple implementacion de scanf que acepta los simbolos %d y %s.
+*/
+int scanf(const char *format, ...) {
+	int i, j, num;
+	int argc = 0;
+	int *p;
+	char *str;
+	char aux[BUFFER_SIZE];
+	va_list args;
+	va_start(args, format);
+
+	readline(aux, BUFFER_SIZE);
+
+	for (i = j = 0; aux[j] != '\0' && format[i] != '\0'; i++, j++) {
+		if (format[i] == '%') {
+			i++;
+			if (format[i] == 'd') {
+				if(aux[j] != '+' && aux[j] != '-' && !isdigit(aux[j]))
+					return argc;
+				num = atoi(aux + j);
+				p = va_arg(args, int *);
+				*p = num;
+				while (isdigit(aux[j+1]))
+					j++;
+			}
+			else if (format[i] == 's') {
+				str = va_arg(args, char *);
+				strcpy(str, aux+j);
+				return argc+1;
+			}
+			else if (format[i] == '%' && aux[j++] != '%')
+				return argc;
+			argc++;
+		} 
+		else if (format[i] != aux[j])
+			return argc;
+	}
+
+	va_end(args);
+	return argc;
+}
+
+/*
+** Igual que readline pero se borran los espacios iniciales y finales 
 ** de la cadena como también los espacios repetidos.
 */
 int readline_no_spaces(char *str, unsigned int maxlen) {

@@ -90,7 +90,7 @@ static int help(const char *args){
 
 /* Setea GMT del reloj y muestra la hora actual en pantalla*/
 static int set_GMT (const char *args) {
-  if (args[0] == '\0' || !isnum(args))
+  if (args[0] == '\0' || !isnum(args) || (*next_arg(args)) != '\0') // Se envió un argumento no entero o más de un argumento
   	return INVALID_ARGS;
   int valid = setGMT(atoi(args));
   if (!valid)

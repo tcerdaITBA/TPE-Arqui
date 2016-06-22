@@ -24,6 +24,14 @@ int strncmp(const char * s, const char * t, unsigned int n) {
 	return s[i]-t[i];
 }
 
+int strcpy(char * to, const char * from) {
+	int i;
+	for (i = 0; from[i] != '\0'; i++)
+		to[i] = from[i];
+	to[i] = '\0';
+	return i;
+}
+
 /* Copia una cadena de caracteres a otra y devuelve la cantidad de caracteres copiados */
 int strcpyto(char * to, const char * from, char limit) {
 	return strcpynto(to, from, limit, UINT_MAX);
