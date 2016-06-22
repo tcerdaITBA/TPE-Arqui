@@ -144,9 +144,7 @@ static int clear(const char *args) {
 
 /*Imprime la cadena de argumentos pasadas como parametros a salida estandar */
 static int echo(const char *args) {
-  int spaced = args[0] == ' ' ;
-  if (spaced || args[0] == '\0')
-    printf("%s\n", args+spaced);
+  printf("%s\n", args);
   return VALID;
 }
 
