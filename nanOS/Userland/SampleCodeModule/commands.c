@@ -99,6 +99,7 @@ static int set_GMT (const char *args) {
   return VALID;
 }
 
+/* Retorna 1 si una cadena de caracteres representa a un numero */
 static int isnum(const char *str) {
   if (!isdigit(str[0]) && str[0] != '-')
     return 0;
@@ -174,6 +175,7 @@ static int fractals(const char *args) {
   return VALID;
 }
 
+/* Cambia el color de la letra */
 static int change_char_color (const char *args) {
   int red, green, blue;
   if(!extract_colors(args, &red, &green, &blue))
@@ -181,6 +183,7 @@ static int change_char_color (const char *args) {
   return set_char_color(red, green, blue) == 0 ? INVALID_ARGS : VALID;
 }
 
+/* Cambia eñ color del fondo */
 static int change_bg_color (const char *args) {
   int red, green, blue;
   if(!extract_colors(args, &red, &green, &blue))
@@ -192,6 +195,7 @@ static int change_bg_color (const char *args) {
   return INVALID_ARGS;
 }
 
+/* Retorna el siguiente argumento , es decir lo siguiente luego de un espacio */
 static const char * next_arg (const char *args) {
   int i = 0;
   while (args[i] != ' ' && args[i] != '\0')
@@ -199,6 +203,7 @@ static const char * next_arg (const char *args) {
   return (args[i] == ' ') ? args+i+1 : args+i;
 }
 
+/* Obtiene a partir de lo ingresado por el usuario, los valores de colores RGB */
 static int extract_colors (const char *args, int *r, int *g, int *b) {
   const char *red = args;
   args = next_arg(args);

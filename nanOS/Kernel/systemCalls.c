@@ -134,10 +134,12 @@ uint64_t sys_data_address() {
 	return DATA_ADDRESS;
 }
 
+/* System call para el seteo del color de letra */
 uint64_t sys_set_char_color(uint64_t r, uint64_t g, uint64_t b) {
 	return set_char_color(r,g,b);
 }
 
+/* SystemCall para el seteo de color de fondo */
 uint64_t sys_set_bg_color(uint64_t r, uint64_t g, uint64_t b) {
 	return set_bg_color(r,g,b);
 }

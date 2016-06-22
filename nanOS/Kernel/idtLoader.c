@@ -12,7 +12,6 @@ void setup_IDT_entry (int index, uint8_t selector, uint64_t offset, uint8_t acce
 void load_idt()
 {
 
-	// TODO: preguntar/buscar porq anda con 0x20 y 0x21
 	setup_IDT_entry (0x20, 0x08, (uint64_t)&_irq00Handler, ACS_INT);
 	setup_IDT_entry (0x21, 0x08, (uint64_t)&_irq01Handler, ACS_INT);
 	setup_IDT_entry (0x80, 0x08, (uint64_t)&_syscallHandler, ACS_INT);

@@ -63,12 +63,14 @@ void load_vDriver(int x, int y) {
 	y_res = get_res((unsigned char *)0x0005C14);
 }
 
+/* Carga los colores de la letra */
 void current_char_color(unsigned char *r, unsigned char *g, unsigned char *b) {
 	*r = char_color.red;
 	*g = char_color.green;
 	*b = char_color.blue;
 }
 
+/* Carga los colores del fondo */
 void current_bg_color(unsigned char *r, unsigned char *g, unsigned char *b) {
 	*r = bg_color.red;
 	*g = bg_color.green;
@@ -115,14 +117,17 @@ static void clear_line(int line) {
 	}
 }
 
+/* Setea un color de fondo */
 int set_bg_color(uint64_t r, uint64_t g, uint64_t b) {
 	return set_color(&bg_color, r, g, b);
 }
 
+/* Setea un color de fondo */
 int set_char_color(uint64_t r, uint64_t g, uint64_t b) {
 	return set_color(&char_color, r, g, b);
 }
 
+/* Setea un color de fondo fijandose que sean validos los parametros */
 static int set_color (color * c, uint64_t r, uint64_t g, uint64_t b) {
 	if (!valid_colors(r,g,b))
 		return 0;
