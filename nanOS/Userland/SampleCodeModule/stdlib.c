@@ -58,7 +58,7 @@ void * malloc (int size) {
 
 /* Libera espacio de memoria */
 void free(void * ptr){
-	return;
+	free_reserve (ptr);
 }
 
 /* Copia en str los valores ascii de los digitos de value en la base indicada.

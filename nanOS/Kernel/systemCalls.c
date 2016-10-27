@@ -6,6 +6,7 @@
 #include "timer.h"
 #include "lib.h"
 #include "dirs.h"
+#include "memoryAllocator.h"
 
 #define ERR_COLOR 255,0,0  // Rojo
 
@@ -19,6 +20,7 @@ static uint64_t sys_screen_res_wr(uint64_t selection, uint64_t unused1, uint64_t
 static uint64_t sys_text_space_wr(uint64_t selection, uint64_t unused1, uint64_t unused2);
 static uint64_t sys_malloc_wr(uint64_t bytes, uint64_t unused1, uint64_t unused2);
 static uint64_t sys_data_address_wr(uint64_t unused1, uint64_t unused2, uint64_t unused3);
+static uint64_t sys_free_wr(uint64_t selection, uint64_t unused2, uint64_t unused3);
 
 /* Vector de system calls */
 static uint64_t (*syscalls[]) (uint64_t,uint64_t,uint64_t) = { 0,0,0, 		/* 0, 1, 2 system calls reservados*/
@@ -30,9 +32,10 @@ static uint64_t (*syscalls[]) (uint64_t,uint64_t,uint64_t) = { 0,0,0, 		/* 0, 1,
 															   sys_screen_res_wr,   /* 8 */
 															   sys_text_space_wr,   /* 9 */
 															   sys_malloc_wr,       /* 10 */
-															   sys_data_address_wr, /* 11 */
-															   sys_set_char_color,  /* 12 */
-															   sys_set_bg_color     /* 13 */
+															   sys_free_wr,			/* 11 */
+															   sys_data_address_wr, /* 12 */
+															   sys_set_char_color,  /* 13 */
+															   sys_set_bg_color     /* 14 */
 															};
 
 /* Ejecuta la system call correspondiente al valor de rax */
@@ -126,7 +129,12 @@ uint64_t sys_text_space(uint64_t selection) {
 
 /* SystemCall Malloc */
 uint64_t sys_malloc(uint64_t bytes) {
-	return (uint64_t) malloc(bytes);
+	return (uint64_t) get_page(bytes);
+}
+
+/* System call free*/
+uint64_t sys_free(uint64_t address) {
+	return store_page(address);
 }
 
 /* System call que retorna la dirección del módulo de datos */
@@ -177,6 +185,10 @@ static uint64_t sys_text_space_wr(uint64_t selection, uint64_t unused1, uint64_t
 
 static uint64_t sys_malloc_wr(uint64_t selection, uint64_t unused1, uint64_t unused2) {
 	return sys_malloc(selection);
+}
+
+static uint64_t sys_free_wr(uint64_t selection, uint64_t unused2, uint64_t unused3) {
+	return sys_free(selection);
 }
 
 static uint64_t sys_data_address_wr(uint64_t unused1, uint64_t unused2, uint64_t unused3) {

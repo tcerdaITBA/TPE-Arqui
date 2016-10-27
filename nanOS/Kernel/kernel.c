@@ -1,10 +1,11 @@
 #include <stdint.h>
-#include <string.h>
 #include <lib.h>
 #include <moduleLoader.h>
 #include <naiveConsole.h>
 #include "dirs.h"
 #include "videoDriver.h"
+#include "memoryAllocator.h"
+
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -90,6 +91,8 @@ int main()
 {
 	load_idt();
 	load_vDriver();
+	initialize_memory_allocator();
+
 
 	ncPrint("[Kernel Main]");
 	ncNewline();

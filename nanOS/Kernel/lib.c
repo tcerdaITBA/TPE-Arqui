@@ -1,10 +1,5 @@
 #include <stdint.h>
 
-/* Posicion a partir de la cual se puede reservar memoria */
-#define MEM_START 0x1000000
-
-static void* mem = (void*) MEM_START;
-
 void * memset(void * destination, int32_t c, uint64_t length)
 {
 	uint8_t chr = (uint8_t)c;
@@ -53,16 +48,4 @@ void * memcpy(void * destination, const void * source, uint64_t length)
 	}
 
 	return destination;
-}
-
-/* Reserva la cantidad de memoria recibida por parámetro */
-void * malloc (int size) {
-	void * result = mem;
-	mem += size;
-	return result;
-}
-
-/* Libera una zona de memoria */
-void free(void * ptr){
-	return;
 }

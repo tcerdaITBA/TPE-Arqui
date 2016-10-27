@@ -55,15 +55,20 @@ void * reserve (unsigned int bytes) {
 	return (void *) _int80h(10, bytes, 0, 0);
 }
 
+/* SystemCall para reservar espacio en memoria*/
+int free_reserve (void * address) {
+    return _int80h(11, (uint64_t) address, 0, 0);
+}
+
 /* SystemCall para obtener la direccion de memoria de datos */
 void * data_address() {
-    return (void *) _int80h(11, 0, 0, 0);
+    return (void *) _int80h(12, 0, 0, 0);
 }
 
 int set_char_color (uint64_t r, uint64_t g, uint64_t b) {
-    return _int80h(12,r,g,b);
+    return _int80h(13,r,g,b);
 }
 
 int set_bg_color (uint64_t r, uint64_t g, uint64_t b) {
-    return _int80h(13,r,g,b);
+    return _int80h(14,r,g,b);
 }
