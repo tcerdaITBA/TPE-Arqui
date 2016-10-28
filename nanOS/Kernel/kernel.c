@@ -93,7 +93,6 @@ void _sti();
 int main()
 {
 	load_idt();
-	_sti();
 	load_vDriver();
 	initialize_memory_allocator();
 
