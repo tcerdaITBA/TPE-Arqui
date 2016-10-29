@@ -5,6 +5,7 @@
 #include "dirs.h"
 #include "videoDriver.h"
 #include "memoryAllocator.h"
+#include "processManager.h"
 
 
 extern uint8_t text;
@@ -20,6 +21,10 @@ static void * const sampleCodeModuleAddress = (void *) CODE_ADDRESS;
 static void * const sampleDataModuleAddress = (void *) DATA_ADDRESS;
 
 typedef int (*EntryPoint)();
+
+void _cli();
+void _sti();
+void _hlt();
 
 
 void clearBSS(void * bssAddress, uint64_t bssSize)
@@ -38,6 +43,7 @@ void * getStackBase()
 
 void * initializeKernelBinary()
 {
+	_cli();
 	char buffer[10];
 
 	ncPrint("[x64BareBones]");
@@ -87,14 +93,12 @@ void * initializeKernelBinary()
 
 void load_idt();
 
-void _sti();
-
-
 int main()
 {
 	load_idt();
 	load_vDriver();
 	initialize_memory_allocator();
+	initialize_stack_memory_allocator();
 
 
 	ncPrint("[Kernel Main]");
@@ -103,7 +107,15 @@ int main()
 	ncPrintHex((uint64_t)sampleCodeModuleAddress);
 	ncNewline();
 	ncPrint("  Calling the sample code module returned: ");
-	ncPrintHex(((EntryPoint)sampleCodeModuleAddress)());
+
+	put_str("entrando exec ");
+
+	exec_process((uint64_t)sampleCodeModuleAddress);
+
+	put_str("saliendo exec");
+	_hlt();
+
+//	ncPrintHex(((EntryPoint)sampleCodeModuleAddress)());
 	ncNewline();
 	ncNewline();
 

@@ -1,11 +1,7 @@
-#include "dirs.h"
 #include "memoryAllocator.h"
+#include "processManager.h"
 
-
-#define STACK_SIZE ((page_index_t) -1) /* valor máximo que puede tomar una variable de tipo page_index_t */
-
-
-typedef uint16_t page_index_t;
+/* Alocador de paginas para datos */
 
 static page_index_t pages_stack[ STACK_SIZE ];
 static page_index_t current_index = 0; /* Apunta al elemento a poppear */
@@ -31,6 +27,32 @@ uint64_t get_page(uint64_t size) {
 uint64_t store_page(uint64_t address) {
 	if (current_index > 0) {
 		pages_stack[--current_index] = (address - DATA_ADDRESS) / PAGE_SIZE;
+		return 1;
+	}
+	return 0;
+}
+
+static uint64_t stack_pages_stack[ MAX_PROCESSES ];
+static uint16_t current_stack_index = 0; /* Apunta al elemento a poppear */
+
+/* Alocador de paginas para stack de procesos */
+
+void initialize_stack_memory_allocator() {
+	int i;
+	for (i = 0; i < MAX_PROCESSES; i++)
+		stack_pages_stack[i] = (i+1) * STACK_PAGE_SIZE + STACK_ADDRESS; /* Se suma 1 porque el stack crece 
+																		** hacia direcciones menores */
+}
+
+uint64_t get_stack_page() {
+	if (current_stack_index < MAX_PROCESSES)
+		return stack_pages_stack[current_stack_index++];
+	return 0;
+}
+
+uint64_t store_stack_page(uint64_t address) {
+	if (current_stack_index > 0) {
+		stack_pages_stack[--current_stack_index] = address;
 		return 1;
 	}
 	return 0;

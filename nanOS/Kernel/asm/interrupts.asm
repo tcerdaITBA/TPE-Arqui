@@ -19,6 +19,7 @@ GLOBAL _syscallHandler
 EXTERN irqDispatcher
 EXTERN syscallDispatcher
 EXTERN idtr
+EXTERN next_process
 
 SECTION .text
 
@@ -38,9 +39,13 @@ SECTION .text
 	push r13
 	push r14
 	push r15
+	push fs
+	push gs
 %endmacro
 
 %macro popState 0
+	pop gs
+	pop fs
 	pop r15
 	pop r14
 	pop r13
@@ -114,10 +119,23 @@ _lidt:				; Carga el IDTR
     pop     rbp
     retn
 
-
 ;8254 Timer (Timer Tick)
 _irq00Handler:
-	irqHandlerMaster 0
+;	irqHandlerMaster 0
+	pushState
+
+	mov rdi, rsp
+	call next_process
+
+	mov rsp, rax
+
+	mov al, 0x20
+	out 0x20, al
+
+	popState
+
+	iretq
+
 
 ;Keyboard
 _irq01Handler:
