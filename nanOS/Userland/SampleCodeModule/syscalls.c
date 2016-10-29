@@ -72,3 +72,15 @@ int set_char_color (uint64_t r, uint64_t g, uint64_t b) {
 int set_bg_color (uint64_t r, uint64_t g, uint64_t b) {
     return _int80h(14,r,g,b);
 }
+
+void exec(void * ptr) {
+    _int80h(15, (uint64_t) ptr, 0, 0);
+}
+
+void end() {
+    _int80h(16, 0, 0, 0);
+}
+
+void yield() {
+    _int80h(17, 0, 0, 0);
+}

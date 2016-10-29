@@ -15,6 +15,8 @@ void load_idt()
 	setup_IDT_entry (0x20, 0x08, (uint64_t)&_irq00Handler, ACS_INT);
 	setup_IDT_entry (0x21, 0x08, (uint64_t)&_irq01Handler, ACS_INT);
 	setup_IDT_entry (0x80, 0x08, (uint64_t)&_syscallHandler, ACS_INT);
+	setup_IDT_entry (0x70, 0x08, (uint64_t)&_yield_interrupt, ACS_INT);
+
 
 	idtr.base = 0;
 	idtr.base += (uint64_t) &idt;

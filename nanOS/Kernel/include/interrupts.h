@@ -19,6 +19,8 @@ void _irq05Handler(void);
 
 void _syscallHandler(void);
 
+void _yield_interrupt(void);
+
 void _cli(void);
 
 void _sti(void);

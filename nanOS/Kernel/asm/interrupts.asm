@@ -14,6 +14,9 @@ GLOBAL _irq03Handler
 GLOBAL _irq04Handler
 GLOBAL _irq05Handler
 GLOBAL _syscallHandler
+GLOBAL _change_process
+GLOBAL _yield_process
+GLOBAL _yield_interrupt
 
 
 EXTERN irqDispatcher
@@ -134,6 +137,27 @@ _irq00Handler:
 	mov al, 0x20
 	out 0x20, al
 
+	popState
+
+	iretq
+
+_change_process:
+	mov rsp, rdi
+	popState
+	iretq
+
+
+_yield_process:
+	int 70h
+	ret
+
+_yield_interrupt:
+	pushState
+
+	mov rdi, rsp
+	call next_process
+
+	mov rsp, rax
 	popState
 
 	iretq

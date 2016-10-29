@@ -60,19 +60,14 @@ static int free_slot = 0;
 /* Próximo pid a asignar */
 static uint64_t next_pid = 0;
 
-void _cli();
-
 uint64_t next_process(uint64_t current_rsp) {
-	if (number_processes() == 0)
-		return current_rsp;
-
 	process current = process_table[current_index++];
 
-	if (current_index != -1) /* No es el primer proceso */
-		current.rsp = current_rsp; /* Se guarda el stack pointer actualizado */
+	current.rsp = current_rsp; /* Se guarda el stack pointer actualizado */
 
 	add_process(current); /* Coloca proceso al final de la cola */
 
+	print_num(current.pid, 5, 5);
 	if (current_index == MAX_PROCESSES)
 		current_index = 0;
 
@@ -91,7 +86,6 @@ void exec_process(uint64_t new_process_rip) {
 	new_process.pid = next_pid++;
 
 	add_process(new_process);
-
 }
 
 static void add_process(process p) {
@@ -101,17 +95,19 @@ static void add_process(process p) {
 		free_slot = 0;
 }
 
-/* TODO */
-void yield_process() {
+void _yield_process();
+void _change_process(uint64_t rsp);
 
+void yield_process() {
+	put_str("BEFORE YIELD ");
+	_yield_process();
+	put_str(" AFTER YIELD");
 }
 
 /* Se avanza con el proceso que está delante */
-/* TODO: usar semáforos */
-/* TODO: hacer correr el proximo proceso */
 void end_process() {
 	store_stack_page(process_table[current_index].stack_page);
-	current_index++;
+	_change_process(process_table[++current_index].rsp);
 }
 
 int number_processes() {
@@ -147,6 +143,5 @@ static uint64_t fill_stack(uint64_t rip, uint64_t stack_page) {
 	frame->ss = 	0x000;
 	frame->base =	0x000;
 
-	return &frame->gs;
-	return (uint64_t) frame;  /* PREGUNTAR CUAL VA */
+	return (uint64_t) &frame->gs;
 }

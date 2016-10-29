@@ -28,6 +28,9 @@ static int change_char_color (const char *args);
 static int extract_colors (const char *args, int *r, int *g, int *b);
 static int change_bg_color (const char *args);
 
+static void test();
+static int test_mt(const char *str);
+
 /* Estructura que representa un comando de la Shell */
 typedef struct {
 	const char * name;  /* Nombre del comando */
@@ -42,8 +45,22 @@ static command commands[]= {{"help", help},
 							{"clear", clear},
 							{"echo", echo},
               {"char_color", change_char_color},
-              {"bg_color", change_bg_color}
+              {"bg_color", change_bg_color},
+              {"test", test_mt}
 							};
+
+static void test() {
+  printf("ESTA ES UNA PRUEBA de multitasking\n");
+  yield();
+  sleep(SLEEP_TIME);
+  end();
+}
+
+static int test_mt(const char *str) {
+  exec((void *) test);
+  return VALID;
+}
+
 
 /* EXECUTE */
 

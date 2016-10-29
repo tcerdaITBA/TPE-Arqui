@@ -7,6 +7,7 @@
 #include "lib.h"
 #include "dirs.h"
 #include "memoryAllocator.h"
+#include "processManager.h"
 
 #define ERR_COLOR 255,0,0  // Rojo
 
@@ -21,6 +22,10 @@ static uint64_t sys_text_space_wr(uint64_t selection, uint64_t unused1, uint64_t
 static uint64_t sys_malloc_wr(uint64_t bytes, uint64_t unused1, uint64_t unused2);
 static uint64_t sys_data_address_wr(uint64_t unused1, uint64_t unused2, uint64_t unused3);
 static uint64_t sys_free_wr(uint64_t selection, uint64_t unused2, uint64_t unused3);
+static uint64_t sys_exec_wr(uint64_t ptr, uint64_t unused2, uint64_t unused3);
+static uint64_t sys_end_wr(uint64_t unused1, uint64_t unused2, uint64_t unused3);
+static uint64_t sys_yield_wr(uint64_t unused1, uint64_t unused2, uint64_t unused3);
+
 
 /* Vector de system calls */
 static uint64_t (*syscalls[]) (uint64_t,uint64_t,uint64_t) = { 0,0,0, 		/* 0, 1, 2 system calls reservados*/
@@ -35,7 +40,10 @@ static uint64_t (*syscalls[]) (uint64_t,uint64_t,uint64_t) = { 0,0,0, 		/* 0, 1,
 															   sys_free_wr,			/* 11 */
 															   sys_data_address_wr, /* 12 */
 															   sys_set_char_color,  /* 13 */
-															   sys_set_bg_color     /* 14 */
+															   sys_set_bg_color,    /* 14 */
+															   sys_exec_wr,			/* 15 */
+															   sys_end_wr,			/* 16 */
+															   sys_yield_wr			/* 17 */
 															};
 
 /* Ejecuta la system call correspondiente al valor de rax */
@@ -153,6 +161,21 @@ uint64_t sys_set_bg_color(uint64_t r, uint64_t g, uint64_t b) {
 	return set_bg_color(r,g,b);
 }
 
+uint64_t sys_exec(uint64_t ptr) {
+	exec_process(ptr);
+	return 1;	
+}
+
+uint64_t sys_end() {
+	end_process();
+	return 1;
+}
+
+uint64_t sys_yield() {
+	yield_process();
+	return 1;
+}
+
 /* WRAPPERS */
 /* Se usan para system calls que no reciben exactamente 3 parametros enteros.
 ** En la wrapper se filtran los parametros innecesarios y se hacen los casteos
@@ -195,3 +218,16 @@ static uint64_t sys_free_wr(uint64_t selection, uint64_t unused2, uint64_t unuse
 static uint64_t sys_data_address_wr(uint64_t unused1, uint64_t unused2, uint64_t unused3) {
 	return sys_data_address();
 }
+
+static uint64_t sys_exec_wr(uint64_t ptr, uint64_t unused2, uint64_t unused3) {
+	return sys_exec(ptr);
+}
+
+static uint64_t sys_end_wr(uint64_t unused1, uint64_t unused2, uint64_t unused3) {
+	return sys_end();
+}
+
+static uint64_t sys_yield_wr(uint64_t unused1, uint64_t unused2, uint64_t unused3) {
+	return sys_yield();
+}
+
