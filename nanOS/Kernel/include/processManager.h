@@ -6,7 +6,7 @@
 #define MAX_PROCESSES 256
 
 uint64_t next_process(uint64_t current_rsp);
-void exec_process(uint64_t new_rip);
+void exec_process(uint64_t new_rip, uint64_t params);
 void end_process();
 void yield_process();
 int number_processes();

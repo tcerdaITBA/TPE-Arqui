@@ -27,8 +27,9 @@ static const char * next_arg (const char *args);
 static int change_char_color (const char *args);
 static int extract_colors (const char *args, int *r, int *g, int *b);
 static int change_bg_color (const char *args);
+static void fractal_process(int index);
 
-static void test();
+static void test(uint64_t param);
 static int test_mt(const char *str);
 
 /* Estructura que representa un comando de la Shell */
@@ -49,15 +50,20 @@ static command commands[]= {{"help", help},
               {"test", test_mt}
 							};
 
-static void test() {
-  printf("ESTA ES UNA PRUEBA de multitasking\n");
-  yield();
-  sleep(SLEEP_TIME);
+static void test(uint64_t param) {
+  int i = 25;
+  printf("COMENZANDO PRUEBA de multitasking. Se realizaran %d yields\n", i);
+  printf("PARAM %d\n", param);
+  while (i--)
+    yield();
+
+  printf("FIN PRUEBA\n");
+
   end();
 }
 
 static int test_mt(const char *str) {
-  exec((void *) test);
+  exec((void *) test, atoi(str));
   return VALID;
 }
 
@@ -170,23 +176,24 @@ static int echo(const char *args) {
 ** En caso de recibir un numero como parámetro muestra el fractal correspondiente,
 ** si no se recibió ningun parametro muestra un fractal al azar
 */
+static void fractal_process(int index) {
+  draw_fractal(index);
+  end();
+}
+
 static int fractals(const char *args) {
   int index = -1;
-  int valid = 0;
 
   if (args[0] == '\0') // No se enviaron parametros --> fractal al azar
     index = seconds() % fractals_size();
   else if (isnum(args) && (*next_arg(args)) == '\0') // se envió un solo parámetro y es un número
     index = atoi(args)-1;
 
-  if (index != -1)
-    valid = draw_fractal(index);
-
-  if (!valid)
+  if (index <= 0 || index > fractals_size())
     return INVALID_ARGS;
+  
+  exec((void *) fractal_process, index);
 
-  sleep(SLEEP_TIME);
-  clear("");
   return VALID;
 }
 

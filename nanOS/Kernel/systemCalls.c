@@ -161,9 +161,9 @@ uint64_t sys_set_bg_color(uint64_t r, uint64_t g, uint64_t b) {
 	return set_bg_color(r,g,b);
 }
 
-uint64_t sys_exec(uint64_t ptr) {
-	exec_process(ptr);
-	return 1;	
+uint64_t sys_exec(uint64_t ptr, uint64_t params) {
+	exec_process(ptr, params);
+	return 1;
 }
 
 uint64_t sys_end() {
@@ -219,8 +219,8 @@ static uint64_t sys_data_address_wr(uint64_t unused1, uint64_t unused2, uint64_t
 	return sys_data_address();
 }
 
-static uint64_t sys_exec_wr(uint64_t ptr, uint64_t unused2, uint64_t unused3) {
-	return sys_exec(ptr);
+static uint64_t sys_exec_wr(uint64_t ptr, uint64_t params, uint64_t unused3) {
+	return sys_exec(ptr, params);
 }
 
 static uint64_t sys_end_wr(uint64_t unused1, uint64_t unused2, uint64_t unused3) {

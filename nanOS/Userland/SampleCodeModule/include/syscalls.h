@@ -22,7 +22,7 @@ void * data_address();
 int set_char_color (uint64_t r, uint64_t g, uint64_t b);
 int set_bg_color (uint64_t r, uint64_t g, uint64_t b);
 
-void exec(void * ptr);
+void exec(void * ptr, uint64_t params);
 void end();
 void yield();
 
