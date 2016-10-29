@@ -20,6 +20,7 @@ EXTERN irqDispatcher
 EXTERN syscallDispatcher
 EXTERN idtr
 EXTERN next_process
+EXTERN timer_handler
 
 SECTION .text
 
@@ -121,8 +122,9 @@ _lidt:				; Carga el IDTR
 
 ;8254 Timer (Timer Tick)
 _irq00Handler:
-;	irqHandlerMaster 0
 	pushState
+
+	call timer_handler
 
 	mov rdi, rsp
 	call next_process
