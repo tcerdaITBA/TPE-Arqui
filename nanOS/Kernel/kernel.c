@@ -108,9 +108,7 @@ int main()
 	ncNewline();
 	ncPrint("  Calling the sample code module returned: ");
 
-	exec_process((uint64_t)sampleCodeModuleAddress);
-
-	_hlt();
+	exec_process((uint64_t)sampleCodeModuleAddress, 0);
 
 //	ncPrintHex(((EntryPoint)sampleCodeModuleAddress)());
 	ncNewline();
