@@ -58,7 +58,7 @@ static int current_index = -1;
 static int free_slot = 0;
 
 /* Próximo pid a asignar */
-static uint64_t next_pid = 0;
+static uint64_t next_pid = 1;
 
 uint64_t next_process(uint64_t current_rsp) {
 	process current = process_table[current_index++];

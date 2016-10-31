@@ -53,6 +53,8 @@ uint64_t syscallDispatcher(uint64_t rax, uint64_t rbx, uint64_t rdx, uint64_t rc
 	return 0;
 }
 
+void _sti();
+
 /* SystemCall de Read para leer de entrada estándar*/
 uint64_t sys_read(uint64_t fds, char * buffer, uint64_t bytes) {
 	unsigned int i = 0;
@@ -64,7 +66,8 @@ uint64_t sys_read(uint64_t fds, char * buffer, uint64_t bytes) {
 					buffer[i++] = c;
 				}
 				else {
-					_hlt();
+					_sti();
+					yield();
 				}
 			}
     }
