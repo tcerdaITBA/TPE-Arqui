@@ -2,16 +2,16 @@
 #include "kernelMutex.h"
 #include "strings.h"
 
-#define NULL ((void *) 0)
+#define NULL ((void *) 0) // ??
 
-typedef struct {
+typedef struct mutex_node {
   process * p;
-  mutex_node * next;
-} mutex_node;
+  struct mutex_node * next;
+} mutex_node_t;
 
 typedef struct {
-  mutex_node * first;
-  mutex_node * last;
+  mutex_node_t * first;
+  mutex_node_t * last;
 } mutex_queue;
 
 typedef struct {
@@ -24,7 +24,7 @@ static mutex open_mutexes[MAX_MUTEXES];
 
 extern int test_lock(int * locknum);
 
-static process dequeue_process(mutex m);
+static process * dequeue_process(mutex m);
 static void queue_process(mutex m, process * p);
 static void unblock_process(process * p);
 static void block_process(process * p);
@@ -92,23 +92,22 @@ static void unblock_process(process * p) {
 }
 
 static void queue_process(mutex m, process * p) {
-  mutex_node = malloc();
-  mutex_node.p = p;
-  mutex_node->next = NULL;
+  mutex_node_t * node = malloc();
+  node->p = p;
   if (m.process_queue.first == NULL) {
-    m.process_queue->first = mutex_node;
-    m.process_queue->last = mutex_node;
+    m.process_queue.first = node;
+    m.process_queue.last = node;
   }
-  m.process_queue->last->next = mutex_node;
-  m.process_queue->last = mutex_node;
+  m.process_queue.last->next = node;
+  m.process_queue.last = node;
 }
 
-static process dequeue_process(mutex m) {
+static process * dequeue_process(mutex m) {
   if (m.process_queue.first == NULL)
     return NULL;
 
-  process * p = m.process_queue->first.p;
-  m.process_queue->first = m.process_queue->first->next;
+  process * p = m.process_queue.first->p;
+  m.process_queue.first = m.process_queue.first->next;
 
   return p;
 }
