@@ -7,6 +7,7 @@
 #include "memoryAllocator.h"
 #include "processManager.h"
 #include "init.h"
+#include "interrupts.h"
 
 
 extern uint8_t text;
@@ -22,10 +23,6 @@ static void * const sampleCodeModuleAddress = (void *) CODE_ADDRESS;
 static void * const sampleDataModuleAddress = (void *) DATA_ADDRESS;
 
 typedef int (*EntryPoint)();
-
-void _cli();
-void _sti();
-void _hlt();
 
 
 void clearBSS(void * bssAddress, uint64_t bssSize)
@@ -96,19 +93,13 @@ void load_idt();
 
 int main()
 {
-	_cli();
 
 	load_idt();
 	load_vDriver();
 	initialize_memory_allocator();
 	initialize_stack_memory_allocator();
 
-	_cli();
-
 	exec_process((uint64_t)init, 0);
-
-	_sti();
-
 
 	ncPrint("[Kernel Main]");
 	ncNewline();

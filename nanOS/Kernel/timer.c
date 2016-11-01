@@ -1,5 +1,6 @@
 #include "timer.h"
 #include "interrupts.h"
+#include "videoDriver.h"
 
 static uint64_t ticks = 0;
 

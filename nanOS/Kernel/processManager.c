@@ -18,6 +18,7 @@ typedef char status;
 typedef struct {
 	status st;
 	uint64_t rsp;
+	uint64_t entry_point;
 	uint64_t stack_page;
 	uint64_t pid;
 	uint64_t ppid;
@@ -63,9 +64,10 @@ static void add_process(process p);
 
 /* Índice del proceso actualmente corriendo */
 static node *current = NULL;
+static node *prev = NULL;
 
 /* Próximo pid a asignar */
-static uint64_t next_pid = 1;
+static uint64_t next_pid = 0;
 
 static void set_rsp(uint64_t rsp) {
 	current->p.rsp = rsp;
@@ -80,11 +82,13 @@ static uint64_t get_rsp(process p) {
 }
 
 uint64_t next_process(uint64_t current_rsp) {
+	if (current == NULL)
+		return current_rsp;
+
 	set_rsp(current_rsp);
 
+	prev = current;
 	current = current->next;
-
-	print_num(current->p.pid, 5, 5);
 
 	while (is_blocked(current->p))
 		current = current->next;
@@ -92,9 +96,14 @@ uint64_t next_process(uint64_t current_rsp) {
 	return get_rsp(current->p);
 }
 
+void _change_process(uint64_t rsp);
+
+
 void exec_process(uint64_t new_process_rip, uint64_t params) {
 	process new_process;
 	new_process.stack_page = get_stack_page(); /* Pide al MemoryAllocator espacio para el stack */
+
+	new_process.entry_point = new_process_rip;
 
 	new_process.st = READY;
 
@@ -105,9 +114,11 @@ void exec_process(uint64_t new_process_rip, uint64_t params) {
 
 	new_process.pid = next_pid++;
 
-	print_num(3, 5, 5);
-
 	add_process(new_process);
+
+	if (new_process.pid == 0)
+		_change_process(get_rsp(current->p));
+
 }
 
 static void add_process(process p) {
@@ -115,11 +126,10 @@ static void add_process(process p) {
 
 	new_node->p = p;
 
-	print_num(p.pid, 5, 5);
-
 	if (current == NULL) {
 		current = new_node;
-		current->next = new_node;
+		current->next = current;
+		prev = current;
 	}
 	else {
 		new_node->next = current->next;
@@ -128,7 +138,6 @@ static void add_process(process p) {
 }
 
 void _yield_process();
-void _change_process(uint64_t rsp);
 
 void yield_process() {
 	_yield_process();
@@ -137,6 +146,8 @@ void yield_process() {
 /* Se avanza con el proceso que está delante */
 void end_process() {
 	store_stack_page(current->p.stack_page);
+	store_page(current);
+	prev->next = current->next;
 	current = current->next;
 	_change_process(get_rsp(current->p));
 }

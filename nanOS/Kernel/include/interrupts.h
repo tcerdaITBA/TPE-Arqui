@@ -21,6 +21,8 @@ void _syscallHandler(void);
 
 void _yield_interrupt(void);
 
+void _change_process(uint64_t rsp);
+
 void _cli(void);
 
 void _sti(void);
