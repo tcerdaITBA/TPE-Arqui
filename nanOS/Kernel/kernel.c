@@ -6,6 +6,7 @@
 #include "videoDriver.h"
 #include "memoryAllocator.h"
 #include "processManager.h"
+#include "init.h"
 
 
 extern uint8_t text;
@@ -95,10 +96,18 @@ void load_idt();
 
 int main()
 {
+	_cli();
+
 	load_idt();
 	load_vDriver();
 	initialize_memory_allocator();
 	initialize_stack_memory_allocator();
+
+	_cli();
+
+	exec_process((uint64_t)init, 0);
+
+	_sti();
 
 
 	ncPrint("[Kernel Main]");
@@ -107,8 +116,6 @@ int main()
 	ncPrintHex((uint64_t)sampleCodeModuleAddress);
 	ncNewline();
 	ncPrint("  Calling the sample code module returned: ");
-
-	exec_process((uint64_t)sampleCodeModuleAddress, 0);
 
 //	ncPrintHex(((EntryPoint)sampleCodeModuleAddress)());
 	ncNewline();

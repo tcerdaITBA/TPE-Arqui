@@ -3,17 +3,30 @@
 #include "dirs.h"
 #include "videoDriver.h"
 
+#define READY 1
+#define BLOCKED 0
+
+#define NULL ((void *) 0)
+
+
 /* El stack frame y el llenado del mismo se tomó de 
 ** https://bitbucket.org/RowDaBoat/wyrm
 */
 
+typedef char status;
 
 typedef struct {
+	status st;
 	uint64_t rsp;
 	uint64_t stack_page;
 	uint64_t pid;
 	uint64_t ppid;
 } process;
+
+typedef struct c_node {
+	process p;
+	struct c_node *next;
+} node;
 
 typedef struct {
 	//Registers restore context
@@ -48,51 +61,70 @@ typedef struct {
 static uint64_t fill_stack(uint64_t rip, uint64_t rsp, uint64_t params);
 static void add_process(process p);
 
-/* Funciona como una cola */
-static process process_table[MAX_PROCESSES];
-
 /* Índice del proceso actualmente corriendo */
-static int current_index = -1;
-
-/* Índice del lugar libre en la cola */
-static int free_slot = 0;
+static node *current = NULL;
 
 /* Próximo pid a asignar */
 static uint64_t next_pid = 1;
 
+static void set_rsp(uint64_t rsp) {
+	current->p.rsp = rsp;
+}
+
+static int is_blocked(process p) {
+	return p.st != READY;
+}
+
+static uint64_t get_rsp(process p) {
+	return p.rsp;
+}
+
 uint64_t next_process(uint64_t current_rsp) {
-	process current = process_table[current_index++];
+	set_rsp(current_rsp);
 
-	current.rsp = current_rsp; /* Se guarda el stack pointer actualizado */
+	current = current->next;
 
-	add_process(current); /* Coloca proceso al final de la cola */
+	print_num(current->p.pid, 5, 5);
 
-	print_num(current.pid, 5, 5);
-	if (current_index == MAX_PROCESSES)
-		current_index = 0;
-
-	return process_table[current_index].rsp;
+	while (is_blocked(current->p))
+		current = current->next;
+	
+	return get_rsp(current->p);
 }
 
 void exec_process(uint64_t new_process_rip, uint64_t params) {
 	process new_process;
 	new_process.stack_page = get_stack_page(); /* Pide al MemoryAllocator espacio para el stack */
 
+	new_process.st = READY;
+
 	new_process.rsp = fill_stack(new_process_rip, new_process.stack_page, params);
 
-	if (number_processes > 0) /* No es el primer proceso */
-		new_process.ppid = process_table[current_index].pid;
+//	if (number_processes() > 0) /* No es el primer proceso */
+//		new_process.ppid = current->p.pid;
 
 	new_process.pid = next_pid++;
+
+	print_num(3, 5, 5);
 
 	add_process(new_process);
 }
 
 static void add_process(process p) {
-	process_table[free_slot++] = p;
+	node *new_node = (node *) get_page(sizeof(node));
 
-	if (free_slot == MAX_PROCESSES)
-		free_slot = 0;
+	new_node->p = p;
+
+	print_num(p.pid, 5, 5);
+
+	if (current == NULL) {
+		current = new_node;
+		current->next = new_node;
+	}
+	else {
+		new_node->next = current->next;
+		current->next = new_node;
+	}
 }
 
 void _yield_process();
@@ -104,12 +136,14 @@ void yield_process() {
 
 /* Se avanza con el proceso que está delante */
 void end_process() {
-	store_stack_page(process_table[current_index].stack_page);
-	_change_process(process_table[++current_index].rsp);
+	store_stack_page(current->p.stack_page);
+	current = current->next;
+	_change_process(get_rsp(current->p));
 }
 
+// TODO
 int number_processes() {
-	return current_index <= free_slot ? free_slot - current_index : MAX_PROCESSES - (current_index - free_slot);
+	return 1;
 }
 
 /* Llena el stack para que sea hookeado al cargar un nuevo proceso 

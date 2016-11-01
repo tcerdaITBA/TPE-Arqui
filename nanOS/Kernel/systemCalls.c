@@ -66,8 +66,7 @@ uint64_t sys_read(uint64_t fds, char * buffer, uint64_t bytes) {
 					buffer[i++] = c;
 				}
 				else {
-					_sti();
-					yield_process();
+					_hlt();
 				}
 			}
     }
