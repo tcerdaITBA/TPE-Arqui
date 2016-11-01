@@ -7,6 +7,7 @@
 #include "ctype.h"
 #include "syscalls.h"
 #include "stdlib.h"
+#include "graphics.h"
 
 #include <stdint.h>
 
@@ -168,6 +169,7 @@ static int clear(const char *args) {
 /*Imprime la cadena de argumentos pasadas como parametros a salida estandar */
 static int echo(const char *args) {
   printf("%s\n", args);
+  draw_horizontalLine(0,0,1);
   return VALID;
 }
 

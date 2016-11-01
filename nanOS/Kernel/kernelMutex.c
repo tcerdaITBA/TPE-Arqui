@@ -1,3 +1,4 @@
+/*
 typedef struct {
   process * p;
   mutex_node * next;
@@ -107,3 +108,4 @@ process dequeue_process(mutex m) {
 
   return p;
 }
+*/
