@@ -189,7 +189,7 @@ static int fractals(const char *args) {
   else if (isnum(args) && (*next_arg(args)) == '\0') // se envió un solo parámetro y es un número
     index = atoi(args)-1;
 
-  if (index <= 0 || index > fractals_size())
+  if (index < 0 || index >= fractals_size())
     return INVALID_ARGS;
   
   exec((void *) fractal_process, index);

@@ -10,7 +10,7 @@
 /* Tamaño de stack de nuevos procesos */
 #define STACK_PAGE_SIZE 0x100000
 
-typedef uint8_t page_index_t;
+typedef uint16_t page_index_t;
 
 #define STACK_SIZE ((page_index_t) - 1) /* valor máximo que puede tomar una variable de tipo page_index_t */
 #define MEMORY_PAGES_END ((STACK_SIZE + 1)* PAGE_SIZE + DATA_ADDRESS)
