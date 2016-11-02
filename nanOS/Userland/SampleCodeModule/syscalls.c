@@ -84,3 +84,19 @@ void end() {
 void yield() {
     _int80h(17, 0, 0, 0);
 }
+
+int mutex_open(char * name) {
+  return _int80h(18, (uint64_t) name, 0, 0);
+}
+
+int mutex_close(int key) {
+  return _int80h(19, (uint64_t) key, 0, 0);
+}
+
+int mutex_lock(int key) {
+  return _int80h(20, (uint64_t) key, 0, 0);
+}
+
+int mutex_unlock(int key) {
+  return _int80h(21, (uint64_t) key, 0, 0);
+}

@@ -8,6 +8,7 @@
 #include "dirs.h"
 #include "memoryAllocator.h"
 #include "processManager.h"
+#include "kernelMutex.h"
 
 #define ERR_COLOR 255,0,0  // Rojo
 
@@ -25,7 +26,10 @@ static uint64_t sys_free_wr(uint64_t selection, uint64_t unused2, uint64_t unuse
 static uint64_t sys_exec_wr(uint64_t ptr, uint64_t unused2, uint64_t unused3);
 static uint64_t sys_end_wr(uint64_t unused1, uint64_t unused2, uint64_t unused3);
 static uint64_t sys_yield_wr(uint64_t unused1, uint64_t unused2, uint64_t unused3);
-
+static uint64_t sys_mutex_op_wr(uint64_t nameptr, uint64_t unused2, uint64_t unused3);
+static uint64_t sys_mutex_cl_wr(uint64_t key, uint64_t unused2, uint64_t unused3);
+static uint64_t sys_mutex_lock_wr(uint64_t key, uint64_t unused2, uint64_t unused3);
+static uint64_t sys_mutex_unlock_wr(uint64_t key, uint64_t unused2, uint64_t unused3);
 
 /* Vector de system calls */
 static uint64_t (*syscalls[]) (uint64_t,uint64_t,uint64_t) = { 0,0,0, 		/* 0, 1, 2 system calls reservados*/
@@ -43,7 +47,11 @@ static uint64_t (*syscalls[]) (uint64_t,uint64_t,uint64_t) = { 0,0,0, 		/* 0, 1,
 															   sys_set_bg_color,    /* 14 */
 															   sys_exec_wr,			/* 15 */
 															   sys_end_wr,			/* 16 */
-															   sys_yield_wr			/* 17 */
+															   sys_yield_wr,			/* 17 */
+																 sys_mutex_op_wr,		/* 18 */
+																 sys_mutex_cl_wr,		/* 19 */
+																 sys_mutex_lock_wr, 		/* 20 */
+																 sys_mutex_unlock_wr		/* 21 */
 															};
 
 /* Ejecuta la system call correspondiente al valor de rax */
@@ -81,7 +89,7 @@ uint64_t sys_write(uint64_t fds, const char * str, uint64_t length) {
 		set_char_color(ERR_COLOR);
 		put(str, length);
 		set_char_color(r,g,b);
-	} 
+	}
 	else if (fds == STDOUT) {
 		put(str, length);
 		return length;
@@ -178,6 +186,22 @@ uint64_t sys_yield() {
 	return 1;
 }
 
+uint64_t sys_mutex_op(uint64_t nameptr) {
+	return mutex_open((char *)nameptr);
+}
+
+uint64_t sys_mutex_cl(uint64_t key) {
+	return mutex_close(key);
+}
+
+uint64_t sys_mutex_lock(uint64_t key) {
+	return mutex_lock(key);
+}
+
+uint64_t sys_mutex_unlock(uint64_t key) {
+	return mutex_unlock(key);
+}
+
 /* WRAPPERS */
 /* Se usan para system calls que no reciben exactamente 3 parametros enteros.
 ** En la wrapper se filtran los parametros innecesarios y se hacen los casteos
@@ -233,3 +257,18 @@ static uint64_t sys_yield_wr(uint64_t unused1, uint64_t unused2, uint64_t unused
 	return sys_yield();
 }
 
+static uint64_t sys_mutex_op_wr(uint64_t nameptr, uint64_t unused2, uint64_t unused3) {
+	return sys_mutex_op(nameptr);
+}
+
+static uint64_t sys_mutex_cl_wr(uint64_t key, uint64_t unused2, uint64_t unused3) {
+	return sys_mutex_cl(key);
+}
+
+static uint64_t sys_mutex_lock_wr(uint64_t key, uint64_t unused2, uint64_t unused3) {
+	return sys_mutex_lock(key);
+}
+
+static uint64_t sys_mutex_unlock_wr(uint64_t key, uint64_t unused2, uint64_t unused3) {
+	return sys_mutex_unlock(key);
+}

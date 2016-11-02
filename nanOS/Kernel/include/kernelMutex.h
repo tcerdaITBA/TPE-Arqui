@@ -3,10 +3,16 @@
 
 #define MAX_MUTEXES 64
 
-#define LOCKED 0;
-#define UNLOCKED 1;
+#define MUTEX_NAME_LEN 256
 
-#define NOT_OPEN -1;
+#define LOCKED 0
+#define UNLOCKED 1
+
+#define OPEN 1
+#define CLOSED 0
+
+#define NOT_OPEN_ERROR -1
+#define MAX_MUTEX_OPEN_ERROR -2
 
 int mutex_open(char * name);
 int mutex_lock(int key);

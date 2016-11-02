@@ -21,6 +21,11 @@ int free_reserve(void * address);
 void * data_address();
 int set_char_color (uint64_t r, uint64_t g, uint64_t b);
 int set_bg_color (uint64_t r, uint64_t g, uint64_t b);
+int mutex_open(char * name);
+int mutex_close(int key);
+int mutex_lock(int key);
+int mutex_unlock(int key);
+
 
 void exec(void * ptr, uint64_t params);
 void end();
