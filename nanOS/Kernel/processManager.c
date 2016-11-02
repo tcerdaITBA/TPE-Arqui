@@ -10,19 +10,13 @@
 
 
 /* El stack frame y el llenado del mismo se tomó de 
+=======
+/* El stack frame y el llenado del mismo se tomó de
+>>>>>>> master
 ** https://bitbucket.org/RowDaBoat/wyrm
 */
 
 typedef char status;
-
-typedef struct {
-	status st;
-	uint64_t rsp;
-	uint64_t entry_point;
-	uint64_t stack_page;
-	uint64_t pid;
-	uint64_t ppid;
-} process;
 
 typedef struct c_node {
 	process p;
@@ -157,7 +151,7 @@ int number_processes() {
 	return 1;
 }
 
-/* Llena el stack para que sea hookeado al cargar un nuevo proceso 
+/* Llena el stack para que sea hookeado al cargar un nuevo proceso
 ** https://bitbucket.org/RowDaBoat/wyrm */
 static uint64_t fill_stack(uint64_t rip, uint64_t stack_page, uint64_t params) {
 	StackFrame * frame = (StackFrame *) stack_page - 1; /* TODO: preguntar por el -1 */
