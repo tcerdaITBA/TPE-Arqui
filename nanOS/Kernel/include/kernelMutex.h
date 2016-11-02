@@ -6,9 +6,6 @@
 #define LOCKED 0;
 #define UNLOCKED 1;
 
-#define BLOCKED 0;
-#define READY 1;
-
 #define NOT_OPEN -1;
 
 int mutex_open(char * name);

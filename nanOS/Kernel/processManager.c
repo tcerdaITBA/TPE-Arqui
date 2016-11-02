@@ -2,121 +2,59 @@
 #include "processManager.h"
 #include "dirs.h"
 #include "videoDriver.h"
+#include "process.h"
 
-#define READY 1
-#define BLOCKED 0
 
 #define NULL ((void *) 0)
 
 
-/* El stack frame y el llenado del mismo se tomó de
-** https://bitbucket.org/RowDaBoat/wyrm
-*/
-
 typedef struct c_node {
-	process p;
+	process *p;
 	struct c_node *next;
 } list_node;
 
-typedef struct {
-	//Registers restore context
-	uint64_t gs;
-	uint64_t fs;
-	uint64_t r15;
-	uint64_t r14;
-	uint64_t r13;
-	uint64_t r12;
-	uint64_t r11;
-	uint64_t r10;
-	uint64_t r9;
-	uint64_t r8;
-	uint64_t rsi;
-	uint64_t rdi;
-	uint64_t rbp;
-	uint64_t rdx;
-	uint64_t rcx;
-	uint64_t rbx;
-	uint64_t rax;
 
-	//iretq hook
-	uint64_t rip;
-	uint64_t cs;
-	uint64_t eflags;
-	uint64_t rsp;
-	uint64_t ss;
-	uint64_t base;
-} StackFrame;
+static void add_process(process *p);
+void _change_process(uint64_t rsp);
 
-
-static uint64_t fill_stack(uint64_t rip, uint64_t rsp, uint64_t params);
-static void add_process(process p);
 
 /* Proceso actualmente corriendo */
 static list_node *current = NULL;
 static list_node *prev = NULL;
 
-/* Próximo pid a asignar */
-static uint64_t next_pid = 0;
-
 static uint64_t n_processes = 0;
 
-static void set_rsp(uint64_t rsp) {
-	current->p.rsp = rsp;
-}
-
-static int is_blocked(process p) {
-	return p.st != READY;
-}
-
-static uint64_t get_rsp(process p) {
-	return p.rsp;
+process * get_current_process() {
+	return current->p;
 }
 
 uint64_t next_process(uint64_t current_rsp) {
 	if (current == NULL)
 		return current_rsp;
 
-	set_rsp(current_rsp);
+	set_rsp_process(current->p, current_rsp);
 
 	prev = current;
 	current = current->next;
 
-	while (is_blocked(current->p))
+	while (is_blocked_process(current->p)) {
+		prev = current;
 		current = current->next;
+	}
 	
-	return get_rsp(current->p);
+	return get_rsp_process(current->p);
 }
-
-void _change_process(uint64_t rsp);
-
-process * get_current_process() {
-	return &current->p;
-}
-
 
 void exec_process(uint64_t new_process_rip, uint64_t params) {
-	process new_process;
-	new_process.stack_page = get_stack_page(); /* Pide al MemoryAllocator espacio para el stack */
-
-	new_process.entry_point = new_process_rip;
-
-	new_process.st = READY;
-
-	new_process.rsp = fill_stack(new_process_rip, new_process.stack_page, params);
-
-	if (number_processes() > 0) /* No es el primer proceso */
-		new_process.ppid = current->p.pid;
-
-	new_process.pid = next_pid++;
+	process * new_process = create_process(new_process_rip, params);
 
 	add_process(new_process);
 
-	if (new_process.pid == 0)
-		_change_process(get_rsp(current->p));
-
+	if (pid_process(new_process) == 0)
+		_change_process(get_rsp_process(current->p));
 }
 
-static void add_process(process p) {
+static void add_process(process * p) {
 	list_node *new_node = (list_node *) get_page(sizeof(*new_node));
 
 	new_node->p = p;
@@ -142,46 +80,18 @@ void yield_process() {
 
 /* Se avanza con el proceso que está delante */
 void end_process() {
-	store_stack_page(current->p.stack_page);
-	store_page((uint64_t) current);
+	list_node * n = current;
+
 	prev->next = current->next;
 	current = current->next;
-	_change_process(get_rsp(current->p));
 	n_processes--;
+
+	destroy_process(n->p);
+	store_page((uint64_t) n);
+
+	_change_process(get_rsp_process(current->p));
 }
 
 uint64_t number_processes() {
 	return n_processes;
-}
-
-/* Llena el stack para que sea hookeado al cargar un nuevo proceso
-** https://bitbucket.org/RowDaBoat/wyrm */
-static uint64_t fill_stack(uint64_t rip, uint64_t stack_page, uint64_t params) {
-	StackFrame * frame = (StackFrame *) stack_page - 1;
-
-	frame->gs =		0x001;
-	frame->fs =		0x002;
-	frame->r15 =	0x003;
-	frame->r14 =	0x004;
-	frame->r13 =	0x005;
-	frame->r12 =	0x006;
-	frame->r11 =	0x007;
-	frame->r10 =	0x008;
-	frame->r9 =		0x009;
-	frame->r8 =		0x00A;
-	frame->rsi =	0x00B;
-	frame->rdi =	params;
-	frame->rbp =	0x00D;
-	frame->rdx =	0x00E;
-	frame->rcx =	0x00F;
-	frame->rbx =	0x010;
-	frame->rax =	0x011;
-	frame->rip =	rip;
-	frame->cs =		0x008;
-	frame->eflags = 0x202;
-	frame->rsp =	(uint64_t)&(frame->base);
-	frame->ss = 	0x000;
-	frame->base =	0x000;
-
-	return (uint64_t) &frame->gs;
 }

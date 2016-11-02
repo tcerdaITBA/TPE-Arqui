@@ -2,6 +2,7 @@
 #include "processManager.h"
 #include "kernelMutex.h"
 #include "strings.h"
+#include "process.h"
 
 #define NULL ((void *) 0) // ??
 
@@ -27,9 +28,7 @@ extern int _unlocked(int * locknum);
 
 static process * dequeue_process(mutex m);
 static void queue_process(mutex m, process * p);
-static void unblock_process(process * p);
-static void block_process(process * p);
-static void unblock_process(process * p);
+
 static int is_open(int key);
 
 static int is_open(int key) {
@@ -86,14 +85,6 @@ int mutex_unlock(int key) {
     return 1;
   }
   return NOT_OPEN;
-}
-
-static void block_process(process * p) {
-  p->st = BLOCKED;
-}
-
-static void unblock_process(process * p) {
-  p->st = READY;
 }
 
 static void queue_process(mutex m, process * p) {
