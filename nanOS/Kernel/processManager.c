@@ -9,19 +9,14 @@
 #define NULL ((void *) 0)
 
 
-/* El stack frame y el llenado del mismo se tomó de 
-=======
 /* El stack frame y el llenado del mismo se tomó de
->>>>>>> master
 ** https://bitbucket.org/RowDaBoat/wyrm
 */
-
-typedef char status;
 
 typedef struct c_node {
 	process p;
 	struct c_node *next;
-} node;
+} list_node;
 
 typedef struct {
 	//Registers restore context
@@ -56,12 +51,14 @@ typedef struct {
 static uint64_t fill_stack(uint64_t rip, uint64_t rsp, uint64_t params);
 static void add_process(process p);
 
-/* Índice del proceso actualmente corriendo */
-static node *current = NULL;
-static node *prev = NULL;
+/* Proceso actualmente corriendo */
+static list_node *current = NULL;
+static list_node *prev = NULL;
 
 /* Próximo pid a asignar */
 static uint64_t next_pid = 0;
+
+static uint64_t n_processes = 0;
 
 static void set_rsp(uint64_t rsp) {
 	current->p.rsp = rsp;
@@ -92,6 +89,10 @@ uint64_t next_process(uint64_t current_rsp) {
 
 void _change_process(uint64_t rsp);
 
+process * get_current_process() {
+	return &current->p;
+}
+
 
 void exec_process(uint64_t new_process_rip, uint64_t params) {
 	process new_process;
@@ -103,8 +104,8 @@ void exec_process(uint64_t new_process_rip, uint64_t params) {
 
 	new_process.rsp = fill_stack(new_process_rip, new_process.stack_page, params);
 
-//	if (number_processes() > 0) /* No es el primer proceso */
-//		new_process.ppid = current->p.pid;
+	if (number_processes() > 0) /* No es el primer proceso */
+		new_process.ppid = current->p.pid;
 
 	new_process.pid = next_pid++;
 
@@ -116,7 +117,7 @@ void exec_process(uint64_t new_process_rip, uint64_t params) {
 }
 
 static void add_process(process p) {
-	node *new_node = (node *) get_page(sizeof(node));
+	list_node *new_node = (list_node *) get_page(sizeof(*new_node));
 
 	new_node->p = p;
 
@@ -129,6 +130,8 @@ static void add_process(process p) {
 		new_node->next = current->next;
 		current->next = new_node;
 	}
+
+	n_processes++;
 }
 
 void _yield_process();
@@ -140,21 +143,21 @@ void yield_process() {
 /* Se avanza con el proceso que está delante */
 void end_process() {
 	store_stack_page(current->p.stack_page);
-	store_page(current);
+	store_page((uint64_t) current);
 	prev->next = current->next;
 	current = current->next;
 	_change_process(get_rsp(current->p));
+	n_processes--;
 }
 
-// TODO
-int number_processes() {
-	return 1;
+uint64_t number_processes() {
+	return n_processes;
 }
 
 /* Llena el stack para que sea hookeado al cargar un nuevo proceso
 ** https://bitbucket.org/RowDaBoat/wyrm */
 static uint64_t fill_stack(uint64_t rip, uint64_t stack_page, uint64_t params) {
-	StackFrame * frame = (StackFrame *) stack_page - 1; /* TODO: preguntar por el -1 */
+	StackFrame * frame = (StackFrame *) stack_page - 1;
 
 	frame->gs =		0x001;
 	frame->fs =		0x002;

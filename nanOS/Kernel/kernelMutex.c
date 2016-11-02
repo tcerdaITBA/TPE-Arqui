@@ -1,3 +1,4 @@
+#include "memoryAllocator.h"
 #include "processManager.h"
 #include "kernelMutex.h"
 #include "strings.h"
@@ -22,7 +23,7 @@ typedef struct {
 
 static mutex open_mutexes[MAX_MUTEXES];
 
-extern int test_lock(int * locknum);
+extern int _unlocked(int * locknum);
 
 static process * dequeue_process(mutex m);
 static void queue_process(mutex m, process * p);
@@ -32,11 +33,12 @@ static void unblock_process(process * p);
 static int is_open(int key);
 
 static int is_open(int key) {
-  return key < MAX_MUTEXES && open_mutexes[key] != NULL;
+  return key < MAX_MUTEXES && open_mutexes[key].name != NULL;
 }
 
 int mutex_open(char * name) {
   int k, free_slot = -1;
+  mutex m;
   for (k = 0; k < MAX_MUTEXES; k++) {
     if (!is_open(k)) {
       free_slot = k;
@@ -45,14 +47,17 @@ int mutex_open(char * name) {
       return k;
     }
   }
-  mutex_queue pq = malloc(); // ?
-  open_mutexes[free_slot] = {name, UNLOCKED, pq};
+
+  m.process_queue.first = NULL;
+  m.process_queue.last = NULL;
+
+  open_mutexes[free_slot] = m;
   return free_slot;
 }
 
 int mutex_close(int key) {
   if (is_open(key)) {
-    open_mutexes[key] = NULL;
+    open_mutexes[key].name = NULL;
     return 1;
   }
   return NOT_OPEN;
@@ -61,7 +66,7 @@ int mutex_close(int key) {
 int mutex_lock(int key) {
   if (is_open(key)) {
     mutex m = open_mutexes[key];
-    if (test_lock(&m.locked)) { // Returns 1 if locked, 0 if unlocked
+    if (!_unlocked(&m.locked)) { // Returns 0 if locked, 1 if unlocked
       process * p = get_current_process();
       block_process(p);
       queue_process(m, p);
@@ -92,7 +97,7 @@ static void unblock_process(process * p) {
 }
 
 static void queue_process(mutex m, process * p) {
-  mutex_node_t * node = malloc();
+  mutex_node_t * node = (mutex_node_t *) get_page(sizeof(*node));
   node->p = p;
   if (m.process_queue.first == NULL) {
     m.process_queue.first = node;
