@@ -7,6 +7,7 @@
 #include "ctype.h"
 #include "syscalls.h"
 #include "stdlib.h"
+#include "graphics.h"
 
 #include <stdint.h>
 
