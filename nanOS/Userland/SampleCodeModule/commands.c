@@ -56,13 +56,13 @@ static void test(uint64_t param) {
 
   int m_key = mutex_open("test_mutex");
 
-  printf("KEY = %d\n", m_key);
-
   mutex_lock(m_key);
   printf("Tengo el lock. Soy %d\n", param);
 
   while (i--)
     yield();
+
+  //draw_fractal(param);
 
   printf("Soltando lock. Soy %d\n", param);
 

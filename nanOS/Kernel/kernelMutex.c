@@ -20,6 +20,7 @@ typedef struct {
 typedef struct {
   char name[MUTEX_NAME_LEN];
   int64_t locked;
+  int64_t queue_lock;
   int64_t state;
   mutex_queue process_queue;
 } mutex;
@@ -64,6 +65,7 @@ static mutex create_new_mutex(char * name) {
   m.process_queue.last = NULL;
   m.state = OPEN;
   m.locked = UNLOCKED;
+  m.queue_lock = UNLOCKED;
   return m;
 }
 
@@ -76,14 +78,26 @@ int mutex_close(int key) {
   return NOT_OPEN_ERROR;
 }
 
+static void lock_queue(mutex *m) {
+  while (!_unlocked(&m->queue_lock))
+    yield_process();  
+}
+
 int mutex_lock(int key) {
   if (is_open(key)) {
     mutex *m = &open_mutexes[key];
 
-    if (!_unlocked(&m->locked)) {
-      process * p = get_current_process();
-      block_process(p);
+    process * p = get_current_process();
+
+    while (!_unlocked(&m->locked)) {
+
+      lock_queue(m);
+
       queue_process(m, p);
+      block_process(p);
+
+      m->queue_lock = UNLOCKED;
+
       yield_process();
     }
 
@@ -95,10 +109,18 @@ int mutex_lock(int key) {
 int mutex_unlock(int key) {
   if (is_open(key)) {
     mutex *m = &open_mutexes[key];
-    m->locked = UNLOCKED;
+
+    lock_queue(m);
+
     process * p = dequeue_process(m);
+
+    m->locked = UNLOCKED;
+
     if (p != NULL)
       unblock_process(p);
+
+    m->queue_lock = UNLOCKED;
+
     return 1;
   }
   return NOT_OPEN_ERROR;

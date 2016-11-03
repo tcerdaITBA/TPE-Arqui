@@ -127,8 +127,6 @@ _lidt:				; Carga el IDTR
 _irq00Handler:
 	pushState
 
-	call timer_handler
-
 	mov rdi, rsp
 	call next_process
 
