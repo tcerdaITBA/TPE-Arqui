@@ -38,6 +38,7 @@ uint64_t next_process(uint64_t current_rsp) {
 	current = current->next;
 
 	while (is_blocked_process(current->p)) {
+		print_num(pid_process(current->p), 8, 40);
 		prev = current;
 		current = current->next;
 	}

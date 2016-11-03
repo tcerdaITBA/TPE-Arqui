@@ -52,13 +52,21 @@ static command commands[]= {{"help", help},
 							};
 
 static void test(uint64_t param) {
-  int i = 25;
-  printf("COMENZANDO PRUEBA de multitasking. Se realizaran %d yields\n", i);
-  printf("PARAM %d\n", param);
+  int i = 50;
+
+  int m_key = mutex_open("test_mutex");
+
+  printf("KEY = %d\n", m_key);
+
+  mutex_lock(m_key);
+  printf("Tengo el lock. Soy %d\n", param);
+
   while (i--)
     yield();
 
-  printf("FIN PRUEBA\n");
+  printf("Soltando lock. Soy %d\n", param);
+
+  mutex_unlock(m_key);
 
   end();
 }
