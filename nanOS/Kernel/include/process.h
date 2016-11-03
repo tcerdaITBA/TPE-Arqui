@@ -5,6 +5,8 @@
 
 #define READY 1
 #define BLOCKED 0
+#define BLOCKED_READ 2
+
 
 typedef struct c_process process;
 typedef char status;
@@ -18,6 +20,8 @@ uint64_t get_rsp_process(process * p);
 void block_process(process * p);
 void unblock_process(process * p);
 int is_blocked_process(process * p);
+void unblock_read_process(process * p);
+void block_read_process(process * p);
 
 uint64_t pid_process(process * p);
 uint64_t ppid_process(process * p);

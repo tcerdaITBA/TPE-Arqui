@@ -106,11 +106,23 @@ void unblock_process(process * p) {
 }
 
 int is_blocked_process(process * p) {
-	return p->st == BLOCKED;
+	return p->st != READY;
+}
+
+void unblock_read_process(process * p) {
+	if (p->st == BLOCKED_READ)
+		unblock_process(p);
+}
+
+void block_read_process(process * p) {
+	p->st = BLOCKED_READ;
 }
 
 void set_foreground_process (process *p) {
-	foreground = p;
+	if (foreground == get_current_process()) {
+		foreground = p;
+		unblock_process(p);
+	}
 }
 
 process * get_foreground_process() {

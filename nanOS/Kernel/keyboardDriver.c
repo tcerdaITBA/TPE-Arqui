@@ -23,19 +23,23 @@ void store_scancode() {
   if (buff_size == BUFFSIZE)
     return;
 
+
   int k = get_key(); // Funcion de Assembler que devuelve el scancode
 
   if (k > 0 && k < TOPCHARCODE) { /* Se apretó una tecla */
-
     if(!processKeyScanCode(k)) { //caso de un caracter a imprimir en pantalla
       buff_size++;
       buffer[store_index++] = k;  // guarda el scancode de la tecla
+      unblock_read_process(get_foreground_process());
     }
   } else if (k < 0) { /*Se solto una tecla */
         processKeyScanCode(k + TOPCHARCODE);
-    }
+  }
+
   if (store_index == BUFFSIZE)
     store_index = 0;
+
+
 }
 
 /* Obtiene la tecla correspondiente segun los flags activados */

@@ -68,13 +68,19 @@ uint64_t sys_read(uint64_t fds, char * buffer, uint64_t bytes) {
 	unsigned int i = 0;
 	char c;
     if (fds == STDIN) {
+			if (get_current_process() != get_foreground_process()) {
+				block_process(get_current_process());
+				yield();
+			}
 			while (i < bytes) {
 				c = get_char();
 				if (c != -1) {
 					buffer[i++] = c;
 				}
 				else {
-					_hlt();
+					_sti();
+					block_read_process(get_current_process());
+					yield();
 				}
 			}
     }
