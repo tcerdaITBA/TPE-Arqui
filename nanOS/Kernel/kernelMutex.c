@@ -52,7 +52,7 @@ int mutex_open(char * name) {
 
   if (k == MAX_MUTEXES)
     return MAX_MUTEX_OPEN_ERROR;
-  
+
   open_mutexes[k] = create_new_mutex(name);
 
   return k;
@@ -70,17 +70,17 @@ static mutex create_new_mutex(char * name) {
 }
 
 //VER
-int mutex_close(int key) {
-  if (is_open(key)) {
-    open_mutexes[key].state = CLOSED;
-    return 1;
-  }
-  return NOT_OPEN_ERROR;
-}
+// int mutex_close(int key) {
+//   if (is_open(key)) {
+//     open_mutexes[key].state = CLOSED;
+//     return 1;
+//   }
+//   return NOT_OPEN_ERROR;
+// }
 
 static void lock_queue(mutex *m) {
   while (!_unlocked(&m->queue_lock))
-    yield_process();  
+    yield_process();
 }
 
 int mutex_lock(int key) {
