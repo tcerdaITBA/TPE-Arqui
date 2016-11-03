@@ -52,7 +52,7 @@ static command commands[]= {{"help", help},
 							};
 
 static void test(uint64_t param) {
-  int i = 50;
+  int i = 25;
 
   int m_key = mutex_open("test_mutex");
 

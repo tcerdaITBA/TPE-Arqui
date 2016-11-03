@@ -16,6 +16,8 @@ typedef struct c_node {
 } list_node;
 
 
+void _hlt();
+
 static void add_process(process *p);
 void _change_process(uint64_t rsp);
 
@@ -35,7 +37,7 @@ void _yield_process();
 
 static void lock_list() {
 	while (!_unlocked(&process_lock))
-		_yield_process();
+		yield_process();
 }
 
 static void unlock_list() {
@@ -59,6 +61,7 @@ uint64_t next_process(uint64_t current_rsp) {
 		prev = current;
 		current = current->next;
 	}
+
 	
 	return get_rsp_process(current->p);
 }
@@ -96,7 +99,7 @@ static void add_process(process * p) {
 }
 
 void yield_process() {
-	_yield_process();
+	_hlt();
 }
 
 /* Se avanza con el proceso que está delante */
