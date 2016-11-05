@@ -44,6 +44,12 @@ void enqueue(queueADT q, qelem_t elem) {
   }
 }
 
+qelem_t peek(queueADT q) {
+  if (is_empty(q))
+    return NULL;
+  return q->first->elem;
+}
+
 qelem_t dequeue(queueADT q) {
   qelem_t elem;
   if (is_empty(q))

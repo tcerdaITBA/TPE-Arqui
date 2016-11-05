@@ -3,7 +3,7 @@
 
 #include "defs.h"
 
-#define MAX_MUTEXES 64
+#define MAX_MUTEXES 256
 
 #define MUTEX_NAME_LEN 256
 

@@ -13,4 +13,6 @@ void enqueue(queueADT q, qelem_t elem);
 
 qelem_t dequeue(queueADT q);
 
+qelem_t peek(queueADT q);
+
 #endif
