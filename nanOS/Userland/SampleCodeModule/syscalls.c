@@ -100,3 +100,7 @@ int mutex_lock(int key) {
 int mutex_unlock(int key) {
   return _int80h(21, (uint64_t) key, 0, 0);
 }
+
+int set_foreground(uint64_t pid) {
+  return _int80h(22, pid, 0, 0);
+}

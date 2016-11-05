@@ -31,4 +31,6 @@ int exec(void * ptr, uint64_t params);
 void end();
 void yield();
 
+int set_foreground(uint64_t pid);
+
 #endif

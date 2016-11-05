@@ -71,12 +71,16 @@ uint64_t next_process(uint64_t current_rsp) {
 }
 
 uint64_t exec_process(uint64_t new_process_rip, uint64_t params) {
+	assign_quantum();
+
 	process * new_process = create_process(new_process_rip, params);
 
 	add_process(new_process);
 
 	if (pid_process(new_process) == 0)
 		_change_process(get_rsp_process(current->p));
+
+	unassign_quantum();
 
 	return pid_process(new_process);
 }

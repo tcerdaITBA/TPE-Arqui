@@ -25,5 +25,6 @@ uint64_t sys_mutex_op(uint64_t nameptr);
 uint64_t sys_mutex_cl(uint64_t key);
 uint64_t sys_mutex_lock(uint64_t key);
 uint64_t sys_mutex_unlock(uint64_t key);
+uint64_t sys_set_foreground(uint64_t pid);
 
 #endif
