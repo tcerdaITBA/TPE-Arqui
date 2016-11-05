@@ -28,6 +28,7 @@ static fifo create_new_fifo(char * name);
 static void send_to_readers(queueADT read_queue);
 static read_request create_read_request(int fifo_key, void * buf, int bytes);
 static int is_open(int key);
+static void release_readers(queueADT q);
 
 int fifo_open(char * name) {
   int k;
@@ -92,9 +93,8 @@ static void send_to_readers(queueADT read_queue) {
 
 int fifo_read(int key, void * buf, int bytes) {
   int could_read;
-  fifo f;
   if (is_open(key)) {
-    f = open_fifos[key];
+    fifo f = open_fifos[key];
     mutex_lock(f.fifo_mutex_key);
 
     read_request r = create_read_request(key, buf, bytes);
@@ -104,11 +104,34 @@ int fifo_read(int key, void * buf, int bytes) {
       enqueue(f.read_queue, (void *)&r);
 
     mutex_unlock(f.fifo_mutex_key);
+
     if (!could_read)
       yield_process(); // esta bloqueado
+
+    if (!is_open(key)) // se desbloqueo porque cerraron el fifo;
+      return FIFO_NOT_OPEN_ERROR;
+
+    return bytes;
+  }
+  return FIFO_NOT_OPEN_ERROR;
+}
+
+int fifo_close(int key) {
+  if (is_open(key)) {
+    fifo f = open_fifos[key];
+    release_readers(f.read_queue);
+    open_fifos[key].state = CLOSED;
     return 1;
   }
   return FIFO_NOT_OPEN_ERROR;
+}
+
+static void release_readers(queueADT q) {
+  read_request * req;
+  while (!is_empty(q)) {
+    req = (read_request *) dequeue(q);
+    unblock_process(req->reader_p);
+  }
 }
 
 static read_request create_read_request(int fifo_key, void * buf, int bytes) {
