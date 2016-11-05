@@ -27,7 +27,7 @@ int mutex_lock(int key);
 int mutex_unlock(int key);
 
 
-void exec(void * ptr, uint64_t params);
+int exec(void * ptr, uint64_t params);
 void end();
 void yield();
 

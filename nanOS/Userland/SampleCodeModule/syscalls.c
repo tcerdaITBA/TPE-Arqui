@@ -73,8 +73,8 @@ int set_bg_color (uint64_t r, uint64_t g, uint64_t b) {
     return _int80h(14,r,g,b);
 }
 
-void exec(void * ptr, uint64_t params) {
-    _int80h(15, (uint64_t) ptr, params, 0);
+int exec(void * ptr, uint64_t params) {
+  return _int80h(15, (uint64_t) ptr, params, 0);
 }
 
 void end() {

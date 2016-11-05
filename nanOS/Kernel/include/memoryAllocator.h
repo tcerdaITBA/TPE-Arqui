@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 #include "dirs.h"
+#include "defs.h"
+
 
 /* Paginas de 4KB */
 #define PAGE_SIZE 0x1000

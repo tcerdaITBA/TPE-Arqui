@@ -1,12 +1,11 @@
 #ifndef _MUTEX_H_
 #define _MUTEX_H_
 
+#include "defs.h"
+
 #define MAX_MUTEXES 64
 
 #define MUTEX_NAME_LEN 256
-
-#define LOCKED 0
-#define UNLOCKED 1
 
 #define OPEN 1
 #define CLOSED 0
