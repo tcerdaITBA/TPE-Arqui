@@ -79,7 +79,7 @@ static int test_mt(const char *str) {
 //  int i = 100;
 
 //  while (--i)
-   exec((void *) test, atoi(str));
+  printf("PID = %d", exec((void *) test, atoi(str)));
   return VALID;
 }
 

@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#include "defs.h"
+
 #define READY 1
 #define BLOCKED 0
 
@@ -21,6 +23,8 @@ int is_blocked_process(process * p);
 
 uint64_t pid_process(process * p);
 uint64_t ppid_process(process * p);
+
+process * get_process_by_pid (uint64_t pid);
 
 
 /* Quizas no tengan que estar aca */

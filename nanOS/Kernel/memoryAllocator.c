@@ -1,5 +1,6 @@
 #include "memoryAllocator.h"
 #include "processManager.h"
+#include "process.h"
 
 /* Alocador de paginas para datos */
 

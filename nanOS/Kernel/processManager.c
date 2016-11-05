@@ -6,11 +6,6 @@
 #include "interrupts.h"
 
 
-#define NULL ((void *) 0)
-
-#define UNLOCKED 1
-#define LOCKED 0
-
 #define QUANTUM 1
 
 typedef struct c_node {
@@ -75,13 +70,15 @@ uint64_t next_process(uint64_t current_rsp) {
 	return get_rsp_process(current->p);
 }
 
-void exec_process(uint64_t new_process_rip, uint64_t params) {
+uint64_t exec_process(uint64_t new_process_rip, uint64_t params) {
 	process * new_process = create_process(new_process_rip, params);
 
 	add_process(new_process);
 
 	if (pid_process(new_process) == 0)
 		_change_process(get_rsp_process(current->p));
+
+	return pid_process(new_process);
 }
 
 static void add_process(process * p) {

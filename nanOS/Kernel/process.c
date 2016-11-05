@@ -3,9 +3,6 @@
 #include "memoryAllocator.h"
 #include "processManager.h"
 
-#define NULL ((void *) 0)
-
-
 /* El stack frame y el llenado del mismo se tomó de
 ** https://bitbucket.org/RowDaBoat/wyrm
 */
@@ -48,13 +45,48 @@ struct c_process {
 	uint64_t ppid;
 };
 
+static process * process_table[MAX_PROCESSES] = {NULL};
+static int64_t table_lock = UNLOCKED;
 
-/* Próximo pid a asignar */
-static uint64_t next_pid = 0;
+int64_t _unlocked(int64_t * lock);
+
+static void lock_table();
+
+static void unlock_table();
 
 static process * foreground = NULL;
 
 static uint64_t fill_stack(uint64_t rip, uint64_t rsp, uint64_t params);
+
+
+static void lock_table() {
+  while (!_unlocked(&table_lock))
+    yield_process();  
+}
+
+static void unlock_table() {
+  table_lock = UNLOCKED;
+}
+
+/* Inserta proceso en la tabla. Devuelve el pid del proceso y -1 en caso de error */
+static int insert_process (process * p) {
+	int i;
+
+	lock_table();
+
+	for (i = 0; i < MAX_PROCESSES; i++) {
+		if (process_table[i] == NULL) {
+			p->pid = i;
+			process_table[i] = p;
+			unlock_table();
+			return i;
+		}
+	}
+
+	unlock_table();
+
+	return -1;
+}
 
 process * create_process(uint64_t new_process_rip, uint64_t params) {
 
@@ -68,49 +100,75 @@ process * create_process(uint64_t new_process_rip, uint64_t params) {
 
 	new_process->rsp = fill_stack(new_process_rip, new_process->stack_page, params);
 
-	if (next_pid != 0) /* No es el primer proceso */
-		new_process->ppid = pid_process(get_current_process());
+	insert_process(new_process);
 
-	new_process->pid = next_pid++;
+	if (new_process->pid != 0) /* No es el primer proceso */
+		new_process->ppid = pid_process(get_current_process());
+	else
+		foreground = new_process; /* Pone en foreground al primer proceso */
 
 	return new_process;
 }
 
+process * get_process_by_pid (uint64_t pid) {
+	if (pid >= 0 && pid < MAX_PROCESSES)
+		return process_table[pid];
+
+	return NULL;
+}
+
 void destroy_process(process * p) {
-	store_stack_page(p->stack_page);
-	store_page((uint64_t) p);
+	if (p != NULL) {
+		lock_table();
+		process_table[p->pid] = NULL;
+		unlock_table();
+		store_stack_page(p->stack_page);
+		store_page((uint64_t) p);
+	}
 }
 
 void set_rsp_process(process * p, uint64_t rsp) {
-	p->rsp = rsp;
+	if (p != NULL)
+		p->rsp = rsp;
 }
 
 uint64_t get_rsp_process(process * p) {
-	return p->rsp;
+	if (p != NULL)
+		return p->rsp;
+	return -1;
 }
 
 uint64_t pid_process(process * p) {
-	return p->pid;
+	if (p != NULL)
+		return p->pid;
+	return -1;
 }
 
 uint64_t ppid_process(process * p) {
-	return p->ppid;
+	if (p != NULL)
+		return p->ppid;
+	return -1;
 }
 
 void block_process(process * p) {
-	p->st = BLOCKED;
+	if (p != NULL)
+		p->st = BLOCKED;
 }
 
 void unblock_process(process * p) {
-	p->st = READY;
+	if (p != NULL)
+		p->st = READY;
 }
 
 int is_blocked_process(process * p) {
-	return p->st == BLOCKED;
+	if (p != NULL)
+		return p->st == BLOCKED;
+	return -1;
 }
 
 void set_foreground_process (process *p) {
-	foreground = p;
+	if (p != NULL)
+		foreground = p;
 }
 
 process * get_foreground_process() {

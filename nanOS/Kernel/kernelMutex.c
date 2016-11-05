@@ -5,7 +5,6 @@
 #include "process.h"
 #include "videoDriver.h"
 
-#define NULL ((void *) 0)
 
 typedef struct mutex_node {
   process * p;
