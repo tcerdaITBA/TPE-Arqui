@@ -3,31 +3,19 @@
 #include "kernelMutex.h"
 #include "strings.h"
 #include "process.h"
-#include "videoDriver.h"
-
-
-typedef struct mutex_node {
-  process * p;
-  struct mutex_node * next;
-} mutex_node_t;
-
-typedef struct {
-  mutex_node_t * first;
-  mutex_node_t * last;
-} mutex_queue;
+#include "queueADT.h"
 
 typedef struct {
   char name[MUTEX_NAME_LEN];
   int64_t locked;
   int64_t queue_lock;
   int64_t state;
-  mutex_queue process_queue;
+  queueADT process_queue;
 } mutex;
 
 
 static mutex open_mutexes[MAX_MUTEXES];
 static int64_t array_mutex = UNLOCKED;
-
 
 extern int _unlocked(int64_t * locknum);
 
@@ -51,7 +39,7 @@ static int is_open(int key) {
 
 static void lock_queue(mutex *m) {
   while (!_unlocked(&m->queue_lock))
-    yield_process();  
+    yield_process();
 }
 
 static void unlock_queue(mutex *m) {
@@ -92,8 +80,7 @@ int mutex_open(char * name) {
 static mutex create_new_mutex(char * name) {
   mutex m;
   strcpy(m.name, name);
-  m.process_queue.first = NULL;
-  m.process_queue.last = NULL;
+  m.process_queue = create_queue();
   m.state = OPEN;
   m.locked = UNLOCKED;
   m.queue_lock = UNLOCKED;
@@ -166,32 +153,9 @@ int mutex_unlock(int key) {
 }
 
 static void queue_process(mutex *m, process * p) {
-  mutex_node_t * node = (mutex_node_t *) get_page(sizeof(*node));
-  node->p = p;
-
-  node->next = NULL;
-
-  if (m->process_queue.first == NULL) {
-    m->process_queue.first = node;
-    m->process_queue.last = node;
-  }
-  else {
-    m->process_queue.last->next = node;
-    m->process_queue.last = node;
-  }
-
+  enqueue(m->process_queue, (void *) p);
 }
 
 static process * dequeue_process(mutex *m) {
-  if (m->process_queue.first == NULL)
-    return NULL;
-
-  mutex_node_t * node = m->process_queue.first;
-
-  process * p = node->p;
-  m->process_queue.first = node->next;
-
-  store_page((uint64_t) node);
-
-  return p;
+  return dequeue(m->process_queue);
 }
