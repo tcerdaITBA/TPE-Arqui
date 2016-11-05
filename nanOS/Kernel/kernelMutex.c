@@ -119,8 +119,6 @@ int mutex_lock(int key) {
 
     assign_quantum(); /* Si hay cambios de contexto debajo se rompe todo */
 
-    put_str(" l ");
-
     if (!_unlocked(&m->locked)) {
 
       lock_queue(m);

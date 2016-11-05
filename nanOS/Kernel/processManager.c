@@ -138,6 +138,12 @@ void end_process() {
 	current = current->next;
 
 	assign_quantum();
+
+	while (is_blocked_process(current->p)) {
+		prev = current;
+		current = current->next;
+	}
+	
 	_change_process(get_rsp_process(current->p));
 }
 

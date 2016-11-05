@@ -34,7 +34,6 @@ void timer_handler() {
 				prev->next = current->next;
 
 			unblock_process(current->p);
-			print_num(pid_process(current->p), 5, 30);
 			current = current->next;
 			store_page((uint64_t) sp);
 		}
