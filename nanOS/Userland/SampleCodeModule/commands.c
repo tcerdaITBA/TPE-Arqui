@@ -8,6 +8,7 @@
 #include "syscalls.h"
 #include "stdlib.h"
 #include "graphics.h"
+#include "philo.h"
 
 #include <stdint.h>
 
@@ -21,6 +22,7 @@ static int fractals(const char *args);
 static int clear(const char *args);
 static int getTime(const char *args);
 static int echo(const char *args);
+static int philosophersProblem (const char * args);
 static void printWithTimeFormat(unsigned int n);
 static int set_GMT(const char *args);
 static int isnum(const char *str);
@@ -48,7 +50,8 @@ static command commands[]= {{"help", help},
 							{"echo", echo},
               {"char_color", change_char_color},
               {"bg_color", change_bg_color},
-              {"test", test_mt}
+              {"test", test_mt},
+							{"philo", philosophersProblem}
 							};
 
 static int test_num = 0;
@@ -92,7 +95,7 @@ static int test_mt(const char *str) {
 ** Se asegura desde la shell que toda palabra se encuentra separada
 ** por un unico espacio y que no existen espacios al comienzo o al
 ** de la cadena.
-** Se asegura tambien que args[0] es el caracter nulo ('\0') si no se 
+** Se asegura tambien que args[0] es el caracter nulo ('\0') si no se
 ** enviaron argumentos o el comienzo del primer argumento sino.
 ** La funciones son responsables de parsear los argumentos, retornando
 ** INVALID_ARGS en caso de que estos sean incorrectos.
@@ -208,7 +211,7 @@ static int fractals(const char *args) {
 
   if (index < 0 || index >= fractals_size())
     return INVALID_ARGS;
-  
+
   exec((void *) fractal_process, index);
 
   return VALID;
@@ -254,4 +257,9 @@ static int extract_colors (const char *args, int *r, int *g, int *b) {
   *g = atoi(green);
   *b = atoi(blue);
   return 1;
+}
+
+static int philosophersProblem (const char * args) {
+	start_philosophers_problem();
+	return 1;
 }
