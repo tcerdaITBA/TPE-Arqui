@@ -119,7 +119,8 @@ int mutex_lock(int key) {
 
     assign_quantum(); /* Si hay cambios de contexto debajo se rompe todo */
 
-    put_str(" tl ");
+    put_str(" l ");
+
     if (!_unlocked(&m->locked)) {
 
       lock_queue(m);
@@ -134,8 +135,6 @@ int mutex_lock(int key) {
     }
     else
       unassign_quantum();
-
-    put_str(" ul ");
 
     return 1;
   }
@@ -171,6 +170,8 @@ int mutex_unlock(int key) {
 static void queue_process(mutex *m, process * p) {
   mutex_node_t * node = (mutex_node_t *) get_page(sizeof(*node));
   node->p = p;
+
+  node->next = NULL;
 
   if (m->process_queue.first == NULL) {
     m->process_queue.first = node;
