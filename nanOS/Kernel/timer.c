@@ -1,22 +1,79 @@
 #include "timer.h"
 #include "interrupts.h"
 #include "videoDriver.h"
+#include "memoryAllocator.h"
+#include "defs.h"
+#include "processManager.h"
 
-static uint64_t ticks = 0;
+typedef struct c_sleep_process {
+	process * p;
+	uint64_t ticks;
+	struct c_sleep_process * next;
+} sleep_process;
+
+static sleep_process * sleeping_processes = NULL;
+
+static sleep_process * create_sleep_process(uint64_t ticks);
+static void add_sleep_process(sleep_process * p);
 
 /* Controla la cantidad de ticks del timer tick */
 void timer_handler() {
-	ticks++;
+	sleep_process * current = sleeping_processes;
+	sleep_process * prev = NULL;
+	sleep_process * sp;
+
+	while (current != NULL) {
+		current->ticks -= 1;
+
+		if (current->ticks <= 0) {
+			sp = current;
+
+			if (prev == NULL)
+				sleeping_processes = current->next;
+			else
+				prev->next = current->next;
+
+			unblock_process(current->p);
+			print_num(pid_process(current->p), 5, 30);
+			current = current->next;
+			store_page((uint64_t) sp);
+		}
+		else {
+			prev = current;
+			current = current->next;
+		}
+	}
 }
 
-/* Pone en reposo la pantalla por una cantidad de milisegundos recibida por parámetro,
-** contando la cantidad de "ticks"(interrupciones) del timer Tick */
+/* Bloquea el proceso actual y lo pone en una lista con los ticks necesarios hasta despertar */
 int sleep(uint64_t milliseconds) {
-	_cli();
+
 	uint64_t wait_ticks = milliseconds / 55; // Hay 1 tick cada 55 milisegundos aproximadamente
-	ticks = 0;
-	_sti();
-	while(ticks < wait_ticks)
-		_hlt();
-	return ticks < wait_ticks;
+
+	if (wait_ticks == 0)
+		return 0;
+
+	assign_quantum();
+
+	sleep_process * new_sleep_p = create_sleep_process(wait_ticks);
+
+	add_sleep_process(new_sleep_p);
+
+	block_process(new_sleep_p->p);
+
+	yield_process();
+
+	return 1;
+}
+
+static sleep_process * create_sleep_process(uint64_t ticks) {
+	sleep_process * new_sleep_p = (sleep_process *) get_page(sizeof(*new_sleep_p));
+	new_sleep_p->ticks = ticks;
+	new_sleep_p->p = get_current_process();
+	return new_sleep_p;	
+}
+
+static void add_sleep_process(sleep_process * p) {
+	p->next = sleeping_processes;
+	sleeping_processes = p;
 }

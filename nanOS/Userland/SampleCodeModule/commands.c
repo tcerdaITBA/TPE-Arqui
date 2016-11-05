@@ -61,10 +61,11 @@ static void test(uint64_t param) {
   mutex_lock(m_key);
   printf("Tengo el lock. Soy %d\n", tn);
 
-  while (i--) {
+//  while (i--) {
  //   printf("%d ", i);
-    yield();
-  }
+    sleep(3000);
+//    yield();
+//  }
 
   //draw_fractal(param);
 

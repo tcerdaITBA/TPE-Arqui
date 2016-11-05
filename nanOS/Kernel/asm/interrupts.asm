@@ -127,6 +127,8 @@ _lidt:				; Carga el IDTR
 _irq00Handler:
 	pushState
 
+	call timer_handler
+
 	mov rdi, rsp
 	call next_process
 
@@ -146,7 +148,7 @@ _change_process:
 
 
 _yield_process:
-	int 70h
+	int 70h       	
 	ret
 
 _yield_interrupt:
@@ -181,20 +183,54 @@ _irq04Handler:
 _irq05Handler:
 	irqHandlerMaster 5
 
+%macro pushState_notRax 0
+	push rbx
+	push rcx
+	push rdx
+	push rbp
+	push rdi
+	push rsi
+	push r8
+	push r9
+	push r10
+	push r11
+	push r12
+	push r13
+	push r14
+	push r15
+	push fs
+	push gs
+%endmacro
+
+%macro popState_notRax 0
+	pop gs
+	pop fs
+	pop r15
+	pop r14
+	pop r13
+	pop r12
+	pop r11
+	pop r10
+	pop r9
+	pop r8
+	pop rsi
+	pop rdi
+	pop rbp
+	pop rdx
+	pop rcx
+	pop rbx
+%endmacro
+
+
 _syscallHandler:
-	pushState
+	pushState_notRax
 	mov rdi,rax ; primer parametro
 	mov rsi,rbx ; segundo parametro
 	call syscallDispatcher ; en rdx y rcx ya se encuentran los correspondientes valores
-	mov [aux], rax
-	popState
-	mov rax, [aux]
+	popState_notRax
 	iretq
 
 haltcpu:
 	cli
 	hlt
 	ret
-
-section .bss
-	aux: resq 1

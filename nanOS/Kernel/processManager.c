@@ -6,7 +6,7 @@
 #include "interrupts.h"
 
 
-#define QUANTUM 1
+#define QUANTUM 2
 
 typedef struct c_node {
 	int quantum;
