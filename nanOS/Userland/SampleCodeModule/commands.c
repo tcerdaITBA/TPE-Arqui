@@ -51,20 +51,24 @@ static command commands[]= {{"help", help},
               {"test", test_mt}
 							};
 
+static int test_num = 0;
 static void test(uint64_t param) {
   int i = 25;
+  int tn = test_num++;
 
   int m_key = mutex_open("test_mutex");
 
   mutex_lock(m_key);
-  printf("Tengo el lock. Soy %d\n", param);
+  printf("Tengo el lock. Soy %d\n", tn);
 
-  while (i--)
+  while (i--) {
+ //   printf("%d ", i);
     yield();
+  }
 
   //draw_fractal(param);
 
-  printf("Soltando lock. Soy %d\n", param);
+  printf("Soltando lock. Soy %d\n", tn);
 
   mutex_unlock(m_key);
 
@@ -72,7 +76,10 @@ static void test(uint64_t param) {
 }
 
 static int test_mt(const char *str) {
-  exec((void *) test, atoi(str));
+//  int i = 100;
+
+//  while (--i)
+   exec((void *) test, atoi(str));
   return VALID;
 }
 

@@ -3,6 +3,7 @@
 #include "dirs.h"
 #include "videoDriver.h"
 #include "process.h"
+#include "interrupts.h"
 
 
 #define NULL ((void *) 0)
@@ -10,13 +11,15 @@
 #define UNLOCKED 1
 #define LOCKED 0
 
+#define QUANTUM 1
+
 typedef struct c_node {
+	int quantum;
 	process *p;
 	struct c_node *next;
 } list_node;
 
 
-void _hlt();
 
 static void add_process(process *p);
 void _change_process(uint64_t rsp);
@@ -52,6 +55,13 @@ uint64_t next_process(uint64_t current_rsp) {
 	if (current == NULL)
 		return current_rsp;
 
+	unassign_quantum();
+
+	if (current->quantum > 0)
+		return current_rsp;
+
+	current->quantum = QUANTUM;
+
 	set_rsp_process(current->p, current_rsp);
 
 	prev = current;
@@ -62,7 +72,6 @@ uint64_t next_process(uint64_t current_rsp) {
 		current = current->next;
 	}
 
-	
 	return get_rsp_process(current->p);
 }
 
@@ -79,9 +88,12 @@ static void add_process(process * p) {
 
 	lock_list();
 
+	assign_quantum(); /* Aseguramos que no haya un cambio de contexto */
+
 	list_node *new_node = (list_node *) get_page(sizeof(*new_node));
 
 	new_node->p = p;
+	new_node->quantum = QUANTUM;
 
 	if (current == NULL) {
 		current = new_node;
@@ -96,32 +108,46 @@ static void add_process(process * p) {
 	n_processes++;
 
 	unlock_list();
+
+	unassign_quantum(); /* Quitamos privilegio */
 }
 
 void yield_process() {
-	_hlt();
+	current->next->quantum += 1; /* Quantum al siguiente proceso pues el actual quito tiempo */
+	current->quantum = 0;
+	_yield_process();
 }
 
 /* Se avanza con el proceso que está delante */
 void end_process() {
 
+	assign_quantum(); /* Aseguramos que no haya un cambio de contexto */
+
 	lock_list();
 
 	list_node * n = current;
 
-	prev->next = current->next;
-	current = current->next;
 	n_processes--;
-
 	destroy_process(n->p);
 	store_page((uint64_t) n);
 
+	prev->next = current->next;
 	unlock_list();
 
+	current = current->next;
 
+	assign_quantum();
 	_change_process(get_rsp_process(current->p));
 }
 
 uint64_t number_processes() {
 	return n_processes;
+}
+
+void assign_quantum() {
+	current->quantum += 1;
+}
+
+void unassign_quantum() {
+	current->quantum -= 1;
 }

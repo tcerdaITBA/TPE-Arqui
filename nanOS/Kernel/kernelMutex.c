@@ -27,6 +27,8 @@ typedef struct {
 
 
 static mutex open_mutexes[MAX_MUTEXES];
+static int64_t array_mutex = UNLOCKED;
+
 
 extern int _unlocked(int64_t * locknum);
 
@@ -36,16 +38,44 @@ static void queue_process(mutex *m, process * p);
 static mutex create_new_mutex(char * name);
 static int is_open(int key);
 
+
+static void lock_queue(mutex *m);
+static void unlock_queue(mutex *m);
+
+static void lock_array();
+static void unlock_array();
+
+
 static int is_open(int key) {
   return key < MAX_MUTEXES && open_mutexes[key].state == OPEN;
 }
 
+static void lock_queue(mutex *m) {
+  while (!_unlocked(&m->queue_lock))
+    yield_process();  
+}
+
+static void unlock_queue(mutex *m) {
+  m->queue_lock = UNLOCKED;
+}
+
+static void lock_array() {
+  while (!_unlocked(&array_mutex))
+    yield_process();
+}
+
+static void unlock_array() {
+  array_mutex = UNLOCKED;
+}
 
 int mutex_open(char * name) {
   int k;
 
+  lock_array();
+
   for (k = 0; k < MAX_MUTEXES && is_open(k); k++) {
     if (strcmp(name, open_mutexes[k].name) == 0) {
+      unlock_array();
       return k;
     }
   }
@@ -54,6 +84,8 @@ int mutex_open(char * name) {
     return MAX_MUTEX_OPEN_ERROR;
   
   open_mutexes[k] = create_new_mutex(name);
+
+  unlock_array();
 
   return k;
 }
@@ -78,28 +110,30 @@ int mutex_close(int key) {
   return NOT_OPEN_ERROR;
 }
 
-static void lock_queue(mutex *m) {
-  while (!_unlocked(&m->queue_lock))
-    yield_process();  
-}
-
 int mutex_lock(int key) {
   if (is_open(key)) {
+
     mutex *m = &open_mutexes[key];
 
     process * p = get_current_process();
 
-    while (!_unlocked(&m->locked)) {
+    assign_quantum(); /* Si hay cambios de contexto debajo se rompe todo */
+
+    if (!_unlocked(&m->locked)) {
+
 
       lock_queue(m);
 
       queue_process(m, p);
+
       block_process(p);
 
-      m->queue_lock = UNLOCKED;
+      unlock_queue(m);
 
       yield_process();
     }
+    else
+      unassign_quantum();
 
     return 1;
   }
@@ -110,16 +144,22 @@ int mutex_unlock(int key) {
   if (is_open(key)) {
     mutex *m = &open_mutexes[key];
 
+    assign_quantum();
+
     lock_queue(m);
 
     process * p = dequeue_process(m);
 
     m->locked = UNLOCKED;
 
-    if (p != NULL)
+    if (p != NULL) {
       unblock_process(p);
+      m->locked = LOCKED;
+    }
 
-    m->queue_lock = UNLOCKED;
+    unlock_queue(m);
+
+    unassign_quantum();
 
     return 1;
   }
@@ -147,8 +187,8 @@ static process * dequeue_process(mutex *m) {
 
   mutex_node_t * node = m->process_queue.first;
 
-  process * p = m->process_queue.first->p;
-  m->process_queue.first = m->process_queue.first->next;
+  process * p = node->p;
+  m->process_queue.first = node->next;
 
   store_page((uint64_t) node);
 
