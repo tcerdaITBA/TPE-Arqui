@@ -25,7 +25,10 @@ int mutex_open(char * name);
 int mutex_close(int key);
 int mutex_lock(int key);
 int mutex_unlock(int key);
-
+int fifo_open(char * name);
+int fifo_close(int key);
+int fifo_read(int key, void * buffer, int bytes);
+int fifo_write(int key, void * buffer, int bytes);
 
 int exec(void * ptr, uint64_t params);
 void end();

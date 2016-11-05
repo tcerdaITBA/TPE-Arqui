@@ -25,6 +25,10 @@ uint64_t sys_mutex_op(uint64_t nameptr);
 uint64_t sys_mutex_cl(uint64_t key);
 uint64_t sys_mutex_lock(uint64_t key);
 uint64_t sys_mutex_unlock(uint64_t key);
+uint64_t sys_fifo_op(uint64_t nameptr);
+uint64_t sys_fifo_cl(uint64_t key);
+uint64_t sys_fifo_read(uint64_t key, uint64_t buffer, uint64_t bytes);
+uint64_t sys_fifo_write(uint64_t key, uint64_t buffer, uint64_t bytes);
 uint64_t sys_set_foreground(uint64_t pid);
 
 #endif

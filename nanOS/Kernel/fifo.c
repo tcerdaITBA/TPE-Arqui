@@ -57,6 +57,15 @@ static fifo create_new_fifo(char * name) {
   return f;
 }
 
+static read_request create_read_request(int fifo_key, void * buf, int bytes) {
+  read_request r;
+  r.bytes = bytes;
+  r.buffer = buf;
+  r.f = open_fifos[fifo_key];
+  r.reader_p = get_current_process();
+  return r;
+}
+
 static int is_open(int key) {
   return key < MAX_FIFOS && open_fifos[key].state == OPEN;
 }
@@ -67,7 +76,6 @@ int fifo_write(int key, void * buf, int bytes) {
   if (is_open(key)) {
     f = open_fifos[key];
     mutex_lock(f.fifo_mutex_key);
-
 
     write_bytes = (f.buf_fill + bytes) > BUF_SIZE ? BUF_SIZE - f.buf_fill : bytes;
 
@@ -132,15 +140,6 @@ static void release_readers(queueADT q) {
     req = (read_request *) dequeue(q);
     unblock_process(req->reader_p);
   }
-}
-
-static read_request create_read_request(int fifo_key, void * buf, int bytes) {
-  read_request r;
-  r.bytes = bytes;
-  r.buffer = buf;
-  r.f = open_fifos[fifo_key];
-  r.reader_p = get_current_process();
-  return r;
 }
 
 static int try_read(read_request r) {

@@ -17,7 +17,6 @@ void irqDispatcher(uint64_t irq) {
 			break;
 	}
 	return;
-
 }
 
 void int_20() {

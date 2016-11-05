@@ -9,6 +9,7 @@
 #include "memoryAllocator.h"
 #include "processManager.h"
 #include "kernelMutex.h"
+#include "fifo.h"
 
 #define ERR_COLOR 255,0,0  // Rojo
 
@@ -30,6 +31,10 @@ static uint64_t sys_mutex_op_wr(uint64_t nameptr, uint64_t unused2, uint64_t unu
 static uint64_t sys_mutex_cl_wr(uint64_t key, uint64_t unused2, uint64_t unused3);
 static uint64_t sys_mutex_lock_wr(uint64_t key, uint64_t unused2, uint64_t unused3);
 static uint64_t sys_mutex_unlock_wr(uint64_t key, uint64_t unused2, uint64_t unused3);
+static uint64_t sys_fifo_op_wr(uint64_t nameptr, uint64_t unused2, uint64_t unused3);
+static uint64_t sys_fifo_cl_wr(uint64_t key, uint64_t unused2, uint64_t unused3);
+static uint64_t sys_fifo_write_wr(uint64_t key, uint64_t unused2, uint64_t unused3);
+static uint64_t sys_fifo_read_wr(uint64_t key, uint64_t unused2, uint64_t unused3);
 static uint64_t sys_set_foreground_wr(uint64_t pid, uint64_t unused2, uint64_t unused3);
 
 
@@ -54,7 +59,11 @@ static uint64_t (*syscalls[]) (uint64_t,uint64_t,uint64_t) = { 0,0,0, 		/* 0, 1,
 															   sys_mutex_cl_wr,		/* 19 */
 															   sys_mutex_lock_wr, 		/* 20 */
 															   sys_mutex_unlock_wr,	/* 21 */
-															   sys_set_foreground_wr /* 22 */
+															   sys_set_foreground_wr, /* 22 */
+																 sys_fifo_op_wr, /* 23 */
+																 sys_fifo_cl_wr, /* 24 */
+																 sys_fifo_read_wr, /* 25 */
+																 sys_fifo_write_wr /* 26 */
 															};
 
 /* Ejecuta la system call correspondiente al valor de rax */
@@ -210,6 +219,22 @@ uint64_t sys_mutex_unlock(uint64_t key) {
 	return mutex_unlock(key);
 }
 
+uint64_t sys_fifo_op(uint64_t nameptr) {
+	return fifo_open((char *)nameptr);
+}
+
+uint64_t sys_fifo_cl(uint64_t key) {
+	return fifo_close(key);
+}
+
+uint64_t sys_fifo_read(uint64_t key, uint64_t buffer, uint64_t bytes) {
+	return fifo_read(key, (void *) buffer, bytes);
+}
+
+uint64_t sys_fifo_write(uint64_t key, uint64_t buffer, uint64_t bytes) {
+	return fifo_write(key, (void *) buffer, bytes);
+}
+
 uint64_t sys_set_foreground(uint64_t pid) {
 	process * p = get_process_by_pid(pid);
 
@@ -294,4 +319,20 @@ static uint64_t sys_mutex_unlock_wr(uint64_t key, uint64_t unused2, uint64_t unu
 
 static uint64_t sys_set_foreground_wr(uint64_t pid, uint64_t unused2, uint64_t unused3) {
 	return sys_set_foreground(pid);
+}
+
+static uint64_t sys_fifo_op_wr(uint64_t nameptr, uint64_t unused2, uint64_t unused3) {
+	return sys_fifo_op(nameptr);
+}
+
+static uint64_t sys_fifo_cl_wr(uint64_t key, uint64_t unused2, uint64_t unused3) {
+	return sys_fifo_cl(key);
+}
+
+static uint64_t sys_fifo_read_wr(uint64_t key, uint64_t buffer, uint64_t bytes) {
+	return sys_fifo_read(key, buffer, bytes);
+}
+
+static uint64_t sys_fifo_write_wr(uint64_t key, uint64_t buffer, uint64_t bytes) {
+	return sys_fifo_write(key, buffer, bytes);
 }

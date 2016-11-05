@@ -104,3 +104,19 @@ int mutex_unlock(int key) {
 int set_foreground(uint64_t pid) {
   return _int80h(22, pid, 0, 0);
 }
+
+int fifo_open(char * name) {
+  return _int80h(23, (uint64_t) name, 0, 0);
+}
+
+int fifo_close(int key) {
+  return _int80h(24, (uint64_t) key, 0, 0);
+}
+
+int fifo_read(int key, void * buffer, int bytes) {
+  return _int80h(25, (uint64_t) key, (uint64_t) buffer, (uint64_t) bytes);
+}
+
+int fifo_write(int key, void * buffer, int bytes) {
+  return _int80h(26, (uint64_t) key, (uint64_t) buffer, (uint64_t) bytes);
+}
