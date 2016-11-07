@@ -88,19 +88,21 @@ static int write_test(const char * str) {
 
   printf("Escribiendo a fifo con fds %d\n", fds);
 
-  write(fds, str, str_len(str)+1);
+  write(fds, str, str_len(str));
 
   return VALID;
 }
 
 static int read_test(const char *str) {
   int fds = fifo_open("test_fifo");
-
-  char buffer[128];
+  int n;
+  char buffer[5];
 
   printf("Leyendo de fifo con fds %d\n", fds);
 
-  read(fds, buffer, 5);
+  n = read(fds, buffer, 4);
+
+  buffer[n] = '\0';
 
   printf("Lei %s\n", buffer);
 
