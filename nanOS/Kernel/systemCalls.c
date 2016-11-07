@@ -13,6 +13,8 @@
 
 #define ERR_COLOR 255,0,0  // Rojo
 
+#define FILE_DESCRIPTORS 3
+
 #define SYS_SIZE (sizeof(syscalls)/sizeof(syscalls[0]))
 
 static uint64_t sys_write_wr(uint64_t fds, uint64_t str, uint64_t length);
@@ -33,9 +35,20 @@ static uint64_t sys_mutex_lock_wr(uint64_t key, uint64_t unused2, uint64_t unuse
 static uint64_t sys_mutex_unlock_wr(uint64_t key, uint64_t unused2, uint64_t unused3);
 static uint64_t sys_fifo_op_wr(uint64_t nameptr, uint64_t unused2, uint64_t unused3);
 static uint64_t sys_fifo_cl_wr(uint64_t key, uint64_t unused2, uint64_t unused3);
-static uint64_t sys_fifo_write_wr(uint64_t key, uint64_t unused2, uint64_t unused3);
-static uint64_t sys_fifo_read_wr(uint64_t key, uint64_t unused2, uint64_t unused3);
 static uint64_t sys_set_foreground_wr(uint64_t pid, uint64_t unused2, uint64_t unused3);
+
+
+static unsigned int fifo_to_fds(int key);
+static int fds_to_fifo(unsigned int fds);
+
+
+static unsigned int fifo_to_fds(int key) {
+	return key + FILE_DESCRIPTORS;
+}
+
+static int fds_to_fifo(unsigned int fds) {
+	return fds - FILE_DESCRIPTORS;
+}
 
 
 /* Vector de system calls */
@@ -62,8 +75,6 @@ static uint64_t (*syscalls[]) (uint64_t,uint64_t,uint64_t) = { 0,0,0, 		/* 0, 1,
 															   sys_set_foreground_wr, /* 22 */
 																 sys_fifo_op_wr, /* 23 */
 																 sys_fifo_cl_wr, /* 24 */
-																 sys_fifo_read_wr, /* 25 */
-																 sys_fifo_write_wr /* 26 */
 															};
 
 /* Ejecuta la system call correspondiente al valor de rax */
@@ -73,46 +84,54 @@ uint64_t syscallDispatcher(uint64_t rax, uint64_t rbx, uint64_t rdx, uint64_t rc
 	return 0;
 }
 
-void _sti();
-
 /* SystemCall de Read para leer de entrada estándar*/
 uint64_t sys_read(uint64_t fds, char * buffer, uint64_t bytes) {
 	unsigned int i = 0;
 	char c;
     if (fds == STDIN) {
-			if (get_current_process() != get_foreground_process()) {
-				block_process(get_current_process());
+		if (get_current_process() != get_foreground_process()) {
+			block_process(get_current_process());
+			yield_process();
+		}
+		while (i < bytes) {
+			c = get_char();
+			if (c != -1) {
+				buffer[i++] = c;
+			}
+			else {
+				_sti();
+				block_read_process(get_current_process());
 				yield_process();
 			}
-			while (i < bytes) {
-				c = get_char();
-				if (c != -1) {
-					buffer[i++] = c;
-				}
-				else {
-					_sti();
-					block_read_process(get_current_process());
-					yield_process();
-				}
-			}
+		}
     }
+    else if (fds >= FILE_DESCRIPTORS)
+    	i = fifo_read(fds_to_fifo(fds), buffer, bytes);
     return i;
 }
 
 /* SystemCall de Write para escribir a salida estándar */
 uint64_t sys_write(uint64_t fds, const char * str, uint64_t length) {
+	unsigned int n;
+
 	if (fds == STDERR) {
 		unsigned char r,g,b; // Backup
 		current_char_color(&r,&g,&b);
 		set_char_color(ERR_COLOR);
 		put(str, length);
 		set_char_color(r,g,b);
+		n = length;
 	}
 	else if (fds == STDOUT) {
 		put(str, length);
+		n = length;
 		return length;
 	}
-	return 0;
+	else if (fds >= FILE_DESCRIPTORS) {
+		n = fifo_write(fds_to_fifo(fds), str, length);
+	}
+
+	return n;
 }
 
 /* SystemCall de Time, retorna hora, minutos y segundos actuales */
@@ -220,19 +239,11 @@ uint64_t sys_mutex_unlock(uint64_t key) {
 }
 
 uint64_t sys_fifo_op(uint64_t nameptr) {
-	return fifo_open((char *)nameptr);
+	return fifo_to_fds(fifo_open((char *)nameptr));
 }
 
-uint64_t sys_fifo_cl(uint64_t key) {
-	return fifo_close(key);
-}
-
-uint64_t sys_fifo_read(uint64_t key, uint64_t buffer, uint64_t bytes) {
-	return fifo_read(key, (void *) buffer, bytes);
-}
-
-uint64_t sys_fifo_write(uint64_t key, uint64_t buffer, uint64_t bytes) {
-	return fifo_write(key, (void *) buffer, bytes);
+uint64_t sys_fifo_cl(uint64_t fds) {
+	return fifo_close(fds_to_fifo(fds));
 }
 
 uint64_t sys_set_foreground(uint64_t pid) {
@@ -327,12 +338,4 @@ static uint64_t sys_fifo_op_wr(uint64_t nameptr, uint64_t unused2, uint64_t unus
 
 static uint64_t sys_fifo_cl_wr(uint64_t key, uint64_t unused2, uint64_t unused3) {
 	return sys_fifo_cl(key);
-}
-
-static uint64_t sys_fifo_read_wr(uint64_t key, uint64_t buffer, uint64_t bytes) {
-	return sys_fifo_read(key, buffer, bytes);
-}
-
-static uint64_t sys_fifo_write_wr(uint64_t key, uint64_t buffer, uint64_t bytes) {
-	return sys_fifo_write(key, buffer, bytes);
 }

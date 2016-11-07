@@ -7,6 +7,8 @@ typedef struct queue * queueADT;
 
 queueADT create_queue();
 
+void destroy_queue();
+
 int is_empty(queueADT q);
 
 void enqueue(queueADT q, qelem_t elem);

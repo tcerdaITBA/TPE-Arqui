@@ -16,7 +16,7 @@ int fifo_open(char * name);
 
 int fifo_close(int key);
 
-int fifo_write(int key, void * buf, int bytes);
+int fifo_write(int key, const void * buf, int bytes);
 
 int fifo_read(int key, void * buf, int bytes);
 

@@ -7,7 +7,7 @@
 #define STDIN 1
 #define STDERR 2
 
-int write(unsigned int fd, void *buffer, unsigned int bytes);
+int write(unsigned int fd, const void *buffer, unsigned int bytes);
 int read(unsigned int fd, void *buffer, unsigned int bytes);
 int time(int selector);
 int paint(int color, int x, int y);
@@ -27,8 +27,6 @@ int mutex_lock(int key);
 int mutex_unlock(int key);
 int fifo_open(char * name);
 int fifo_close(int key);
-int fifo_read(int key, void * buffer, int bytes);
-int fifo_write(int key, void * buffer, int bytes);
 
 int exec(void * ptr, uint64_t params);
 void end();

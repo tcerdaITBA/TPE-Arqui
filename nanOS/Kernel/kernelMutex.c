@@ -112,9 +112,9 @@ int mutex_lock(int key) {
 
       queue_process(m, p);
 
-      block_process(p);
-
       unlock_queue(m);
+
+      block_process(p);
 
       yield_process();
     }
@@ -153,7 +153,7 @@ int mutex_unlock(int key) {
 }
 
 static void queue_process(mutex *m, process * p) {
-  enqueue(m->process_queue, (void *) p);
+  enqueue(m->process_queue, p);
 }
 
 static process * dequeue_process(mutex *m) {

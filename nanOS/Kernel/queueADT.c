@@ -20,6 +20,13 @@ queueADT create_queue() {
   return q;
 }
 
+void destroy_queue(queueADT q) {
+  while(!is_empty(q))
+    dequeue(q);
+
+  store_page((uint64_t) q);
+}
+
 int is_empty(queueADT q) {
   if (q == NULL || q->first == NULL)
     return 1;

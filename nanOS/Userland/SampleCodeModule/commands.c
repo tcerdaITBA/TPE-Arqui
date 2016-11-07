@@ -32,6 +32,9 @@ static int extract_colors (const char *args, int *r, int *g, int *b);
 static int change_bg_color (const char *args);
 static void fractal_process(int index);
 
+static int write_test(const char * str);
+static int read_test(const char *str);
+
 static void test(uint64_t param);
 static int test_mt(const char *str);
 
@@ -51,7 +54,9 @@ static command commands[]= {{"help", help},
               {"char_color", change_char_color},
               {"bg_color", change_bg_color},
               {"test", test_mt},
-							{"philo", philosophersProblem}
+							{"philo", philosophersProblem},
+              {"write", write_test},
+              {"read", read_test}
 							};
 
 static int test_num = 0;
@@ -76,6 +81,30 @@ static void test(uint64_t param) {
   mutex_unlock(m_key);
 
   end();
+}
+
+static int write_test(const char * str) {
+  int fds = fifo_open("test_fifo");
+
+  printf("Escribiendo a fifo con fds %d\n", fds);
+
+  write(fds, str, str_len(str)+1);
+
+  return VALID;
+}
+
+static int read_test(const char *str) {
+  int fds = fifo_open("test_fifo");
+
+  char buffer[128];
+
+  printf("Leyendo de fifo con fds %d\n", fds);
+
+  read(fds, buffer, 5);
+
+  printf("Lei %s\n", buffer);
+
+  return VALID;
 }
 
 static int test_mt(const char *str) {
