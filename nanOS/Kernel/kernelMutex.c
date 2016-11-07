@@ -112,9 +112,10 @@ int mutex_lock(int key) {
 
       queue_process(m, p);
 
+      block_process(p);
+
       unlock_queue(m);
 
-      block_process(p);
 
       yield_process();
     }

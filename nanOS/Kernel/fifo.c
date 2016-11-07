@@ -24,6 +24,7 @@ typedef struct {
 
 typedef struct {
   int bytes;
+  int bytes_read;
   void * buffer;
   fifo * f;
   process * reader_p;
@@ -40,7 +41,7 @@ static void release_readers(queueADT q);
 
 static circular_buffer create_circular_buffer();
 static int write_circular_buffer(circular_buffer * c_buf, const void * source, int bytes);
-static void read_circular_buffer(circular_buffer * c_buf, void * dest, int bytes);
+static int read_circular_buffer(circular_buffer * c_buf, void * dest, int bytes);
 
 
 int fifo_open(char * name) {
@@ -126,6 +127,7 @@ static void send_to_readers(queueADT read_queue) {
 
 int fifo_read(int key, void * buf, int bytes) {
   int could_read = 0;
+  int n;
 
   if (is_open(key) && bytes > 0) {
     fifo * f = &open_fifos[key];
@@ -150,8 +152,10 @@ int fifo_read(int key, void * buf, int bytes) {
     if (!is_open(key)) // se desbloqueo porque cerraron el fifo;
       return FIFO_NOT_OPEN_ERROR;
 
+    n = r->bytes_read;
+
     store_page((uint64_t) r);
-    return bytes;
+    return n;
   }
   else {
     return 0;
@@ -180,8 +184,8 @@ static void release_readers(queueADT q) {
 }
 
 static int try_read(read_request * r) {
-  if (r->f->c_buffer.buf_fill >= r->bytes) {  // el buffer tenga los bytes que quiero leer
-    read_circular_buffer(&r->f->c_buffer, r->buffer, r->bytes);
+  if (r->f->c_buffer.buf_fill > 0) {  // el buffer tenga los bytes que quiero leer
+    r->bytes_read = read_circular_buffer(&r->f->c_buffer, r->buffer, r->bytes);
     unblock_process(r->reader_p);
     return 1; // lee
   }
@@ -212,21 +216,24 @@ static int write_circular_buffer(circular_buffer * c_buf, const void * source, i
   return write_bytes;
 }
 
-static void read_circular_buffer(circular_buffer * c_buf, void * dest, int bytes) {
+static int read_circular_buffer(circular_buffer * c_buf, void * dest, int bytes) {
+  int read_bytes = c_buf->buf_fill < bytes ? c_buf->buf_fill : bytes;
   int aux = c_buf->current;
 
-  c_buf->current = (c_buf->current + bytes) % BUF_SIZE;
+  c_buf->current = (c_buf->current + read_bytes) % BUF_SIZE;
 
   if (aux < c_buf->current) {
-    memcpy(dest, c_buf->buffer + aux, bytes);
+    memcpy(dest, c_buf->buffer + aux, read_bytes);
   }
   else {
     int first_bytes = BUF_SIZE - aux;
-    int second_bytes = bytes - first_bytes;
+    int second_bytes = read_bytes - first_bytes;
 
     memcpy(dest, c_buf->buffer + aux, first_bytes);
-    memcpy(dest+first_bytes, c_buf->buffer ,second_bytes);
+    memcpy(dest+first_bytes, c_buf->buffer, second_bytes);
   }
 
-  c_buf->buf_fill -= bytes;
+  c_buf->buf_fill -= read_bytes;
+
+  return read_bytes;
 }
