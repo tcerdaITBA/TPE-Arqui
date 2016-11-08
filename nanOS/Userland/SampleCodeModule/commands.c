@@ -290,6 +290,12 @@ static int extract_colors (const char *args, int *r, int *g, int *b) {
 }
 
 static int philosophersProblem (const char * args) {
-	start_philosophers_problem(5);
+	int p = DEFAULT_PHILOSOPHERS;
+	if (isnum(args))
+		p = atoi(args);
+	if (p < 1)
+		return INVALID_ARGS;
+
+	start_philosophers_problem(p);
 	return 1;
 }
