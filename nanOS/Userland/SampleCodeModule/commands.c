@@ -290,6 +290,6 @@ static int extract_colors (const char *args, int *r, int *g, int *b) {
 }
 
 static int philosophersProblem (const char * args) {
-	start_philosophers_problem();
+	start_philosophers_problem(5);
 	return 1;
 }
