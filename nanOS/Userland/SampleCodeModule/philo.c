@@ -17,8 +17,9 @@ static void setState(int philo, int st);
 
 int start_philosophers_problem(int philoNumber) {
   int i;
+  philosopherCount = philoNumber > MAX_PHILOSOPHERS ? MAX_PHILOSOPHERS : philoNumber;
+
   critical_m = mutex_open("MainPhilosophersMutex");
-  philosopherCount = philoNumber;
 
   // Set inicial de filosofos
   for (i = 0; i < philosopherCount; i++) {
@@ -33,12 +34,16 @@ int start_philosophers_problem(int philoNumber) {
     exec(philosopher, i);
   }
 
+  // Aca va el proceso que escucha si agregas/sacas filosofos o cerras el programa
+
   return 0;
 }
 
 static void philosopher(uint64_t i) {
   while(1) {
+    sleep(2500); // No se si anda bien el sleep
     take_forks(i);
+    sleep(3500); //
     put_forks(i);
   }
 }
@@ -65,7 +70,6 @@ static void put_forks(uint64_t i) {
 static void setState(int philo, int st) {
   state[philo] = st;
   render(state, philosopherCount);
-  sleep(3000); // TODO ver donde va
 }
 
 static void test(uint64_t i) {

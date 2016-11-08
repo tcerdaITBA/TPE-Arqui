@@ -9,6 +9,7 @@
 #include "stdlib.h"
 #include "graphics.h"
 #include "philo.h"
+#include "producerConsumer.h"
 
 #include <stdint.h>
 
@@ -23,6 +24,7 @@ static int clear(const char *args);
 static int getTime(const char *args);
 static int echo(const char *args);
 static int philosophersProblem (const char * args);
+static int producerConsumer (const char * args);
 static void printWithTimeFormat(unsigned int n);
 static int set_GMT(const char *args);
 static int isnum(const char *str);
@@ -55,6 +57,7 @@ static command commands[]= {{"help", help},
               {"bg_color", change_bg_color},
               {"test", test_mt},
 							{"philo", philosophersProblem},
+							{"prodcon", producerConsumer},
               {"write", write_test},
               {"read", read_test}
 							};
@@ -297,5 +300,10 @@ static int philosophersProblem (const char * args) {
 		return INVALID_ARGS;
 
 	start_philosophers_problem(p);
+	return 1;
+}
+
+static int producerConsumer (const char * args) {
+	start_producer_consumer_problem();
 	return 1;
 }
