@@ -3,6 +3,7 @@
 #include "memoryAllocator.h"
 #include "processManager.h"
 
+#define MAX_FDS 64
 #define CHECK_BIT(var,pos) ((var) & (1<<(pos)));
 
 /* El stack frame y el llenado del mismo se tomó de
@@ -116,7 +117,7 @@ process * create_process(uint64_t new_process_rip, uint64_t params) {
 }
 
 process * get_process_by_pid (uint64_t pid) {
-	if (pid >= 0 && pid < MAX_PROCESSES)
+	if (pid >= 0 && pid < MAX_PROCESSES && !is_delete_process(process_table[pid]))
 		return process_table[pid];
 
 	return NULL;
@@ -130,6 +131,19 @@ void destroy_process(process * p) {
 		store_stack_page(p->stack_page);
 		store_page((uint64_t) p);
 	}
+}
+
+int kill_process(process * p) {
+	if (p != NULL)
+		p->st = DELETE;
+
+	return p != NULL;
+}
+
+int is_delete_process(process * p) {
+	if (p != NULL)
+		return p->st == DELETE;
+	return 0;
 }
 
 void set_rsp_process(process * p, uint64_t rsp) {
@@ -192,21 +206,21 @@ process * get_foreground_process() {
 }
 
 int set_file_open(process * p, int fd) {
-	if (fd >= 64)
+	if (fd >= MAX_FDS)
 		return 0;
 	p->open_fds |= 1 << fd; // Settea bit en posicion fd en 1
 	return 1;
 }
 
 int set_file_closed(process * p, int fd) {
-	if (fd >= 64)
+	if (fd >= MAX_FDS)
 		return 0;
 	p->open_fds &= ~(1 << fd); // Settea bit en posicion fd en 0
 	return 1;
 }
 
 int file_is_open(process * p, int fd) {
-	return fd < 64 && CHECK_BIT(p->open_fds, fd);
+	return fd < MAX_FDS && CHECK_BIT(p->open_fds, fd);
 }
 
 /* Llena el stack para que sea hookeado al cargar un nuevo proceso

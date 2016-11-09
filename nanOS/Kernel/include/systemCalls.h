@@ -30,5 +30,6 @@ uint64_t sys_fifo_cl(uint64_t key);
 uint64_t sys_fifo_read(uint64_t key, uint64_t buffer, uint64_t bytes);
 uint64_t sys_fifo_write(uint64_t key, uint64_t buffer, uint64_t bytes);
 uint64_t sys_set_foreground(uint64_t pid);
+uint64_t sys_kill(uint64_t pid);
 
 #endif

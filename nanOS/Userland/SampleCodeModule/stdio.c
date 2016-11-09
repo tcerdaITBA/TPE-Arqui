@@ -128,18 +128,19 @@ static int prints(unsigned int fds, const char *str) {
 
 /*Imprime un número entero en la pantalla */
 static int printi(unsigned int fds,int value, char aux[]) {
-	itoa(value, aux, 10); // guarda en buffer el string del valor en base 10
+	itoa(value, aux, 10); // guarda en aux el string del valor en base 10
 	return prints(fds, aux);
 }
 
 /*Imprime un numero binario en pantalla */
 static int printb(unsigned int fds,int value, char aux[]) {
-	itoa(value, aux, 2); // guarda en buffer el string del valor en base 2
+	itoa(value, aux, 2); // guarda en aux el string del valor en base 2
 	return prints(fds, aux);
 }
+
 /*Imprime un numero hexadecimal en pantalla */
 static int printx(unsigned int fds,int value, char aux[]) {
-	itoa(value, aux, 16); // guarda en buffer el string del valor en base 16
+	itoa(value, aux, 16); // guarda en aux el string del valor en base 16
 	return prints(fds, aux);
 }
 

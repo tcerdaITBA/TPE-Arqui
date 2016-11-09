@@ -112,3 +112,7 @@ int fifo_open(char * name) {
 int fifo_close(int key) {
   return _int80h(24, (uint64_t) key, 0, 0);
 }
+
+int kill(uint64_t pid) {
+  return _int80h(25, pid, 0, 0);
+}

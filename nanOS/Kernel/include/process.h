@@ -5,9 +5,11 @@
 
 #include "defs.h"
 
+#define RUNNING 0
 #define READY 1
-#define BLOCKED 0
-#define BLOCKED_READ 2
+#define BLOCKED 2
+#define BLOCKED_READ 3
+#define DELETE 4
 
 typedef struct c_process process;
 typedef char status;
@@ -32,6 +34,10 @@ process * get_process_by_pid (uint64_t pid);
 /* Quizas no tengan que estar aca */
 void set_foreground_process (process *p);
 process * get_foreground_process();
+
+/* kill settea que hay que borrar el proceso. No lo borra. is_delete devuelve 1 si hay que borrarlo. */
+int kill_process(process * p);
+int is_delete_process(process * p);
 
 /* Archivos del proceso */
 int set_file_open(process * p, int fd);

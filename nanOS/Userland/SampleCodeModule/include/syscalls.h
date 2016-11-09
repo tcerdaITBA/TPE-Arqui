@@ -28,9 +28,10 @@ int mutex_unlock(int key);
 int fifo_open(char * name);
 int fifo_close(int key);
 
-int exec(void * ptr, uint64_t params);
+int exec(void * ptr, uint64_t params); /* Devuelve PID de nuevo proceso */
 void end();
 void yield();
+int kill(uint64_t pid);
 
 int set_foreground(uint64_t pid);
 

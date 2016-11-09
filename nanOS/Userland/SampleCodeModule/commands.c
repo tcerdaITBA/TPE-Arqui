@@ -19,6 +19,10 @@
 
 #define SLEEP_TIME 5000
 
+static const char * next_arg (const char *args);
+static void printWithTimeFormat(unsigned int n);
+static int isnum(const char *str);
+
 static int help(const char *args);
 static int fractals(const char *args);
 static int clear(const char *args);
@@ -26,14 +30,12 @@ static int getTime(const char *args);
 static int echo(const char *args);
 static int philosophersProblem (const char * args);
 static int producerConsumer (const char * args);
-static void printWithTimeFormat(unsigned int n);
 static int set_GMT(const char *args);
-static int isnum(const char *str);
-static const char * next_arg (const char *args);
 static int change_char_color (const char *args);
-static int extract_colors (const char *args, int *r, int *g, int *b);
 static int change_bg_color (const char *args);
 static void fractal_process(int index);
+static int test_mt(const char *str);
+static int kill_command(const char *str);
 
 static int write_test(const char * str);
 static int read_test(const char *str);
@@ -43,7 +45,8 @@ static int testFifos (const char * args);
 static int processRead();
 
 static void test(uint64_t param);
-static int test_mt(const char *str);
+
+static int extract_colors (const char *args, int *r, int *g, int *b);
 
 /* Estructura que representa un comando de la Shell */
 typedef struct {
@@ -65,7 +68,8 @@ static command commands[]= {{"help", help},
 							{"prodcon", producerConsumer},
               {"write", write_test},
               {"read", read_test},
-							{"test2", testFifos}
+							{"test2", testFifos},
+              {"kill", kill_command}
 							};
 
 static int test_num = 0;
@@ -343,4 +347,17 @@ static int processRead() {
 		printf("READ\n");
 	}
 	return 1;
+}
+
+static int kill_command(const char *str) {
+  int pid = atoi(str);
+  int valid = 0;
+
+  if (pid != 0)
+    valid = kill(pid);
+
+  if (valid)
+    printf("Killed process with PID %d", pid);
+
+  return valid ? VALID : INVALID_ARGS;
 }
