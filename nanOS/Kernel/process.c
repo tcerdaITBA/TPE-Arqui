@@ -62,6 +62,8 @@ static process * foreground = NULL;
 
 static uint64_t fill_stack(uint64_t rip, uint64_t rsp, uint64_t params);
 
+static uint64_t n_processes = 0;
+
 
 static void lock_table() {
   while (!_unlocked(&table_lock))
@@ -80,6 +82,7 @@ static int insert_process (process * p) {
 
 	for (i = 0; i < MAX_PROCESSES; i++) {
 		if (process_table[i] == NULL) {
+			n_processes++;
 			p->pid = i;
 			process_table[i] = p;
 			unlock_table();
@@ -117,7 +120,7 @@ process * create_process(uint64_t new_process_rip, uint64_t params) {
 }
 
 process * get_process_by_pid (uint64_t pid) {
-	if (pid >= 0 && pid < MAX_PROCESSES && !is_delete_process(process_table[pid]))
+	if (pid < MAX_PROCESSES && process_table[pid] != NULL && !is_delete_process(process_table[pid]))
 		return process_table[pid];
 
 	return NULL;
@@ -125,6 +128,7 @@ process * get_process_by_pid (uint64_t pid) {
 
 void destroy_process(process * p) {
 	if (p != NULL) {
+		n_processes--;
 		lock_table();
 		process_table[p->pid] = NULL;
 		unlock_table();
@@ -181,7 +185,7 @@ void unblock_process(process * p) {
 
 int is_blocked_process(process * p) {
 	if (p != NULL)
-		return p->st != READY;
+		return p->st == BLOCKED || p->st == BLOCKED_READ;
 	return -1;
 }
 
@@ -221,6 +225,10 @@ int set_file_closed(process * p, int fd) {
 
 int file_is_open(process * p, int fd) {
 	return fd < MAX_FDS && CHECK_BIT(p->open_fds, fd);
+}
+
+uint64_t number_processes() {
+	return n_processes;
 }
 
 /* Llena el stack para que sea hookeado al cargar un nuevo proceso

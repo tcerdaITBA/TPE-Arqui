@@ -17,16 +17,6 @@
 
 static char * state[] = {"RUNNING", "READY", "BLOCKED"};
 
-typedef struct process_info_c {
-	char is_foreground;
-	char st;
-	uint64_t pid;
-	char name [MAX_PROCESS_NAME];
-	void * stack_page;
-	void * mem_pages[MAX_MEM_PAGES];
-} process_info;
-
-
 void process_string(const process_info * p, char buffer[MAX_PROCESS_STRING]) {
 	int i = 0;
 	char * ground = is_foreground ? FOREGROUND : BACKGROUND;

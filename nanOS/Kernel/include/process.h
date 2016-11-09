@@ -28,6 +28,7 @@ void block_read_process(process * p);
 
 uint64_t pid_process(process * p);
 uint64_t ppid_process(process * p);
+uint64_t number_processes();
 
 process * get_process_by_pid (uint64_t pid);
 

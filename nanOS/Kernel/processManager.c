@@ -28,8 +28,6 @@ extern int _unlocked(int64_t * locknum);
 static list_node *current = NULL;
 static list_node *prev = NULL;
 
-static uint64_t n_processes = 0;
-
 void _yield_process();
 
 
@@ -103,8 +101,6 @@ static void add_process(process * p) {
 		current->next = new_node;
 	}
 
-	n_processes++;
-
 	unlock_list();
 
 	unassign_quantum(); /* Quitamos privilegio */
@@ -114,10 +110,13 @@ static void set_next_current() {
 	while (is_blocked_process(current->p) || is_delete_process(current->p)) {
 		list_node * next = current->next;
 
-		if (is_blocked_process(current->p))
-			prev = current;
-		else
+		if (is_delete_process(current->p)) {
+			prev->next = next;
 			destroy_process(current->p);
+			store_page((uint64_t) current);
+		}
+		else
+			prev = current;
 
 		current = next;
 	}
@@ -138,25 +137,21 @@ void end_process() {
 
 	list_node * n = current;
 
-	n_processes--;
 	destroy_process(n->p);
-	store_page((uint64_t) n);
 
 	prev->next = current->next;
 
 	current = current->next;
 
+	store_page((uint64_t) n);
+
+	set_next_current();
+
 	unlock_list();
 
 	assign_quantum();
 
-	set_next_current();
-
 	_change_process(get_rsp_process(current->p));
-}
-
-uint64_t number_processes() {
-	return n_processes;
 }
 
 void assign_quantum() {
