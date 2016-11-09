@@ -6,6 +6,7 @@
 #include "strings.h"
 #include "lib.h"
 #include "memoryAllocator.h"
+#include "videoDriver.h"
 
 typedef struct {
   char buffer[BUF_SIZE];
@@ -117,10 +118,14 @@ int fifo_write(int key, const void * buf, int bytes) {
 }
 
 static void send_to_readers(queueADT read_queue) {
+  print_str("|SENT TO READERS|\n", 10, 40);
   if (!is_empty(read_queue)) {
+    print_str("|Peeking readers|\n", 10, 40);
     while(try_read(peek(read_queue))) {
       // manda a los lectores hasta que uno no pueda leer mas
-      dequeue(read_queue); // leyo, entonces lo saca de los que estan esperando leer
+      read_request * r = dequeue(read_queue);
+      print_str("|Unblocking process|\n", 10, 60);
+      unblock_process(r->reader_p);// leyo, entonces lo saca de los que estan esperando leer
     }
   }
 }
@@ -142,11 +147,16 @@ int fifo_read(int key, void * buf, int bytes) {
       enqueue(f->read_queue, r);
     }
 
-    mutex_unlock(f->fifo_mutex_key); // TODO: OJO que el try_read bloquea, puede que nunca se llegue a este unlock
-
     if (!could_read) {
+      print_str("| COULDN'T READ |\n", 13, 60);
+      enqueue(f->read_queue, r);
+      mutex_unlock(f->fifo_mutex_key);
+      print_str("| UNLOCKED |\n", 15, 60);
       block_process(r->reader_p);
       yield_process(); // esta bloqueado
+    }
+    else {
+      mutex_unlock(f->fifo_mutex_key); // TODO: OJO que el try_read bloquea, puede que nunca se llegue a este unlock
     }
 
     if (!is_open(key)) // se desbloqueo porque cerraron el fifo;
@@ -186,11 +196,11 @@ static void release_readers(queueADT q) {
 static int try_read(read_request * r) {
   if (r->f->c_buffer.buf_fill > 0) {  // el buffer tenga los bytes que quiero leer
     r->bytes_read = read_circular_buffer(&r->f->c_buffer, r->buffer, r->bytes);
-    unblock_process(r->reader_p);
+    //unblock_process(r->reader_p);
     return 1; // lee
   }
   else {
-    block_process(r->reader_p);
+    //block_process(r->reader_p);
     return 0; // no lee
   }
 }
