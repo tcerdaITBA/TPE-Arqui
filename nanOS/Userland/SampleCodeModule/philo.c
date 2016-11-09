@@ -3,6 +3,7 @@
 #include "stdio.h"
 #include "syscalls.h"
 #include "strings.h"
+#include "random.h"
 
 int critical_m;
 int state[MAX_PHILOSOPHERS];
@@ -14,6 +15,7 @@ static void put_forks(uint64_t i);
 static void test(uint64_t i);
 static void philosopher(uint64_t i);
 static void setState(int philo, int st);
+static void listen_commands();
 
 int start_philosophers_problem(int philoNumber) {
   int i;
@@ -30,20 +32,40 @@ int start_philosophers_problem(int philoNumber) {
     state[i] = THINKING;
   }
 
+  srand(seconds() * minutes() * hour());
+
   for (i = 0; i < philosopherCount; i++) {
     exec(philosopher, i);
   }
 
-  // Aca va el proceso que escucha si agregas/sacas filosofos o cerras el programa
-
+  // listen_commands(); falta ponerlo en foreground
   return 0;
+}
+
+static void listen_commands() {
+  char c;
+  while((c = getchar())) {
+    switch (c) {
+      case 'e':
+      return;
+      break;
+      case 'a':
+      philosopherCount += 1;
+      exec(philosopher, philosopherCount - 1);
+      break;
+      case 'r':
+      philosopherCount -= 1;
+      // kill al ultimo filosofo
+      break;
+    }
+  }
 }
 
 static void philosopher(uint64_t i) {
   while(1) {
-    sleep(2500); // No se si anda bien el sleep
+    sleep(rand_int_range(5, 20) * 1000); // No se si anda bien el sleep
     take_forks(i);
-    sleep(3500); //
+    sleep(rand_int_range(5, 20) * 1000); //
     put_forks(i);
   }
 }

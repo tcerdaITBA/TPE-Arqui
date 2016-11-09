@@ -3,6 +3,8 @@
 #include "memoryAllocator.h"
 #include "processManager.h"
 
+#define CHECK_BIT(var,pos) ((var) & (1<<(pos)));
+
 /* El stack frame y el llenado del mismo se tomó de
 ** https://bitbucket.org/RowDaBoat/wyrm
 */
@@ -43,6 +45,7 @@ struct c_process {
 	uint64_t stack_page;
 	uint64_t pid;
 	uint64_t ppid;
+	uint64_t open_fds; /* bit map */
 };
 
 static process * process_table[MAX_PROCESSES] = {NULL};
@@ -61,7 +64,7 @@ static uint64_t fill_stack(uint64_t rip, uint64_t rsp, uint64_t params);
 
 static void lock_table() {
   while (!_unlocked(&table_lock))
-    yield_process();  
+    yield_process();
 }
 
 static void unlock_table() {
@@ -106,6 +109,8 @@ process * create_process(uint64_t new_process_rip, uint64_t params) {
 		new_process->ppid = pid_process(get_current_process());
 	else
 		foreground = new_process; /* Pone en foreground al primer proceso */
+
+	new_process->open_fds = 0;
 
 	return new_process;
 }
@@ -184,6 +189,24 @@ void set_foreground_process (process * p) {
 
 process * get_foreground_process() {
 	return foreground;
+}
+
+int set_file_open(process * p, int fd) {
+	if (fd >= 64)
+		return 0;
+	p->open_fds |= 1 << fd; // Settea bit en posicion fd en 1
+	return 1;
+}
+
+int set_file_closed(process * p, int fd) {
+	if (fd >= 64)
+		return 0;
+	p->open_fds &= ~(1 << fd); // Settea bit en posicion fd en 0
+	return 1;
+}
+
+int file_is_open(process * p, int fd) {
+	return fd < 64 && CHECK_BIT(p->open_fds, fd);
 }
 
 /* Llena el stack para que sea hookeado al cargar un nuevo proceso

@@ -9,7 +9,6 @@
 #define BLOCKED 0
 #define BLOCKED_READ 2
 
-
 typedef struct c_process process;
 typedef char status;
 
@@ -30,10 +29,13 @@ uint64_t ppid_process(process * p);
 
 process * get_process_by_pid (uint64_t pid);
 
-
 /* Quizas no tengan que estar aca */
 void set_foreground_process (process *p);
 process * get_foreground_process();
 
+/* Archivos del proceso */
+int set_file_open(process * p, int fd);
+int set_file_closed(process * p, int fd);
+int file_is_open(process * p, int fd);
 
 #endif

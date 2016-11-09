@@ -10,6 +10,7 @@
 #include "graphics.h"
 #include "philo.h"
 #include "producerConsumer.h"
+#include "time.h"
 
 #include <stdint.h>
 
@@ -37,6 +38,10 @@ static void fractal_process(int index);
 static int write_test(const char * str);
 static int read_test(const char *str);
 
+static int processWrite();
+static int testFifos (const char * args);
+static int processRead();
+
 static void test(uint64_t param);
 static int test_mt(const char *str);
 
@@ -59,7 +64,8 @@ static command commands[]= {{"help", help},
 							{"philo", philosophersProblem},
 							{"prodcon", producerConsumer},
               {"write", write_test},
-              {"read", read_test}
+              {"read", read_test},
+							{"test2", testFifos}
 							};
 
 static int test_num = 0;
@@ -305,5 +311,36 @@ static int philosophersProblem (const char * args) {
 
 static int producerConsumer (const char * args) {
 	start_producer_consumer_problem();
+	return 1;
+}
+
+static int testFifos (const char * args) {
+	exec(processRead, 0);
+	sleep(5000);
+	exec(processWrite, 0);
+	return 1;
+}
+
+static int processWrite() {
+	int fd = fifo_open("TestFifo");
+	char c = 'A';
+	while(1) {
+		sleep(1000);
+		printf("Trying to write\n");
+		write(fd, &c, 1);
+		printf("WROTE\n");
+	}
+	return 1;
+}
+
+static int processRead() {
+	int fd = fifo_open("TestFifo");
+	char c;
+	while(1) {
+		sleep(500);
+		printf("Trying to read\n");
+		read(fd, &c, 1);
+		printf("READ\n");
+	}
 	return 1;
 }

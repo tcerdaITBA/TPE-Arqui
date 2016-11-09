@@ -23,8 +23,7 @@ static void producer() {
     printf("Producer about to read empty\n");
     read(empty_fd,  &message, 1);
 
-    sleep(5000 - PRODUCER_SPEED * 1000);
-    printf("PRODUCING - read %c\n", message);
+    sleep(500);
 
     printf("Producer about to write full\n");
     write(full_fd, &full, 1);
@@ -45,8 +44,7 @@ static void consumer() {
     printf("Consumer about to read full\n");
     read(full_fd,  &message, 1);
 
-    sleep(35000 - CONSUMER_SPEED * 1000);
-    printf("CONSUMING - read %c\n", message);
+    sleep(5000);
 
     printf("Consumer about to write empty\n");
     write(empty_fd, &empty, 1);
@@ -62,6 +60,6 @@ void start_producer_consumer_problem() {
 
   printf("-- Starting -- \n\n");
   exec(producer, 0);
-  sleep(10000);
+  sleep(70000);
   exec(consumer, 0);
 }
