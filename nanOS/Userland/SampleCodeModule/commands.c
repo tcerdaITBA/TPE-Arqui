@@ -40,9 +40,9 @@ static int kill_command(const char *str);
 static int write_test(const char * str);
 static int read_test(const char *str);
 
-static int processWrite();
 static int testFifos (const char * args);
-static int processRead();
+static void processWrite(uint64_t param);
+static void processRead(uint64_t param);
 
 static void test(uint64_t param);
 
@@ -320,33 +320,33 @@ static int producerConsumer (const char * args) {
 
 static int testFifos (const char * args) {
 	exec(processRead, 0);
-	sleep(5000);
+  yield();
 	exec(processWrite, 0);
-	return 1;
+	return VALID;
 }
 
-static int processWrite() {
+static void processWrite(uint64_t param) {
 	int fd = fifo_open("TestFifo");
 	char c = 'A';
 	while(1) {
-		sleep(1000);
+    sleep(1000);
 		printf("Trying to write\n");
 		write(fd, &c, 1);
 		printf("WROTE\n");
 	}
-	return 1;
+  end();
 }
 
-static int processRead() {
+static void processRead(uint64_t param) {
 	int fd = fifo_open("TestFifo");
 	char c;
 	while(1) {
 		sleep(500);
 		printf("Trying to read\n");
 		read(fd, &c, 1);
-		printf("READ\n");
+		printf("READ %c ASCII %d\n", c, c);
 	}
-	return 1;
+  end();
 }
 
 static int kill_command(const char *str) {

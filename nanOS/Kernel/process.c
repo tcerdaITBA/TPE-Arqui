@@ -186,7 +186,7 @@ void unblock_process(process * p) {
 int is_blocked_process(process * p) {
 	if (p != NULL)
 		return p->st == BLOCKED || p->st == BLOCKED_READ;
-	return -1;
+	return 1;
 }
 
 void unblock_read_process(process * p) {

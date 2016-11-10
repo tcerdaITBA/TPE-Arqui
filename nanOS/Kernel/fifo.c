@@ -7,6 +7,7 @@
 #include "lib.h"
 #include "memoryAllocator.h"
 #include "videoDriver.h"
+#include "timer.h"
 
 typedef struct {
   char buffer[BUF_SIZE];
@@ -50,8 +51,11 @@ static int read_circular_buffer(circular_buffer * c_buf, void * dest, int bytes)
 int fifo_open(char * name) {
   int k;
 
-  for (k = 0; k < MAX_FIFOS && is_open(k); k++) {
+  assign_quantum();
+
+  for (k = 0; k < MAX_FIFOS && open_fifos[k].state == OPEN; k++) {
     if (strcmp(name, open_fifos[k].name) == 0) {
+      set_file_open(get_current_process(), k);
       return k;
     }
   }
@@ -61,6 +65,8 @@ int fifo_open(char * name) {
 
   open_fifos[k] = create_new_fifo(name);
   set_file_open(get_current_process(), k);
+
+  unassign_quantum();
 
   return k;
 }
@@ -85,15 +91,6 @@ static circular_buffer create_circular_buffer() {
   return b;
 }
 
-static read_request * create_read_request(int fifo_key, void * buf, int bytes) {
-  read_request * r = (read_request *) get_page(sizeof((*r)));
-  r->bytes = bytes;
-  r->buffer = buf;
-  r->f = &open_fifos[fifo_key];
-  r->reader_p = get_current_process();
-  return r;
-}
-
 static int is_open(int key) {
   return key < MAX_FIFOS && open_fifos[key].state == OPEN && \
     file_is_open(get_current_process(), key);
@@ -103,8 +100,11 @@ int fifo_write(int key, const void * buf, int bytes) {
   int write_bytes;
   fifo * f;
 
+
   if (is_open(key) && bytes > 0) {
     f = &open_fifos[key];
+
+    log("fifo_write attemp lock", 2);
     mutex_lock(f->fifo_mutex_key);
 
     write_bytes = write_circular_buffer(&f->c_buffer, buf, bytes);
@@ -113,7 +113,10 @@ int fifo_write(int key, const void * buf, int bytes) {
 
     send_to_readers(f->read_queue);
 
+    log("sent to readers", 2);
+ 
     mutex_unlock(f->fifo_mutex_key);
+
     return write_bytes;
   }
   else if (bytes <= 0) {
@@ -123,16 +126,37 @@ int fifo_write(int key, const void * buf, int bytes) {
   return FIFO_NOT_OPEN_ERROR;
 }
 
-static void send_to_readers(queueADT read_queue) {
-  if (!is_empty(read_queue)) {
-    while(try_read(peek(read_queue))) {
-      // manda a los lectores hasta que uno no pueda leer mas
-      log("about to DEQUEUE", 2);
-      read_request * r = dequeue(read_queue);
-      log("dequeUED", 5);
-      unblock_process(r->reader_p);// leyo, entonces lo saca de los que estan esperando leer
-    }
+static int try_read(read_request * r) {
+  log("trying read", 2);
+  if (r->f->c_buffer.buf_fill > 0) {  // el buffer tenga los bytes que quiero leer
+    log("could read", 2);
+    r->bytes_read = read_circular_buffer(&r->f->c_buffer, r->buffer, r->bytes);
+    log("read circular buffer", 2);
+    return 1; // lee
   }
+  else {
+    log("could NOT read", 3);
+    return 0; // no lee
+  }
+}
+
+static void send_to_readers(queueADT read_queue) {
+  while(!is_empty(read_queue) && try_read(peek(read_queue))) {
+    // manda a los lectores hasta que uno no pueda leer mas
+    log("about to DEQUEUE", 2);
+    read_request * r = dequeue(read_queue);
+    log("DEQUEUED", 5);
+    unblock_process(r->reader_p);// leyo, entonces lo saca de los que estan esperando leer
+  }
+}
+
+static read_request * create_read_request(int fifo_key, void * buf, int bytes) {
+  read_request * r = (read_request *) get_page(sizeof((*r)));
+  r->bytes = bytes;
+  r->buffer = buf;
+  r->f = &open_fifos[fifo_key];
+  r->reader_p = get_current_process();
+  return r;
 }
 
 int fifo_read(int key, void * buf, int bytes) {
@@ -145,14 +169,13 @@ int fifo_read(int key, void * buf, int bytes) {
     read_request * r = create_read_request(key, buf, bytes);
 
     mutex_lock(f->fifo_mutex_key);
+    log("read pasado lock", 2);
 
     if (is_empty(f->read_queue)) // primer reader
       could_read = try_read(r);
-    else {  // mas de un reader esperando
-      enqueue(f->read_queue, r);
-    }
 
     if (!could_read) {
+      log("ENQUEUE", 2);
       enqueue(f->read_queue, r);
       mutex_unlock(f->fifo_mutex_key);
       block_process(r->reader_p);
@@ -177,6 +200,7 @@ int fifo_read(int key, void * buf, int bytes) {
   return FIFO_NOT_OPEN_ERROR;
 }
 
+/* TODO: hacer algo con los fds */
 int fifo_close(int key) {
   if (is_open(key)) {
     fifo * f = &open_fifos[key];
@@ -193,20 +217,6 @@ static void release_readers(queueADT q) {
   while (!is_empty(q)) {
     req = dequeue(q);
     unblock_process(req->reader_p);
-  }
-}
-
-static int try_read(read_request * r) {
-  log("trying read", 2);
-  if (r->f->c_buffer.buf_fill > 0) {  // el buffer tenga los bytes que quiero leer
-    log("could read", 2);
-    r->bytes_read = read_circular_buffer(&r->f->c_buffer, r->buffer, r->bytes);
-    log("read circular buffer", 2);
-    return 1; // lee
-  }
-  else {
-    log("could NOT read", 3);
-    return 0; // no lee
   }
 }
 
@@ -255,6 +265,6 @@ static int read_circular_buffer(circular_buffer * c_buf, void * dest, int bytes)
 
 static void log(char * str, int seconds) {
   print_str(str, 25, 60);
-  sleep(seconds * 1000);
-  print_str("                           ", 25, 60);
+//  sleep(seconds * 1000);
+//  print_str("                           ", 25, 60);
 }

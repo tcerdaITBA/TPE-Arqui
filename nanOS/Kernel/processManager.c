@@ -81,7 +81,6 @@ uint64_t exec_process(uint64_t new_process_rip, uint64_t params) {
 }
 
 static void add_process(process * p) {
-
 	lock_list();
 
 	assign_quantum(); /* Aseguramos que no haya un cambio de contexto */
