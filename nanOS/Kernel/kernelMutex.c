@@ -87,10 +87,14 @@ static mutex create_new_mutex(char * name) {
   return m;
 }
 
-//VER
 int mutex_close(int key) {
   if (is_open(key)) {
-    open_mutexes[key].state = CLOSED;
+    mutex m = open_mutexes[key];
+    if (!is_empty(m.process_queue)) // Hay procesos lockeados
+      mutex_unlock(key);
+    else
+      m.state = CLOSED;
+
     return 1;
   }
   return NOT_OPEN_ERROR;
