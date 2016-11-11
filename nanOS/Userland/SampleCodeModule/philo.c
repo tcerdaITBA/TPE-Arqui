@@ -11,6 +11,7 @@ int critical_m;
 int state[MAX_PHILOSOPHERS];
 int mut[MAX_PHILOSOPHERS];
 int philosopherCount = 0;
+int philosophers_PID[MAX_PHILOSOPHERS];
 
 static void take_forks(int i);
 static void put_forks(int i);
@@ -18,7 +19,9 @@ static void test(int i);
 static void philosopher(int argc, char * argv[]);
 static void setState(int philo, int st);
 
-static void add_philosopher();
+static int add_philosopher();
+static void remove_philosopher();
+static void remove_all_philosophers();
 
 void listen_commands();
 
@@ -30,7 +33,7 @@ int start_philosophers_problem(int philoNumber) {
   srand(seconds() * minutes() * hour());
 
   for (i = 0; i < philoNumber; i++) {
-    add_philosopher();
+    philosophers_PID[i] = add_philosopher();
   }
 
   int pid = execpn(listen_commands);
@@ -43,15 +46,14 @@ void listen_commands() {
   while((c = getchar())) {
     switch (c) {
       case 'e':
-      // kill all philos
-      end();
+      remove_all_philosophers();
+      return;
       break;
       case 'a':
       add_philosopher();
       break;
       case 'r':
-      //philosopherCount -= 1;
-      // kill al ultimo filosofo
+      remove_philosopher();
       break;
       case 'p':
       mutex_lock(critical_m);
@@ -63,23 +65,47 @@ void listen_commands() {
   }
 }
 
-static void add_philosopher() {
-  mutex_lock(critical_m);
+static int add_philosopher() {
   char name[] = "PhilosopherAddMutex000";
   char args[3];
-  int philo_index = philosopherCount;
-  philosopherCount += 1;
+  int new_pid = -1, philo_index;
 
-  name[strlen(name)-1] = '0' + philo_index;
-  mut[philo_index] = mutex_open(name);
-  mutex_lock(mut[philo_index]);
+  mutex_lock(critical_m);
+  if (philosopherCount < MAX_PHILOSOPHERS) {
+    philo_index = philosopherCount;
+    philosopherCount += 1;
 
-  state[philo_index] = THINKING;
-  itoa(philo_index, args, 10);
+    name[strlen(name)-1] = '0' + philo_index;
+    mut[philo_index] = mutex_open(name);
 
-  execp(philosopher, args);
+    printf("ME CLAVE\n");
+    mutex_lock(mut[philo_index]);
+    printf("ME DESCLAVE\n");
 
+    state[philo_index] = THINKING;
+    itoa(philo_index, args, 10);
+
+    new_pid = execp(philosopher, args);
+  }
   mutex_unlock(critical_m);
+  return new_pid;
+}
+
+static void remove_philosopher() {
+  mutex_lock(critical_m);
+  if (philosopherCount > 0) {
+    philosopherCount -= 1;
+    printf("Killing %d\n", philosopherCount);
+    // mutex_close(mut[philosopherCount]);
+    kill(philosophers_PID[philosopherCount]);
+  }
+  mutex_unlock(critical_m);
+}
+
+static void remove_all_philosophers() {
+  int i, philoCountAux = philosopherCount;
+  for (i = 0; i < philoCountAux; i++)
+    remove_philosopher();
 }
 
 static void philosopher(int argc, char * argv[]) {

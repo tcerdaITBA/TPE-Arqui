@@ -136,6 +136,7 @@ int execute(const char *name, const char *args) {
       valid = VALID;
 			pid = execp (commands[i].function, args);
       printf("PID: %d\n", pid);
+			set_foreground(pid);
       yield();
     }
 	}
@@ -285,7 +286,7 @@ static int change_bg_color (int argc, char * argv[]) {
   red = atoi(argv[0]);
   green = atoi(argv[1]);
   blue = atoi(argv[2]);
- 
+
   if(set_bg_color(red, green, blue)) {
     clear(0, argv);
     return VALID;
