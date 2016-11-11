@@ -1,6 +1,8 @@
 #ifndef STLDIB_H
 #define STLDIB_H
 
+#define NULL ((void *) 0)
+
 #include <stdint.h>
 
 void * memset(void * destination, int32_t character, uint64_t length);

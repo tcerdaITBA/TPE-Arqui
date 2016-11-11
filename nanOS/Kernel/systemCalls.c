@@ -40,8 +40,8 @@ static uint64_t sys_fifo_op_wr(uint64_t nameptr, uint64_t unused2, uint64_t unus
 static uint64_t sys_fifo_cl_wr(uint64_t key, uint64_t unused2, uint64_t unused3);
 static uint64_t sys_set_foreground_wr(uint64_t pid, uint64_t unused2, uint64_t unused3);
 static uint64_t sys_kill_wr(uint64_t pid, uint64_t unused2, uint64_t unused3);
-
-
+static uint64_t sys_pid_wr(uint64_t unused1, uint64_t unused2, uint64_t unused3);
+static uint64_t sys_ppid_wr(uint64_t unused1, uint64_t unused2, uint64_t unused3);
 
 static unsigned int fifo_to_fds(int key);
 static int fds_to_fifo(unsigned int fds);
@@ -80,7 +80,9 @@ static uint64_t (*syscalls[]) (uint64_t,uint64_t,uint64_t) = { 0,0,0, 		/* 0, 1,
 															   sys_set_foreground_wr, /* 22 */
 																 sys_fifo_op_wr, /* 23 */
 																 sys_fifo_cl_wr, /* 24 */
-															   sys_kill_wr /* 25 */
+															   sys_kill_wr, /* 25 */
+															   sys_pid_wr,   /* 26 */
+															   sys_ppid_wr   /* 27 */
 															};
 
 /* Ejecuta la system call correspondiente al valor de rax */
@@ -274,6 +276,13 @@ uint64_t sys_kill(uint64_t pid) {
 	return valid;
 }
 
+uint64_t sys_pid() {
+	return pid_process(get_current_process());
+}
+uint64_t sys_ppid() {
+	return ppid_process(get_current_process());
+}
+
 /* WRAPPERS */
 /* Se usan para system calls que no reciben exactamente 3 parametros enteros.
 ** En la wrapper se filtran los parametros innecesarios y se hacen los casteos
@@ -359,4 +368,12 @@ static uint64_t sys_fifo_cl_wr(uint64_t key, uint64_t unused2, uint64_t unused3)
 
 static uint64_t sys_kill_wr(uint64_t pid, uint64_t unused2, uint64_t unused3) {
 	return sys_kill(pid);
+}
+
+static uint64_t sys_pid_wr(uint64_t unused1, uint64_t unused2, uint64_t unused3) {
+	return sys_pid();
+}
+
+static uint64_t sys_ppid_wr(uint64_t unused1, uint64_t unused2, uint64_t unused3) {
+	return sys_ppid();
 }

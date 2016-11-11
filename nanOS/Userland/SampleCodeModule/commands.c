@@ -11,6 +11,7 @@
 #include "philo.h"
 #include "producerConsumer.h"
 #include "time.h"
+#include "executer.h"
 
 #include <stdint.h>
 
@@ -99,9 +100,11 @@ static void test(uint64_t param) {
 static int write_test(const char * str) {
   int fds = fifo_open("test_fifo");
 
+  execp(NULL, str);
+
   printf("Escribiendo a fifo con fds %d\n", fds);
 
-  write(fds, str, str_len(str));
+  write(fds, str, strlen(str));
 
   return VALID;
 }

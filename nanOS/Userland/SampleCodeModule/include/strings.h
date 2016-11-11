@@ -1,7 +1,7 @@
 #ifndef __STRINGS__H__
 #define __STRINGS__H__
 
-int str_len(const char *str);
+int strlen(const char *str);
 int strcmp(const char * s, const char * t);
 int strncmp(const char * s, const char * t, unsigned int n);
 int strcpyto(char * to, const char * from, char limit);
