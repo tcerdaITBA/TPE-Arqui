@@ -32,7 +32,9 @@ int exec(void * ptr, uint64_t params); /* Devuelve PID de nuevo proceso */
 void end();
 void yield();
 int kill(uint64_t pid);
-
 int set_foreground(uint64_t pid);
+int pid();
+int ppid();
+
 
 #endif

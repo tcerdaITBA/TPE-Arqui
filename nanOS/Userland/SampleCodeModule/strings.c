@@ -4,7 +4,7 @@
 #include "stdlib.h"
 
 /* Retorna la longitud de un string */
-int str_len(const char *str) {
+int strlen(const char *str) {
 	int i;
 	for (i = 0; str[i] != '\0'; i++)
 		;

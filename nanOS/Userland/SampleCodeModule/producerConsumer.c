@@ -53,8 +53,8 @@ void start_producer_consumer_problem() {
   for (i = 0; i < 100; i++)
     write(empty_fd, &empty, 1);
 
-  exec(producer, 0);
-  exec(consumer, 0);
+  execpn(producer);
+  execpn(consumer);
 
   // Proceso que escucha si se acelera el producer o el consumer
 }

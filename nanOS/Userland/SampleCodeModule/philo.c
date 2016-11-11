@@ -4,6 +4,7 @@
 #include "syscalls.h"
 #include "strings.h"
 #include "random.h"
+#include "executer.h"
 
 int critical_m;
 int state[MAX_PHILOSOPHERS];
@@ -27,7 +28,7 @@ int start_philosophers_problem(int philoNumber) {
   // Set inicial de filosofos
   for (i = 0; i < philosopherCount; i++) {
     char name[] = "PhilosopherMutex000";
-    name[str_len(name)-1] = i + '0';
+    name[strlen(name)-1] = i + '0';
     mut[i] = mutex_open(name);
     mutex_lock(mut[i]);
     state[i] = THINKING;

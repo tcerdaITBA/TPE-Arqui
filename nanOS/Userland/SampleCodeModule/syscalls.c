@@ -116,3 +116,11 @@ int fifo_close(int key) {
 int kill(uint64_t pid) {
   return _int80h(25, pid, 0, 0);
 }
+
+int pid() {
+  return _int80h(26, 0, 0, 0);
+}
+
+int ppid() {
+  return _int80h(27, 0, 0, 0);
+}

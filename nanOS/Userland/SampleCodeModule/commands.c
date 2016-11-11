@@ -11,47 +11,41 @@
 #include "philo.h"
 #include "producerConsumer.h"
 #include "time.h"
+#include "executer.h"
 
 #include <stdint.h>
 
 /* Longitud maxima de un comando ingresado por el usuario */
 #define CMDS_SIZE (sizeof(commands)/sizeof(commands[0]))
 
-#define SLEEP_TIME 5000
-
-static const char * next_arg (const char *args);
 static void printWithTimeFormat(unsigned int n);
 static int isnum(const char *str);
 
-static int help(const char *args);
-static int fractals(const char *args);
-static int clear(const char *args);
-static int getTime(const char *args);
-static int echo(const char *args);
-static int philosophersProblem (const char * args);
-static int producerConsumer (const char * args);
-static int set_GMT(const char *args);
-static int change_char_color (const char *args);
-static int change_bg_color (const char *args);
-static void fractal_process(int index);
-static int test_mt(const char *str);
-static int kill_command(const char *str);
+static int help(int argc, char * argv[]);
+static int fractals(int argc, char * argv[]);
+static int clear(int argc, char * argv[]);
+static int getTime(int argc, char * argv[]);
+static int echo(int argc, char * argv[]);
+static int philosophersProblem (int argc, char * argv[]);
+static int producerConsumer (int argc, char * argv[]);
+static int set_GMT(int argc, char * argv[]);
+static int change_char_color (int argc, char * argv[]);
+static int change_bg_color (int argc, char * argv[]);
+static int test(int argc, char * argv[]);
+static int kill_command(int argc, char * argv[]);
 
-static int write_test(const char * str);
-static int read_test(const char *str);
+static int write_test(int argc, char * argv[]);
+static int read_test(int argc, char * argv[]);
 
-static int testFifos (const char * args);
-static void processWrite(uint64_t param);
-static void processRead(uint64_t param);
+static int testFifos (int argc, char * argv[]);
+static int processWrite();
+static int processRead();
 
-static void test(uint64_t param);
-
-static int extract_colors (const char *args, int *r, int *g, int *b);
 
 /* Estructura que representa un comando de la Shell */
 typedef struct {
 	const char * name;  /* Nombre del comando */
-	int (*function) (const char *str);  /* Funcion correspondiente al comando */
+	int (*function) (int argc, char *argv[]);  /* Funcion correspondiente al comando */
 } command;
 
 /* COMMANDS ARRAY */
@@ -63,7 +57,7 @@ static command commands[]= {{"help", help},
 							{"echo", echo},
               {"char_color", change_char_color},
               {"bg_color", change_bg_color},
-              {"test", test_mt},
+              {"test", test},
 							{"philo", philosophersProblem},
 							{"prodcon", producerConsumer},
               {"write", write_test},
@@ -73,7 +67,8 @@ static command commands[]= {{"help", help},
 							};
 
 static int test_num = 0;
-static void test(uint64_t param) {
+
+static int test(int argc, char * argv[]) {
   int tn = test_num++;
 
   int m_key = mutex_open("test_mutex");
@@ -81,32 +76,30 @@ static void test(uint64_t param) {
   mutex_lock(m_key);
   printf("Tengo el lock. Soy %d\n", tn);
 
-//  while (i--) {
- //   printf("%d ", i);
-    sleep(3000);
-//    yield();
-//  }
-
-  //draw_fractal(param);
+  sleep(3000);
 
   printf("Soltando lock. Soy %d\n", tn);
 
   mutex_unlock(m_key);
 
-  end();
+  return VALID;
 }
 
-static int write_test(const char * str) {
+static int write_test(int argc, char * argv[]) {
   int fds = fifo_open("test_fifo");
+  int i;
 
   printf("Escribiendo a fifo con fds %d\n", fds);
 
-  write(fds, str, str_len(str));
+  for(i = 0; i < argc; i++) {
+    write(fds, argv[i], strlen(argv[i]));
+    write(fds, " ", 1);
+  }
 
   return VALID;
 }
 
-static int read_test(const char *str) {
+static int read_test(int argc, char * argv[]) {
   int fds = fifo_open("test_fifo");
   int n;
   char buffer[5];
@@ -122,15 +115,6 @@ static int read_test(const char *str) {
   return VALID;
 }
 
-static int test_mt(const char *str) {
-//  int i = 100;
-
-//  while (--i)
-  printf("PID = %d", exec((void *) test, atoi(str)));
-  return VALID;
-}
-
-
 /* EXECUTE */
 
 /*
@@ -145,19 +129,23 @@ static int test_mt(const char *str) {
 */
 int execute(const char *name, const char *args) {
 	int i;
+  int pid;
+  int valid = UNSUPPORTED;
 	for (i = 0; i < CMDS_SIZE; i++) {
-		if (strcmp(name, commands[i].name) == 0)
-			return (* commands[i].function) (args);
+		if (strcmp(name, commands[i].name) == 0) {
+      valid = VALID;
+			pid = execp (commands[i].function, args);
+      printf("PID: %d\n", pid);
+      yield();
+    }
 	}
-	return UNSUPPORTED;
+	return valid;
 }
 
 /* COMANDOS */
 
 /* Muestra en pantalla texto de ayuda al usuario, por ejemplo comandos existentes */
-static int help(const char *args){
-  if (args[0] != '\0')
-	 return INVALID_ARGS;
+static int help(int argc, char * argv[]){
   printf("HELP FUNCTION -- shows the principal User Commands and its description\n\n");
   printf(" echo [args...]");
   printf("    Write arguments to the standard output. Display the args, separated by a single space character\n");
@@ -175,13 +163,14 @@ static int help(const char *args){
 }
 
 /* Setea GMT del reloj y muestra la hora actual en pantalla*/
-static int set_GMT (const char *args) {
-  if (args[0] == '\0' || !isnum(args) || (*next_arg(args)) != '\0') // Se envió un argumento no entero o más de un argumento
-  	return INVALID_ARGS;
-  int valid = setGMT(atoi(args));
+static int set_GMT (int argc, char * argv[]) {
+  if (argc != 1 || !isnum(argv[0]))
+    return INVALID_ARGS;
+
+  int valid = setGMT(atoi(argv[0]));
   if (!valid)
   	return INVALID_ARGS;
-  getTime("");
+  getTime(0, argv);
   return VALID;
 }
 
@@ -200,7 +189,7 @@ static int isnum(const char *str) {
 }
 
 /*Imprime en pantalla la hora actual */
-static int getTime(const char *args) {
+static int getTime(int argc, char * argv[]) {
   int h = hour(), m = minutes(), s = seconds();
   printf("Current time: ");
   printWithTimeFormat(h);
@@ -220,7 +209,7 @@ static void printWithTimeFormat(unsigned int n) {
 }
 
 /* Limpia la pantalla de la terminal*/
-static int clear(const char *args) {
+static int clear(int argc, char * argv[]) {
   int rows = text_rows();
   for (int i = 0; i < 2*rows; i++)
     putchar('\n');
@@ -229,8 +218,11 @@ static int clear(const char *args) {
 }
 
 /*Imprime la cadena de argumentos pasadas como parametros a salida estandar */
-static int echo(const char *args) {
-  printf("%s\n", args);
+static int echo(int argc, char * argv[]) {
+  int i;
+  for (i = 0; i < argc; i++)
+    printf("%s ", argv[i]);
+  putchar('\n');
   return VALID;
 }
 
@@ -239,93 +231,97 @@ static int echo(const char *args) {
 ** En caso de recibir un numero como parámetro muestra el fractal correspondiente,
 ** si no se recibió ningun parametro muestra un fractal al azar
 */
-static void fractal_process(int index) {
-  draw_fractal(index);
-  end();
-}
 
-static int fractals(const char *args) {
+static int fractals(int argc, char * argv[]) {
   int index = -1;
 
-  if (args[0] == '\0') // No se enviaron parametros --> fractal al azar
-    index = seconds() % fractals_size();
-  else if (isnum(args) && (*next_arg(args)) == '\0') // se envió un solo parámetro y es un número
-    index = atoi(args)-1;
-
-  if (index < 0 || index >= fractals_size())
+  if(argc > 1) {
+    printf("Usage: fractals [fractal_num]\n");
     return INVALID_ARGS;
+  }
 
-  exec((void *) fractal_process, index);
+  if (argc == 0) // No se enviaron parametros --> fractal al azar
+    index = seconds() % fractals_size();
+  else if (isnum(argv[0]))
+    index = atoi(argv[0])-1;
+
+  if (index < 0 || index >= fractals_size()) {
+    printf("Fractal number must be between 1 and %d\n", fractals_size());
+    return INVALID_ARGS;
+  }
+
+  draw_fractal(index);
 
   return VALID;
 }
 
 /* Cambia el color de la letra */
-static int change_char_color (const char *args) {
+static int change_char_color (int argc, char * argv[]) {
   int red, green, blue;
-  if(!extract_colors(args, &red, &green, &blue))
-    return INVALID_ARGS;
+
+  if (argc != 3)
+    printf("Usage char_color [r,g,b]");
+
+  if (!isnum(argv[0]) || !isnum(argv[1]) || !isnum(argv[2]))
+    printf("The colors must be integers\n");
+
+  red = atoi(argv[0]);
+  green = atoi(argv[1]);
+  blue = atoi(argv[2]);
+
   return set_char_color(red, green, blue) == 0 ? INVALID_ARGS : VALID;
 }
 
-/* Cambia eñ color del fondo */
-static int change_bg_color (const char *args) {
+/* Cambia el color del fondo */
+static int change_bg_color (int argc, char * argv[]) {
   int red, green, blue;
-  if(!extract_colors(args, &red, &green, &blue))
-    return INVALID_ARGS;
+
+  if (argc != 3)
+    printf("Usage bg_color [r,g,b]");
+
+  if (!isnum(argv[0]) || !isnum(argv[1]) || !isnum(argv[2]))
+    printf("The colors must be integers\n");
+
+  red = atoi(argv[0]);
+  green = atoi(argv[1]);
+  blue = atoi(argv[2]);
+ 
   if(set_bg_color(red, green, blue)) {
-    clear("");
+    clear(0, argv);
     return VALID;
   }
+
   return INVALID_ARGS;
 }
 
-/* Retorna el siguiente argumento , es decir lo siguiente luego de un espacio */
-static const char * next_arg (const char *args) {
-  int i = 0;
-  while (args[i] != ' ' && args[i] != '\0')
-    i++;
-  return (args[i] == ' ') ? args+i+1 : args+i;
-}
-
-/* Obtiene a partir de lo ingresado por el usuario, los valores de colores RGB */
-static int extract_colors (const char *args, int *r, int *g, int *b) {
-  const char *red = args;
-  args = next_arg(args);
-  const char *green = args;
-  const char *blue = next_arg(args);
-  if (!isnum(red) || !isnum (green) || !isnum (blue))
-    return 0;
-  *r = atoi(red);
-  *g = atoi(green);
-  *b = atoi(blue);
-  return 1;
-}
-
-static int philosophersProblem (const char * args) {
+static int philosophersProblem (int argc, char * argv[]) {
 	int p = DEFAULT_PHILOSOPHERS;
-	if (isnum(args))
-		p = atoi(args);
-	if (p < 1)
+
+	if (isnum(argv[0]))
+		p = atoi(argv[0]);
+
+	if (p < 1) {
+    printf("At least one philosopher\n");
 		return INVALID_ARGS;
+  }
 
 	start_philosophers_problem(p);
 	return 1;
 }
 
-static int producerConsumer (const char * args) {
+static int producerConsumer (int argc, char * argv[]) {
 	start_producer_consumer_problem();
 	return 1;
 }
 
-static int testFifos (const char * args) {
-	exec(processRead, 0);
+static int testFifos (int argc, char * argv[]) {
+	execpn(processRead);
   yield();
-	exec(processWrite, 0);
+	execpn(processWrite);
 	return VALID;
 }
 
-static void processWrite(uint64_t param) {
+static int processWrite() {
 	int fd = fifo_open("TestFifo");
 	char c = 'A';
 	while(1) {
@@ -334,10 +330,10 @@ static void processWrite(uint64_t param) {
 		write(fd, &c, 1);
 		printf("WROTE\n");
 	}
-  end();
+  return 0;
 }
 
-static void processRead(uint64_t param) {
+static int processRead() {
 	int fd = fifo_open("TestFifo");
 	char c;
 	while(1) {
@@ -346,18 +342,18 @@ static void processRead(uint64_t param) {
 		read(fd, &c, 1);
 		printf("READ %c ASCII %d\n", c, c);
 	}
-  end();
+  return 0;
 }
 
-static int kill_command(const char *str) {
-  int pid = atoi(str);
+static int kill_command(int argc, char * argv[]) {
+  int pid = atoi(argv[0]);
   int valid = 0;
 
   if (pid != 0)
     valid = kill(pid);
 
   if (valid)
-    printf("Killed process with PID %d", pid);
+    printf("Killed process with PID %d\n", pid);
 
   return valid ? VALID : INVALID_ARGS;
 }
