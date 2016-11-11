@@ -15,7 +15,8 @@ static void put_forks(uint64_t i);
 static void test(uint64_t i);
 static void philosopher(uint64_t i);
 static void setState(int philo, int st);
-static void listen_commands();
+
+void listen_commands();
 
 int start_philosophers_problem(int philoNumber) {
   int i;
@@ -38,24 +39,40 @@ int start_philosophers_problem(int philoNumber) {
     exec(philosopher, i);
   }
 
-  // listen_commands(); falta ponerlo en foreground
+  int pid = exec(listen_commands, 0);
+  set_foreground(pid);
   return 0;
 }
 
-static void listen_commands() {
+void listen_commands() {
   char c;
   while((c = getchar())) {
     switch (c) {
       case 'e':
-      return;
+      // kill all philos
+      end();
       break;
       case 'a':
+      mutex_lock(critical_m);
       philosopherCount += 1;
-      exec(philosopher, philosopherCount - 1);
+      char name[] = "PhilosopherAddMutex000";
+      int i = philosopherCount - 1;
+      name[str_len(name)-1] = i + '0';
+      mut[i] = mutex_open(name);
+      mutex_lock(mut[i]);
+      state[i] = THINKING;
+      exec(philosopher, i);
+      mutex_unlock(critical_m);
       break;
       case 'r':
-      philosopherCount -= 1;
+      //philosopherCount -= 1;
       // kill al ultimo filosofo
+      break;
+      case 'p':
+      mutex_lock(critical_m);
+      break;
+      case 'u':
+      mutex_unlock(critical_m);
       break;
     }
   }
