@@ -38,6 +38,7 @@ int start_philosophers_problem(int philoNumber) {
 
   int pid = execpn(listen_commands);
   set_foreground(pid);
+  // TODO: Devolverle el foreground a la shell
   return 0;
 }
 
@@ -96,7 +97,7 @@ static void remove_philosopher() {
   if (philosopherCount > 0) {
     philosopherCount -= 1;
     printf("Killing %d\n", philosopherCount);
-    // mutex_close(mut[philosopherCount]);
+    // mutex_close(mut[philosopherCount]); TODO
     kill(philosophers_PID[philosopherCount]);
   }
   mutex_unlock(critical_m);
@@ -111,9 +112,9 @@ static void remove_all_philosophers() {
 static void philosopher(int argc, char * argv[]) {
   int i = atoi(argv[0]);
   while(1) {
-    sleep(rand_int_range(5, 10) * 1000); // No se si anda bien el sleep
+    sleep(rand_int_range(1, 5) * 1000); // No se si anda bien el sleep
     take_forks(i);
-    sleep(rand_int_range(5, 20) * 1000); //
+    sleep(rand_int_range(1, 5) * 1000); //
     put_forks(i);
   }
 }

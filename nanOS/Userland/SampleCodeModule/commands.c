@@ -311,7 +311,16 @@ static int philosophersProblem (int argc, char * argv[]) {
 }
 
 static int producerConsumer (int argc, char * argv[]) {
-	start_producer_consumer_problem();
+	int b = DEFAULT_PRODCON_BUFFER;
+
+	if (isnum(argv[0]))
+		b = atoi(argv[0]);
+
+	if (b < 1) {
+		printf("Buffer has to have at least one slot\n");
+		return INVALID_ARGS;
+	}
+	start_producer_consumer_problem(b);
 	return 1;
 }
 
