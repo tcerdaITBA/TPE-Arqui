@@ -4,6 +4,7 @@
 #include "syscalls.h"
 #include "strings.h"
 #include "random.h"
+#include "executer.h"
 
 int critical_m;
 int state[MAX_PHILOSOPHERS];
