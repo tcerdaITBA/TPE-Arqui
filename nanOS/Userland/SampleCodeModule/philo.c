@@ -89,6 +89,7 @@ static int add_philosopher() {
     itoa(philo_index, args, 10);
 
     new_pid = execp(philosopher, args);
+    philosophers_PID[philo_index] = new_pid;
   }
   mutex_unlock(critical_m);
   return new_pid;
@@ -98,13 +99,10 @@ static void remove_philosopher() {
   mutex_lock(critical_m);
   if (philosopherCount > 0) {
     philosopherCount -= 1;
-    printf("Killing %d - PID: %d\n", philosopherCount, philosophers_PID[philosopherCount]);
-    printf("About to close mutex\n");
+ 
     mutex_close(mut[philosopherCount]);
-    printf("About to kill philosopher\n");
     kill(philosophers_PID[philosopherCount]);
-    printf("Killed it\n");
-    printf("COUNT: %d\n", philosopherCount);
+ 
   }
   mutex_unlock(critical_m);
 }

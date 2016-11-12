@@ -1,0 +1,9 @@
+Decidir cuando poner en background, por ejemplo con un '&'
+Hacer lo del los nombres para imprimir procesos
+Sacal la ultima coma que queda al imprimir Memory Address
+Variables de Condicion
+
+Filsofos:
+
+Pensar que hacer cuando se borra uno que esta entre dos eating.
+Pensar si se borra uno que esta eating si deberia dejar los cubiertos.
