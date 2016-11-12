@@ -13,6 +13,8 @@ int mut[MAX_PHILOSOPHERS];
 int philosopherCount = 0;
 int philosophers_PID[MAX_PHILOSOPHERS];
 
+int pause = UNPAUSED;
+
 static void take_forks(int i);
 static void put_forks(int i);
 static void test(int i);
@@ -22,6 +24,9 @@ static void setState(int philo, int st);
 static int add_philosopher();
 static void remove_philosopher();
 static void remove_all_philosophers();
+
+static void pause_philosophers();
+static int is_paused();
 
 void listen_commands();
 
@@ -47,23 +52,40 @@ void listen_commands() {
   while((c = getchar())) {
     switch (c) {
       case 'e':
-      remove_all_philosophers();
+      if (!is_paused())
+        remove_all_philosophers();
       return;
       break;
       case 'a':
-      add_philosopher();
+      if (!is_paused())
+        add_philosopher();
       break;
       case 'r':
-      remove_philosopher();
+      if (!is_paused())
+        remove_philosopher();
       break;
       case 'p':
-      mutex_lock(critical_m);
-      break;
-      case 'u':
-      mutex_unlock(critical_m);
+      pause_philosophers();
       break;
     }
   }
+}
+
+static void pause_philosophers() {
+  if (!is_paused()) {
+    pause = PAUSED;
+    mutex_lock(critical_m);
+    printf("PAUSED\n");
+  }
+  else {
+    pause = UNPAUSED;
+    mutex_unlock(critical_m);
+    printf("RESUMED\n");
+  }
+}
+
+static int is_paused() {
+  return pause == PAUSED;
 }
 
 static int add_philosopher() {
@@ -99,10 +121,10 @@ static void remove_philosopher() {
   mutex_lock(critical_m);
   if (philosopherCount > 0) {
     philosopherCount -= 1;
- 
+    printf("Closing Mutex\n");
     mutex_close(mut[philosopherCount]);
+    printf("Killing philosopher %d\n", philosopherCount);
     kill(philosophers_PID[philosopherCount]);
- 
   }
   mutex_unlock(critical_m);
 }
@@ -116,10 +138,9 @@ static void remove_all_philosophers() {
 static void philosopher(int argc, char * argv[]) {
   int i = atoi(argv[0]);
   while(1) {
-    printf("philosopher %d is alive\n", i);
-    sleep(rand_int_range(5, 10) * 1000);
+    sleep(rand_int_range(0, 3) * 1000);
     take_forks(i);
-    sleep(rand_int_range(5, 10) * 1000);
+    sleep(rand_int_range(0, 3) * 1000);
     put_forks(i);
   }
 }

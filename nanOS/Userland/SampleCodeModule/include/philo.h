@@ -7,6 +7,9 @@
 #define HUNGRY 1
 #define EATING 2
 
+#define UNPAUSED 1
+#define PAUSED 0
+
 #define MAX_PHILOSOPHERS 32
 
 #define MAIN_MUTEX_NAME "MAIN_PHILOSOPHERS_MUTEX"
