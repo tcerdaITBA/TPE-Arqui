@@ -5,6 +5,8 @@
 #include "commands.h"
 #include "stdlib.h"
 #include "syscalls.h"
+#include "process_info.h"
+#include "executer.h"
 
 #define UNSUPPORTED_COMMAND "Unsupported Command\n"
 #define INVALID_ARGUMENTS "Invalid Arguments\n"
@@ -25,6 +27,8 @@ int shell() {
 
     load_fractals(data_address());
     set_fractals_resolution(screen_Xresolution(), screen_Yresolution()); // fractales en resolucion bien manija
+
+    execpn(process_info_manager); /* Proceso que corre en background guardando los pid que se van creando y destruyendo */
 
     while (run) {
         printf("> ");

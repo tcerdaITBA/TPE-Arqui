@@ -5,6 +5,7 @@
 #define BUFFSIZE 128
 #define TRUE 1
 #define FALSE 0
+#define ESCAPE 1
 
 
 char get_key();
@@ -19,13 +20,17 @@ static int capsLockPressed = FALSE;
 static int capsLockPressedCount = 0;
 static int capsLockActivated = FALSE;
 
-/* Guarda un scancode en el buffer*/
+/* Guarda un scancode en el buffer */
 void store_scancode() {
   if (buff_size == BUFFSIZE)
     return;
 
-
   int k = get_key(); // Funcion de Assembler que devuelve el scancode
+
+  if (k == ESCAPE) {
+    kill_process(get_foreground_process());
+    return;
+  }
 
   if (k > 0 && k < TOPCHARCODE) { /* Se apretó una tecla */
     if(!processKeyScanCode(k)) { //caso de un caracter a imprimir en pantalla

@@ -7,6 +7,8 @@
 
 #include <stdint.h>
 
+#include "process_info.h"
+
 uint64_t sys_write(uint64_t fds, const char * str, uint64_t len);
 uint64_t sys_read(uint64_t fds, char * str, uint64_t len);
 uint64_t sys_time(uint64_t selection);
@@ -33,5 +35,6 @@ uint64_t sys_set_foreground(uint64_t pid);
 uint64_t sys_kill(uint64_t pid);
 uint64_t sys_pid();
 uint64_t sys_ppid();
+uint64_t sys_process_info(uint64_t pid, struct process_info_c * pi);
 
 #endif

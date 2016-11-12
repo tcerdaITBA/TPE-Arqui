@@ -42,6 +42,7 @@ static uint64_t sys_set_foreground_wr(uint64_t pid, uint64_t unused2, uint64_t u
 static uint64_t sys_kill_wr(uint64_t pid, uint64_t unused2, uint64_t unused3);
 static uint64_t sys_pid_wr(uint64_t unused1, uint64_t unused2, uint64_t unused3);
 static uint64_t sys_ppid_wr(uint64_t unused1, uint64_t unused2, uint64_t unused3);
+static uint64_t sys_process_info_wr (uint64_t pid, uint64_t pi, uint64_t unused3);
 
 static unsigned int fifo_to_fds(int key);
 static int fds_to_fifo(unsigned int fds);
@@ -82,7 +83,8 @@ static uint64_t (*syscalls[]) (uint64_t,uint64_t,uint64_t) = { 0,0,0, 		/* 0, 1,
 																 sys_fifo_cl_wr, /* 24 */
 															   sys_kill_wr, /* 25 */
 															   sys_pid_wr,   /* 26 */
-															   sys_ppid_wr   /* 27 */
+															   sys_ppid_wr,   /* 27 */
+															   sys_process_info_wr /* 28 */
 															};
 
 /* Ejecuta la system call correspondiente al valor de rax */
@@ -98,7 +100,7 @@ uint64_t sys_read(uint64_t fds, char * buffer, uint64_t bytes) {
 	char c;
     if (fds == STDIN) {
 		if (get_current_process() != get_foreground_process()) {
-			block_process(get_current_process());
+			block_foreground_process(get_current_process());
 			yield_process();
 		}
 		while (i < bytes) {
@@ -193,11 +195,14 @@ uint64_t sys_text_space(uint64_t selection) {
 
 /* SystemCall Malloc */
 uint64_t sys_malloc(uint64_t bytes) {
-	return (uint64_t) get_page(bytes);
+	void * page = (void *) get_page(bytes);
+	add_data_page(get_current_process(), page);
+	return (uint64_t) page;
 }
 
 /* System call free*/
 uint64_t sys_free(uint64_t address) {
+	remove_data_page(get_current_process(), (void *) address);
 	return store_page(address);
 }
 
@@ -282,6 +287,11 @@ uint64_t sys_pid() {
 uint64_t sys_ppid() {
 	return ppid_process(get_current_process());
 }
+
+uint64_t sys_process_info(uint64_t pid, struct process_info_c * pi) {
+	return get_process_info_by_pid(pi, pid);
+}
+
 
 /* WRAPPERS */
 /* Se usan para system calls que no reciben exactamente 3 parametros enteros.
@@ -376,4 +386,8 @@ static uint64_t sys_pid_wr(uint64_t unused1, uint64_t unused2, uint64_t unused3)
 
 static uint64_t sys_ppid_wr(uint64_t unused1, uint64_t unused2, uint64_t unused3) {
 	return sys_ppid();
+}
+
+static uint64_t sys_process_info_wr (uint64_t pid, uint64_t pi, uint64_t unused3) {
+	return sys_process_info(pid, (struct process_info_c *) pi);
 }

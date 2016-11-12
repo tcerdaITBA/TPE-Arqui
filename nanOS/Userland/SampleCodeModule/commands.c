@@ -12,6 +12,7 @@
 #include "producerConsumer.h"
 #include "time.h"
 #include "executer.h"
+#include "process_info.h"
 
 #include <stdint.h>
 
@@ -38,8 +39,37 @@ static int write_test(int argc, char * argv[]);
 static int read_test(int argc, char * argv[]);
 
 static int testFifos (int argc, char * argv[]);
+static int ps(int argc, char * argv[]);
+
 static int processWrite();
 static int processRead();
+
+static int print_process(int argc, char * argv[]);
+
+static int print_process(int argc, char * argv[]) {
+  int i;
+  char buffer[MAX_PROCESS_STRING];
+  process_info pi;
+
+  if (argc < 1) {
+    printf("Usage: print_process [PID1, PID2, ...]\n");
+    return INVALID_ARGS;
+  }
+
+  for (i = 0; i < argc; i++) {
+    if (get_process_info(atoi(argv[i]), &pi)) {
+      process_string(&pi, buffer);
+      printf("%s\n", buffer);
+    }
+  }
+
+  return VALID;
+}
+
+static int ps(int argc, char * argv[]) {
+  print_processes();
+  return VALID;
+}
 
 
 /* Estructura que representa un comando de la Shell */
@@ -63,7 +93,9 @@ static command commands[]= {{"help", help},
               {"write", write_test},
               {"read", read_test},
 							{"test2", testFifos},
-              {"kill", kill_command}
+              {"kill", kill_command},
+              {"print", print_process},
+              {"ps", ps}
 							};
 
 static int test_num = 0;
@@ -134,10 +166,9 @@ int execute(const char *name, const char *args) {
 	for (i = 0; i < CMDS_SIZE; i++) {
 		if (strcmp(name, commands[i].name) == 0) {
       valid = VALID;
-			pid = execp (commands[i].function, args);
-      printf("PID: %d\n", pid);
+      pid = execp (commands[i].function, args);
 			set_foreground(pid);
-      yield();
+      printf("PID: %d\n", pid);
     }
 	}
 	return valid;
@@ -335,8 +366,8 @@ static int processWrite() {
 	int fd = fifo_open("TestFifo");
 	char c = 'A';
 	while(1) {
-    sleep(1000);
-		printf("Trying to write\n");
+    printf("Trying to write\n");
+    sleep(5000);
 		write(fd, &c, 1);
 		printf("WROTE\n");
 	}
@@ -347,7 +378,7 @@ static int processRead() {
 	int fd = fifo_open("TestFifo");
 	char c;
 	while(1) {
-		sleep(500);
+		sleep(1000);
 		printf("Trying to read\n");
 		read(fd, &c, 1);
 		printf("READ %c ASCII %d\n", c, c);

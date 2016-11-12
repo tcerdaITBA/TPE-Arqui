@@ -82,6 +82,7 @@ static void control_speed() {
         print_speeds();
       break;
       case 'q':
+        getchar(); /* Limpia el \n que queda en el buffer */
       return;
       break;
     }

@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#include "process_info.h"
+
 #define STDOUT 0
 #define STDIN 1
 #define STDERR 2
@@ -36,5 +38,6 @@ int set_foreground(uint64_t pid);
 int pid();
 int ppid();
 
+int get_process_info(uint64_t pid, struct process_info_c * pi);
 
 #endif

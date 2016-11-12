@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include "syscalls.h"
 #include "stdio.h"
+#include "process_info.h"
 
 /* Contiene todas las llamadas a int80 */
 uint64_t _int80h(uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx);
@@ -74,11 +75,14 @@ int set_bg_color (uint64_t r, uint64_t g, uint64_t b) {
 }
 
 int exec(void * ptr, uint64_t params) {
-  return _int80h(15, (uint64_t) ptr, params, 0);
+  int pid = _int80h(15, (uint64_t) ptr, params, 0);
+  add_pid(pid);
+  return pid;
 }
 
 void end() {
-    _int80h(16, 0, 0, 0);
+  remove_pid(pid());
+  _int80h(16, 0, 0, 0);
 }
 
 void yield() {
@@ -114,6 +118,7 @@ int fifo_close(int key) {
 }
 
 int kill(uint64_t pid) {
+  remove_pid(pid);
   return _int80h(25, pid, 0, 0);
 }
 
@@ -123,4 +128,8 @@ int pid() {
 
 int ppid() {
   return _int80h(27, 0, 0, 0);
+}
+
+int get_process_info(uint64_t pid, struct process_info_c * pi) {
+  return _int80h(28, pid, (uint64_t) pi, 0);
 }

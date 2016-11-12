@@ -6,6 +6,8 @@
 
 #define MAX_ARGS 32
 
+#define PAGE 0x1000
+
 typedef int (*entry_point) (int, char **);
 
 static void executer(void ** params);
@@ -16,7 +18,7 @@ int execpn(void * function_ptr) {
 }
 
 int execp(void * function_ptr, const char * arg) {
-	void * memory = malloc(strlen(arg) + (MAX_ARGS * sizeof(char *)));
+	void * memory = malloc(PAGE);
 	char ** arguments = memory;
 	char * arg_strings = memory + MAX_ARGS * sizeof(char *);
 	int pid;
@@ -27,21 +29,32 @@ int execp(void * function_ptr, const char * arg) {
 
 	pid = exec(executer, (uint64_t) memory);
 
+	yield();
+
+	free(memory);
+
 	return pid;
 }
 
 static void executer(void ** params) {
-	entry_point function = params[0];
-	char ** argv = (char **) params + 1;
-	int argc = 0;
+	void ** memory = malloc(PAGE);
+	entry_point function;
+	char ** argv;
+	int argc;
 	int ret_value;
+
+	memcpy(memory, params, PAGE);
+
+	function = memory[0];
+	argv = (char **) memory + 1;
+	argc = 0;
 
 	while (argv[argc] != NULL)
 		argc++;
 
 	ret_value = (*function)(argc, argv);
 
-	free(params);
+	free(memory);
 	set_foreground(ppid());
 	end();
 }

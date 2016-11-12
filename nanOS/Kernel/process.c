@@ -2,8 +2,10 @@
 #include "process.h"
 #include "memoryAllocator.h"
 #include "processManager.h"
+#include "videoDriver.h"
+#include "timer.h"
 
-#define MAX_FDS 64
+
 #define CHECK_BIT(var,pos) ((var) & (1<<(pos)));
 
 /* El stack frame y el llenado del mismo se tomó de
@@ -38,12 +40,13 @@ typedef struct {
 	uint64_t base;
 } StackFrame;
 
-
 struct c_process {
 	status st;
 	uint64_t entry_point;
 	uint64_t rsp;
 	uint64_t stack_page;
+	uint64_t n_data_page;
+	void * data_page[MAX_DATA_PAGES];
 	uint64_t pid;
 	uint64_t ppid;
 	uint64_t open_fds; /* bit map */
@@ -58,11 +61,18 @@ static void lock_table();
 
 static void unlock_table();
 
-static process * foreground = NULL;
-
 static uint64_t fill_stack(uint64_t rip, uint64_t rsp, uint64_t params);
 
+static void clean_data_page(process * p);
+
+static void free_data_pages(process * p);
+
+static void unblock_foreground_process(process * p);
+
+
+static process * foreground = NULL;
 static uint64_t n_processes = 0;
+
 
 
 static void lock_table() {
@@ -95,6 +105,15 @@ static int insert_process (process * p) {
 	return -1;
 }
 
+static void clean_data_page(process * p) {
+	int i;
+
+	for (i = 0; i < MAX_DATA_PAGES; i++)
+		p->data_page[i] = NULL;
+
+	p->n_data_page = 0;
+}
+
 process * create_process(uint64_t new_process_rip, uint64_t params) {
 
 	process * new_process = (process *) get_page(sizeof(* new_process));
@@ -106,6 +125,8 @@ process * create_process(uint64_t new_process_rip, uint64_t params) {
 	new_process->st = READY;
 
 	new_process->rsp = fill_stack(new_process_rip, new_process->stack_page, params);
+
+	clean_data_page(new_process);
 
 	insert_process(new_process);
 
@@ -119,6 +140,52 @@ process * create_process(uint64_t new_process_rip, uint64_t params) {
 	return new_process;
 }
 
+void add_data_page(process * p, void * page) {
+	int i = 0;
+
+	while (i < MAX_DATA_PAGES && p->data_page[i] != NULL)
+		i++;
+
+	if (i < MAX_DATA_PAGES) {
+		p->n_data_page += 1;
+		p->data_page[i] = page;
+	}
+}
+
+void remove_data_page(process * p, void * page) {
+	int i = 0;
+
+	while (i < MAX_DATA_PAGES && p->data_page[i] != page) {
+		i++;
+	}
+
+
+	if (i < MAX_DATA_PAGES) {
+		p->n_data_page -= 1;
+		p->data_page[i] = NULL;
+	}
+}
+
+void * stack_page_process(process * p) {
+	return (void *) p->stack_page;
+}
+
+/* Copia en page_array las paginas de forma contigua y termina con NULL */
+void data_pages_process(process * p, void * page_array[]) {
+	int i, j;
+	int pages_left = p->n_data_page;
+
+
+	for (i = j = 0; i < MAX_DATA_PAGES && pages_left > 0; i++) {
+		if (p->data_page[i] != NULL) {
+			pages_left -= 1;
+			page_array[j++] = p->data_page[i];
+		}
+	}
+
+	page_array[j] = NULL;
+}
+
 process * get_process_by_pid (uint64_t pid) {
 	if (pid < MAX_PROCESSES && process_table[pid] != NULL && !is_delete_process(process_table[pid]))
 		return process_table[pid];
@@ -128,8 +195,11 @@ process * get_process_by_pid (uint64_t pid) {
 
 void destroy_process(process * p) {
 	if (p != NULL) {
-		n_processes--;
 		lock_table();
+		n_processes--;
+		free_data_pages(p);
+		if(foreground == p)
+			set_foreground_process(process_table[p->ppid]);
 		process_table[p->pid] = NULL;
 		unlock_table();
 		store_stack_page(p->stack_page);
@@ -137,8 +207,19 @@ void destroy_process(process * p) {
 	}
 }
 
+static void free_data_pages(process * p) {
+	int i;
+
+	for(i = 0; i < MAX_DATA_PAGES && p->n_data_page > 0; i++) {
+		if (p->data_page[i] != NULL) {
+			store_page((uint64_t) p->data_page[i]);
+			p->n_data_page -= 1;
+		}
+	}
+}
+
 int kill_process(process * p) {
-	if (p != NULL)
+	if (p != NULL && p->pid != 1 && p->pid != 0)
 		p->st = DELETE;
 
 	return p != NULL;
@@ -199,10 +280,20 @@ void block_read_process(process * p) {
 }
 
 void set_foreground_process (process * p) {
-	if (foreground == get_current_process()) {
+	if (foreground == get_current_process() && p != NULL) {
 		foreground = p;
-		unblock_process(p);
+		unblock_foreground_process(p);
 	}
+}
+
+static void unblock_foreground_process(process * p) {
+	if (p != NULL && p->st == BLOCKED_FOREGROUND)
+		p->st = READY;
+}
+
+void block_foreground_process(process * p) {
+	if (p != NULL)
+		p->st = BLOCKED_FOREGROUND;
 }
 
 process * get_foreground_process() {

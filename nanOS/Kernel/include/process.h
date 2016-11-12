@@ -10,6 +10,12 @@
 #define BLOCKED 2
 #define BLOCKED_READ 3
 #define DELETE 4
+#define BLOCKED_FOREGROUND 5
+
+#define MAX_FDS 64
+#define MAX_DATA_PAGES 64
+#define MAX_PROCESS_NAME 64
+
 
 typedef struct c_process process;
 typedef char status;
@@ -25,6 +31,7 @@ void unblock_process(process * p);
 int is_blocked_process(process * p);
 void unblock_read_process(process * p);
 void block_read_process(process * p);
+void block_foreground_process(process * p); /* Se desbloquea al ahcer set_foreground */
 
 uint64_t pid_process(process * p);
 uint64_t ppid_process(process * p);
@@ -44,5 +51,12 @@ int is_delete_process(process * p);
 int set_file_open(process * p, int fd);
 int set_file_closed(process * p, int fd);
 int file_is_open(process * p, int fd);
+
+/* Paginas de datos que devuelve el memory allocator */
+void add_data_page(process * p, void * page);
+void remove_data_page(process * p, void * page);
+
+void * stack_page_process(process * p);
+void data_pages_process(process * p, void * page_array[]);
 
 #endif
