@@ -29,7 +29,7 @@ int start_philosophers_problem(int philoNumber) {
   int i;
   philoNumber = philoNumber > MAX_PHILOSOPHERS ? MAX_PHILOSOPHERS : philoNumber;
 
-  critical_m = mutex_open("MainPhilosophersMutex");
+  critical_m = mutex_open(MAIN_MUTEX_NAME);
   srand(seconds() * minutes() * hour());
 
   for (i = 0; i < philoNumber; i++) {
@@ -67,7 +67,7 @@ void listen_commands() {
 }
 
 static int add_philosopher() {
-  char name[] = "PhilosopherAddMutex000";
+  char name[] = "PhilosopherMutex000";
   char args[3];
   int new_pid = -1, philo_index;
 
@@ -75,8 +75,10 @@ static int add_philosopher() {
   if (philosopherCount < MAX_PHILOSOPHERS) {
     philo_index = philosopherCount;
     philosopherCount += 1;
+    itoa(philo_index, name + strlen(name) - 3, 10);
 
-    name[strlen(name)-1] = '0' + philo_index;
+    printf("MutName: %s\n", name);
+
     mut[philo_index] = mutex_open(name);
 
     printf("ME CLAVE\n");
@@ -102,6 +104,7 @@ static void remove_philosopher() {
     printf("About to kill philosopher\n");
     kill(philosophers_PID[philosopherCount]);
     printf("Killed it\n");
+    printf("COUNT: %d\n", philosopherCount);
   }
   mutex_unlock(critical_m);
 }
@@ -116,9 +119,9 @@ static void philosopher(int argc, char * argv[]) {
   int i = atoi(argv[0]);
   while(1) {
     printf("philosopher %d is alive\n", i);
-    sleep(rand_int_range(1, 5) * 1000);
+    sleep(rand_int_range(5, 10) * 1000);
     take_forks(i);
-    sleep(rand_int_range(1, 5) * 1000);
+    sleep(rand_int_range(5, 10) * 1000);
     put_forks(i);
   }
 }

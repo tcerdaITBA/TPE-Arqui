@@ -63,6 +63,7 @@ int mutex_open(char * name) {
   for (k = 0; k < MAX_MUTEXES && is_open(k); k++) {
     if (strcmp(name, open_mutexes[k].name) == 0) {
       unlock_array();
+      print_str("Returning opened mutex", 30, 30);
       return k;
     }
   }
@@ -89,16 +90,21 @@ static mutex create_new_mutex(char * name) {
 
 int mutex_close(int key) {
   if (is_open(key)) {
+    lock_array();
+
     mutex m = open_mutexes[key];
-    while (!is_empty(m.process_queue)) { // Hay procesos lockeados
+    do {
+      print_str("Closing", 34, 34);
       mutex_unlock(key);
-    }
+    } while (!is_empty(m.process_queue)); // Hay procesos lockeados
+
     m.state = CLOSED;
+
+    unlock_array();
     return 1;
   }
   return NOT_OPEN_ERROR;
 }
-
 
 int mutex_lock(int key) {
   if (is_open(key)) {
