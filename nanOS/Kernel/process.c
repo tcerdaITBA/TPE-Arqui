@@ -265,7 +265,7 @@ void unblock_process(process * p) {
 
 int is_blocked_process(process * p) {
 	if (p != NULL)
-		return p->st == BLOCKED || p->st == BLOCKED_READ;
+		return p->st == BLOCKED || p->st == BLOCKED_READ || p->st == BLOCKED_FOREGROUND;
 	return 1;
 }
 
