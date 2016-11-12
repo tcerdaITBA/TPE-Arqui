@@ -96,9 +96,12 @@ static void remove_philosopher() {
   mutex_lock(critical_m);
   if (philosopherCount > 0) {
     philosopherCount -= 1;
-    printf("Killing %d\n", philosopherCount);
-    // mutex_close(mut[philosopherCount]); TODO
+    printf("Killing %d - PID: %d\n", philosopherCount, philosophers_PID[philosopherCount]);
+    printf("About to close mutex\n");
+    mutex_close(mut[philosopherCount]);
+    printf("About to kill philosopher\n");
     kill(philosophers_PID[philosopherCount]);
+    printf("Killed it\n");
   }
   mutex_unlock(critical_m);
 }
@@ -112,9 +115,10 @@ static void remove_all_philosophers() {
 static void philosopher(int argc, char * argv[]) {
   int i = atoi(argv[0]);
   while(1) {
-    sleep(rand_int_range(1, 5) * 1000); // No se si anda bien el sleep
+    printf("philosopher %d is alive\n", i);
+    sleep(rand_int_range(1, 5) * 1000);
     take_forks(i);
-    sleep(rand_int_range(1, 5) * 1000); //
+    sleep(rand_int_range(1, 5) * 1000);
     put_forks(i);
   }
 }

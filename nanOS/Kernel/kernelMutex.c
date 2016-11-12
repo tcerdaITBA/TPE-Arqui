@@ -90,11 +90,10 @@ static mutex create_new_mutex(char * name) {
 int mutex_close(int key) {
   if (is_open(key)) {
     mutex m = open_mutexes[key];
-    if (!is_empty(m.process_queue)) // Hay procesos lockeados
+    while (!is_empty(m.process_queue)) { // Hay procesos lockeados
       mutex_unlock(key);
-    else
-      m.state = CLOSED;
-
+    }
+    m.state = CLOSED;
     return 1;
   }
   return NOT_OPEN_ERROR;

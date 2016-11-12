@@ -1,4 +1,3 @@
-
 #include "process.h"
 #include "memoryAllocator.h"
 #include "processManager.h"
@@ -174,12 +173,12 @@ uint64_t ppid_process(process * p) {
 }
 
 void block_process(process * p) {
-	if (p != NULL)
+	if (p != NULL && p->st != DELETE)
 		p->st = BLOCKED;
 }
 
 void unblock_process(process * p) {
-	if (p != NULL)
+	if (p != NULL && p->st != DELETE)
 		p->st = READY;
 }
 
