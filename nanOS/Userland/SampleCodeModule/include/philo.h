@@ -9,6 +9,8 @@
 
 #define MAX_PHILOSOPHERS 32
 
+#define MAIN_MUTEX_NAME "MAIN_PHILOSOPHERS_MUTEX"
+
 int start_philosophers_problem(int philoNumber);
 
 void render(int * philoState, int philosopherCount);
