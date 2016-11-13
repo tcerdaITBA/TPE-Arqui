@@ -133,3 +133,23 @@ int ppid() {
 int get_process_info(uint64_t pid, struct process_info_c * pi) {
   return _int80h(28, pid, (uint64_t) pi, 0);
 }
+
+int cond_open(char * name) {
+  return _int80h(29, (uint64_t) name, 0, 0);
+}
+
+int cond_wait(int cond_key, int lock_key) {
+  return _int80h(30, cond_key, lock_key, 0);
+}
+
+int cond_signal(int key) {
+  return _int80h(31, key, 0, 0);
+}
+
+int cond_broadcast(int key) {
+  return _int80h(32, key, 0, 0);
+}
+
+int cond_close(int key) {
+  return _int80h(33, key, 0, 0);
+}

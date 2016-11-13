@@ -10,6 +10,7 @@
 #include "processManager.h"
 #include "kernelMutex.h"
 #include "fifo.h"
+#include "condVariable.h"
 
 #define ERR_COLOR 255,0,0  // Rojo
 
@@ -43,6 +44,11 @@ static uint64_t sys_kill_wr(uint64_t pid, uint64_t unused2, uint64_t unused3);
 static uint64_t sys_pid_wr(uint64_t unused1, uint64_t unused2, uint64_t unused3);
 static uint64_t sys_ppid_wr(uint64_t unused1, uint64_t unused2, uint64_t unused3);
 static uint64_t sys_process_info_wr (uint64_t pid, uint64_t pi, uint64_t unused3);
+static uint64_t sys_cond_open_wr(uint64_t name, uint64_t unused2, uint64_t unused3);
+static uint64_t sys_cond_wait_wr(uint64_t cond_key, uint64_t lock_key, uint64_t unused3);
+static uint64_t sys_cond_signal_wr(uint64_t key, uint64_t unused2, uint64_t unused3);
+static uint64_t sys_cond_broadcast_wr(uint64_t key, uint64_t unused2, uint64_t unused3);
+static uint64_t sys_cond_close_wr(uint64_t key, uint64_t unused2, uint64_t unused3);
 
 static unsigned int fifo_to_fds(int key);
 static int fds_to_fifo(unsigned int fds);
@@ -84,7 +90,12 @@ static uint64_t (*syscalls[]) (uint64_t,uint64_t,uint64_t) = { 0,0,0, 		/* 0, 1,
 															   sys_kill_wr, /* 25 */
 															   sys_pid_wr,   /* 26 */
 															   sys_ppid_wr,   /* 27 */
-															   sys_process_info_wr /* 28 */
+															   sys_process_info_wr, /* 28 */
+															   sys_cond_open_wr,  /* 29 */
+															   sys_cond_wait_wr,  /* 30 */
+															   sys_cond_signal_wr, /* 31 */
+															   sys_cond_broadcast_wr,  /* 32 */
+															   sys_cond_close_wr  /* 33 */
 															};
 
 /* Ejecuta la system call correspondiente al valor de rax */
@@ -292,6 +303,27 @@ uint64_t sys_process_info(uint64_t pid, struct process_info_c * pi) {
 	return get_process_info_by_pid(pi, pid);
 }
 
+uint64_t sys_cond_open(char * name) {
+	return cond_open(name);
+}
+
+uint64_t sys_cond_wait(int cond_key, int lock_key) {
+	return cond_wait(cond_key, lock_key);
+}
+
+uint64_t sys_cond_signal(int key) {
+	return cond_signal(key);
+}
+
+uint64_t sys_cond_broadcast(int key) {
+	return cond_broadcast(key);
+}
+
+uint64_t sys_cond_close(int key) {
+	return cond_close(key);
+}
+
+
 
 /* WRAPPERS */
 /* Se usan para system calls que no reciben exactamente 3 parametros enteros.
@@ -390,4 +422,24 @@ static uint64_t sys_ppid_wr(uint64_t unused1, uint64_t unused2, uint64_t unused3
 
 static uint64_t sys_process_info_wr (uint64_t pid, uint64_t pi, uint64_t unused3) {
 	return sys_process_info(pid, (struct process_info_c *) pi);
+}
+
+static uint64_t sys_cond_open_wr(uint64_t name, uint64_t unused2, uint64_t unused3) {
+	return sys_cond_open((char *) name);
+}
+
+static uint64_t sys_cond_wait_wr(uint64_t cond_key, uint64_t lock_key, uint64_t unused3) {
+	return sys_cond_wait(cond_key, lock_key);
+}
+
+static uint64_t sys_cond_signal_wr(uint64_t key, uint64_t unused2, uint64_t unused3) {
+	return sys_cond_signal(key);
+}
+
+static uint64_t sys_cond_broadcast_wr(uint64_t key, uint64_t unused2, uint64_t unused3) {
+	return sys_cond_broadcast(key);
+}
+
+static uint64_t sys_cond_close_wr(uint64_t key, uint64_t unused2, uint64_t unused3) {
+	return sys_cond_close(key);
 }

@@ -67,8 +67,10 @@ int mutex_open(char * name) {
     }
   }
 
-  if (k == MAX_MUTEXES)
+  if (k == MAX_MUTEXES) {
+    unlock_array();
     return MAX_MUTEX_OPEN_ERROR;
+  }
 
   open_mutexes[k] = create_new_mutex(name);
 
@@ -97,6 +99,7 @@ int mutex_close(int key) {
       unblock_process(dequeue_process(m));
 
     m->state = CLOSED;
+    destroy_queue(m->process_queue);
 
     unlock_array();
     return 1;

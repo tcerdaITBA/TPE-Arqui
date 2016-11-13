@@ -40,4 +40,19 @@ int ppid();
 
 int get_process_info(uint64_t pid, struct process_info_c * pi);
 
+int cond_open(char * name);
+
+/* Bloquea el proceso que lo llama. Debe encontrarse dentro de la zona critica 
+** dada por el mutex lock_key. Se desbloqueara este lock, y cuando sea despertado
+** este proceso, lo hara con el lock recuperado. */
+
+int cond_wait(int cond_key, int lock_key);
+
+/* Despierta a un proceso que estaba esperando sobre cond_key. */
+int cond_signal(int cond_key);
+
+/* Despierta a todos los procesos esperando sobre cond_key. */
+int cond_broadcast(int cond_key);
+int cond_close(int cond_key);
+
 #endif

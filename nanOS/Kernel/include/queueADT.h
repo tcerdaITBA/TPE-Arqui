@@ -7,7 +7,7 @@ typedef struct queue * queueADT;
 
 queueADT create_queue();
 
-void destroy_queue();
+void destroy_queue(queueADT q);
 
 int is_empty(queueADT q);
 

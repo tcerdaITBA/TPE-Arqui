@@ -8,8 +8,28 @@ static void consumer();
 static void control_speed();
 static void print_speeds();
 
-int producerSleep = INITIAL_PROD_SLEEP;
-int consumerSleep = INITIAL_CONS_SLEEP;
+static int producerSleep = INITIAL_PROD_SLEEP;
+static int consumerSleep = INITIAL_CONS_SLEEP;
+
+void start_producer_consumer_problem(int buf_size) {
+  int empty_fd = fifo_open(PRODUCER_FIFO);
+  int full_fd = fifo_open(CONSUMER_FIFO);
+  int prod_pid, cons_pid;
+  int i;
+  char empty = EMPTY_SLOT;
+
+  for (i = 0; i < buf_size; i++)
+    write(empty_fd, &empty, 1);
+
+  prod_pid = execpn(producer);
+  cons_pid = execpn(consumer);
+
+  control_speed();
+  kill(prod_pid);
+  kill(cons_pid);
+  fifo_close(empty_fd);
+  fifo_close(full_fd);
+}
 
 static void producer() {
   int empty_fd = fifo_open(PRODUCER_FIFO);
@@ -39,26 +59,6 @@ static void consumer() {
     sleep(consumerSleep * SLEEP_MULTIPLIER);
     write(empty_fd, &empty, 1);
   }
-}
-
-void start_producer_consumer_problem(int buf_size) {
-  int empty_fd = fifo_open(PRODUCER_FIFO);
-  int full_fd = fifo_open(CONSUMER_FIFO);
-  int prod_pid, cons_pid;
-  int i;
-  char empty = EMPTY_SLOT;
-
-  for (i = 0; i < buf_size; i++)
-    write(empty_fd, &empty, 1);
-
-  prod_pid = execpn(producer);
-  cons_pid = execpn(consumer);
-
-  control_speed();
-  kill(prod_pid);
-  kill(cons_pid);
-  fifo_close(empty_fd);
-  fifo_close(full_fd);
 }
 
 static void control_speed() {

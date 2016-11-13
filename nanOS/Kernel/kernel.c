@@ -8,6 +8,7 @@
 #include "processManager.h"
 #include "init.h"
 #include "interrupts.h"
+#include "condVariable.h"
 
 
 extern uint8_t text;
@@ -98,6 +99,7 @@ int main()
 	load_vDriver();
 	initialize_memory_allocator();
 	initialize_stack_memory_allocator();
+	initialize_conditional_variable();
 
 	exec_process((uint64_t)init, 0);
 

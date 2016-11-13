@@ -10,6 +10,7 @@
 #include "graphics.h"
 #include "philo.h"
 #include "producerConsumer.h"
+#include "producerConsumer2.h"
 #include "time.h"
 #include "executer.h"
 #include "process_info.h"
@@ -29,6 +30,7 @@ static int getTime(int argc, char * argv[]);
 static int echo(int argc, char * argv[]);
 static int philosophersProblem (int argc, char * argv[]);
 static int producerConsumer (int argc, char * argv[]);
+static int producerConsumer2 (int argc, char * argv[]);
 static int set_GMT(int argc, char * argv[]);
 static int change_char_color (int argc, char * argv[]);
 static int change_bg_color (int argc, char * argv[]);
@@ -90,6 +92,7 @@ static command commands[]= {{"help", help},
               {"test", test},
 							{"philo", philosophersProblem},
 							{"prodcon", producerConsumer},
+              {"prodcon2", producerConsumer2},
               {"write", write_test},
               {"read", read_test},
 							{"test2", testFifos},
@@ -338,7 +341,7 @@ static int philosophersProblem (int argc, char * argv[]) {
   }
 
 	start_philosophers_problem(p);
-	return 1;
+	return VALID;
 }
 
 static int producerConsumer (int argc, char * argv[]) {
@@ -351,8 +354,24 @@ static int producerConsumer (int argc, char * argv[]) {
 		printf("Buffer has to have at least one slot\n");
 		return INVALID_ARGS;
 	}
+
 	start_producer_consumer_problem(b);
-	return 1;
+	return VALID;
+}
+
+static int producerConsumer2 (int argc, char * argv[]) {
+  int b = DEFAULT_PRODCON_BUFFER;
+
+  if (isnum(argv[0]))
+    b = atoi(argv[0]);
+
+  if (b < 1) {
+    printf("Buffer has to have at least one slot\n");
+    return INVALID_ARGS;
+  }
+
+  start_producer_consumer_problem2(b);
+  return VALID;
 }
 
 static int testFifos (int argc, char * argv[]) {

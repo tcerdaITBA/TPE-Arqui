@@ -5,7 +5,7 @@
 
 #define MAX_MUTEXES 256
 
-#define MUTEX_NAME_LEN 256
+#define MUTEX_NAME_LEN 64
 
 #define OPEN 1
 #define CLOSED 0
