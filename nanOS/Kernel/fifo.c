@@ -34,8 +34,6 @@ typedef struct {
 
 static fifo open_fifos[MAX_FIFOS];
 
-static void log(char * str, int seconds);
-
 static int try_read(read_request * r);
 static fifo create_new_fifo(char * name);
 static void send_to_readers(queueADT read_queue);
@@ -104,17 +102,12 @@ int fifo_write(int key, const void * buf, int bytes) {
   if (is_open(key) && bytes > 0) {
     f = &open_fifos[key];
 
-    log("fifo_write attemp lock", 2);
     mutex_lock(f->fifo_mutex_key);
 
     write_bytes = write_circular_buffer(&f->c_buffer, buf, bytes);
 
-    log("wrote in circular buffer", 2);
-
     send_to_readers(f->read_queue);
 
-    log("sent to readers", 2);
- 
     mutex_unlock(f->fifo_mutex_key);
 
     return write_bytes;
@@ -127,15 +120,11 @@ int fifo_write(int key, const void * buf, int bytes) {
 }
 
 static int try_read(read_request * r) {
-  log("trying read", 2);
   if (r->f->c_buffer.buf_fill > 0) {  // el buffer tenga los bytes que quiero leer
-    log("could read", 2);
     r->bytes_read = read_circular_buffer(&r->f->c_buffer, r->buffer, r->bytes);
-    log("read circular buffer", 2);
     return 1; // lee
   }
   else {
-    log("could NOT read", 3);
     return 0; // no lee
   }
 }
@@ -143,9 +132,7 @@ static int try_read(read_request * r) {
 static void send_to_readers(queueADT read_queue) {
   while(!is_empty(read_queue) && try_read(peek(read_queue))) {
     // manda a los lectores hasta que uno no pueda leer mas
-    log("about to DEQUEUE", 2);
     read_request * r = dequeue(read_queue);
-    log("DEQUEUED", 5);
     unblock_process(r->reader_p);// leyo, entonces lo saca de los que estan esperando leer
   }
 }
@@ -169,13 +156,11 @@ int fifo_read(int key, void * buf, int bytes) {
     read_request * r = create_read_request(key, buf, bytes);
 
     mutex_lock(f->fifo_mutex_key);
-    log("read pasado lock", 2);
 
     if (is_empty(f->read_queue)) // primer reader
       could_read = try_read(r);
 
     if (!could_read) {
-      log("ENQUEUE", 2);
       enqueue(f->read_queue, r);
       mutex_unlock(f->fifo_mutex_key);
       block_process(r->reader_p);
@@ -261,10 +246,4 @@ static int read_circular_buffer(circular_buffer * c_buf, void * dest, int bytes)
   c_buf->buf_fill -= read_bytes;
 
   return read_bytes;
-}
-
-static void log(char * str, int seconds) {
-  print_str(str, 25, 60);
-//  sleep(seconds * 1000);
-//  print_str("                           ", 25, 60);
 }

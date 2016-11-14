@@ -48,6 +48,7 @@ int start_philosophers_problem(int philoNumber) {
   }
 
   listen_commands();
+  getchar();
   return 0;
 }
 
@@ -100,20 +101,16 @@ static int add_philosopher() {
   char args[3];
   int new_pid = -1, philo_index;
 
-  printf("Locked in add\n");
   mutex_lock(critical_m);
   if (philosopherCount < MAX_PHILOSOPHERS) {
     philo_index = philosopherCount;
     philosopherCount += 1;
     itoa(philo_index, name + strlen(name) - 3, 10);
 
-    printf("MutName: %s\n", name);
 
     mut[philo_index] = mutex_open(name);
 
-    printf("ME CLAVE\n");
     mutex_lock(mut[philo_index]);
-    printf("ME DESCLAVE\n");
 
     state[philo_index] = THINKING;
     itoa(philo_index, args, 10);
@@ -122,21 +119,16 @@ static int add_philosopher() {
     philosophers_PID[philo_index] = new_pid;
   }
   mutex_unlock(critical_m);
-  printf("UNLOCKED add\n");
   return new_pid;
 }
 
 static void remove_philosopher() {
-  printf("Locked in remove\n");
-  printf("IN remove\n");
   if (philosopherCount > 0) {
     philosopherCount -= 1;
-    printf("Closing Mutex\n");
     mutex_close(mut[philosopherCount]);
     printf("Killing philosopher %d\n", philosopherCount);
     philosophers_die[philosopherCount] = 1;
   }
-  printf("UNLOCKED remove\n");
 }
 
 static void remove_all_philosophers() {
@@ -180,29 +172,20 @@ static int should_die(int i) {
 }
 
 static void take_forks(int i) {
-  printf("Locked in take forks ( %d )\n", i);
   mutex_lock(critical_m);
-  printf("IN take forks %d\n", i);
   setState(i, HUNGRY);
   test(i);
   mutex_unlock(critical_m);
-  printf("Unlocked take forks ( %d )\n", i);
-  printf("Locked in mut[ %d ]\n", i);
   mutex_lock(mut[i]);
 }
 
 static void put_forks(int i) {
-  printf("Locked in put forks ( %d )\n", i);
   mutex_lock(critical_m);
-  printf("IN put forks %d\n", i);
-  if (state[i] == HUNGRY)
-    printf("EXPLOTAR\n");
 
   setState(i, THINKING);
   test(LEFT(i, philosopherCount));
   test(RIGHT(i, philosopherCount));
   mutex_unlock(critical_m);
-  printf("Unlocked put forks ( %d )\n", i);
 }
 
 static void setState(int philo, int st) {
@@ -215,6 +198,5 @@ static void test(int i) {
     && state[RIGHT(i, philosopherCount)] != EATING) {
     setState(i, EATING);
     mutex_unlock(mut[i]);
-    printf("UNLOCKED mut [ %d ]\n", i);
   }
 }
