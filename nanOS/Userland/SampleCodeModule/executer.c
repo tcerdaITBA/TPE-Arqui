@@ -13,11 +13,11 @@ typedef int (*entry_point) (int, char **);
 static void executer(void ** params);
 static void build_arguments(const char * arg, char * arg_strings, char * arguments[]);
 
-int execpn(void * function_ptr) {
-	return execp(function_ptr, "");
+int execpn(void * function_ptr, const char * name) {
+	return execp(function_ptr, "", name);
 }
 
-int execp(void * function_ptr, const char * arg) {
+int execp(void * function_ptr, const char * arg, const char * name) {
 	void * memory = malloc(PAGE);
 	char ** arguments = memory;
 	char * arg_strings = memory + MAX_ARGS * sizeof(char *);
@@ -27,7 +27,7 @@ int execp(void * function_ptr, const char * arg) {
 
 	build_arguments(arg, arg_strings, arguments + 1);
 
-	pid = exec(executer, (uint64_t) memory);
+	pid = exec(executer, (uint64_t) memory, name);
 
 	yield();
 

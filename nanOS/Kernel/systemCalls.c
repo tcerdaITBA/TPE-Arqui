@@ -30,7 +30,7 @@ static uint64_t sys_text_space_wr(uint64_t selection, uint64_t unused1, uint64_t
 static uint64_t sys_malloc_wr(uint64_t bytes, uint64_t unused1, uint64_t unused2);
 static uint64_t sys_data_address_wr(uint64_t unused1, uint64_t unused2, uint64_t unused3);
 static uint64_t sys_free_wr(uint64_t selection, uint64_t unused2, uint64_t unused3);
-static uint64_t sys_exec_wr(uint64_t ptr, uint64_t unused2, uint64_t unused3);
+static uint64_t sys_exec_wr(uint64_t ptr, uint64_t params, uint64_t name);
 static uint64_t sys_end_wr(uint64_t unused1, uint64_t unused2, uint64_t unused3);
 static uint64_t sys_yield_wr(uint64_t unused1, uint64_t unused2, uint64_t unused3);
 static uint64_t sys_mutex_op_wr(uint64_t nameptr, uint64_t unused2, uint64_t unused3);
@@ -232,8 +232,8 @@ uint64_t sys_set_bg_color(uint64_t r, uint64_t g, uint64_t b) {
 	return set_bg_color(r,g,b);
 }
 
-uint64_t sys_exec(uint64_t ptr, uint64_t params) {
-	return exec_process(ptr, params);
+uint64_t sys_exec(uint64_t ptr, uint64_t params, const char * name) {
+	return exec_process(create_process(ptr, params, name));
 }
 
 uint64_t sys_end() {
@@ -368,8 +368,8 @@ static uint64_t sys_data_address_wr(uint64_t unused1, uint64_t unused2, uint64_t
 	return sys_data_address();
 }
 
-static uint64_t sys_exec_wr(uint64_t ptr, uint64_t params, uint64_t unused3) {
-	return sys_exec(ptr, params);
+static uint64_t sys_exec_wr(uint64_t ptr, uint64_t params, uint64_t name) {
+	return sys_exec(ptr, params, (const char *) name);
 }
 
 static uint64_t sys_end_wr(uint64_t unused1, uint64_t unused2, uint64_t unused3) {

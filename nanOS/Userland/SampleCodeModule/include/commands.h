@@ -8,6 +8,6 @@
 #define DEFAULT_PHILOSOPHERS 5
 #define DEFAULT_PRODCON_BUFFER 50
 
-int execute(const char *name, const char *args);
+int execute(const char *name, const char *args, int foreground);
 
 #endif

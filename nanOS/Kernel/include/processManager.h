@@ -10,7 +10,7 @@
 
 uint64_t next_process(uint64_t current_rsp);
 
-uint64_t exec_process(uint64_t new_rip, uint64_t params);
+uint64_t exec_process(process * new_process);
 void end_process();
 void yield_process();
 

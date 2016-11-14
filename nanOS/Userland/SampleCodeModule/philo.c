@@ -7,6 +7,8 @@
 #include "executer.h"
 #include "stdlib.h"
 
+#define PHILO_PROCESS_NAME "philosopher"
+
 int critical_m;
 int state[MAX_PHILOSOPHERS];
 int mut[MAX_PHILOSOPHERS];
@@ -41,9 +43,7 @@ int start_philosophers_problem(int philoNumber) {
     philosophers_PID[i] = add_philosopher();
   }
 
-  int pid = execpn(listen_commands);
-  set_foreground(pid);
-  // TODO: Devolverle el foreground a la shell
+  listen_commands();
   return 0;
 }
 
@@ -110,7 +110,7 @@ static int add_philosopher() {
     state[philo_index] = THINKING;
     itoa(philo_index, args, 10);
 
-    new_pid = execp(philosopher, args);
+    new_pid = execp(philosopher, args, PHILO_PROCESS_NAME);
     philosophers_PID[philo_index] = new_pid;
   }
   mutex_unlock(critical_m);

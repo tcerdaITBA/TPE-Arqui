@@ -80,8 +80,8 @@ void start_producer_consumer_problem2(int buf_size) {
   buffer_mutex = mutex_open("PROD_CONS_2");
   cond_variable = cond_open("PROD_CONS_COND");
 
-  prod_pid = execpn(producer);
-  cons_pid = execpn(consumer);
+  prod_pid = execpn(producer, "producer2");
+  cons_pid = execpn(consumer, "consumer2");
 
   control_speed();
   kill(prod_pid);

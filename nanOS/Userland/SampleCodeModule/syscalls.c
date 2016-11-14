@@ -74,8 +74,8 @@ int set_bg_color (uint64_t r, uint64_t g, uint64_t b) {
     return _int80h(14,r,g,b);
 }
 
-int exec(void * ptr, uint64_t params) {
-  int pid = _int80h(15, (uint64_t) ptr, params, 0);
+int exec(void * ptr, uint64_t params, const char * name) {
+  int pid = _int80h(15, (uint64_t) ptr, params, (uint64_t) name);
   add_pid(pid);
   return pid;
 }

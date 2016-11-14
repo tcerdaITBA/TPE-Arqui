@@ -20,7 +20,7 @@
 typedef struct c_process process;
 typedef char status;
 
-process * create_process(uint64_t rip, uint64_t params);
+process * create_process(uint64_t rip, uint64_t params, const char * name);
 void destroy_process(process * p);
 
 void set_rsp_process(process * p, uint64_t rsp);
@@ -58,5 +58,7 @@ void remove_data_page(process * p, void * page);
 
 void * stack_page_process(process * p);
 void data_pages_process(process * p, void * page_array[]);
+
+int get_name_process(char * buffer, process * p);
 
 #endif

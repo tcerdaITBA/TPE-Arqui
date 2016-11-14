@@ -162,15 +162,16 @@ static int read_test(int argc, char * argv[]) {
 ** La funciones son responsables de parsear los argumentos, retornando
 ** INVALID_ARGS en caso de que estos sean incorrectos.
 */
-int execute(const char *name, const char *args) {
+int execute(const char *name, const char *args, int foreground) {
 	int i;
   int pid;
   int valid = UNSUPPORTED;
 	for (i = 0; i < CMDS_SIZE; i++) {
 		if (strcmp(name, commands[i].name) == 0) {
       valid = VALID;
-      pid = execp (commands[i].function, args);
-			set_foreground(pid);
+      pid = execp (commands[i].function, args, name);
+      if (foreground)
+			 set_foreground(pid);
       printf("PID: %d\n", pid);
     }
 	}
@@ -193,7 +194,12 @@ static int help(int argc, char * argv[]){
   printf("                      If a specific fractal is desired, a number from 1 to %d may be sent as parameter.\n", fractals_size());
   printf("                      If no parameter is sent a random fractal will be drawed.\n");
   printf(" char_color [r,g,b]   Changes character color.\n");
-  printf(" bg_color   [r,g,b]   Changes background color. Clears screen.\n\n");
+  printf(" bg_color   [r,g,b]   Changes background color. Clears screen.\n");
+  printf(" prodcon    [size]    Commences producer consumer problem resolved with fifos\n");
+  printf(" prodcon2   [size]    Commences producer consumer problem resolved with variable conditions\n");
+  printf(" philo      [N]       Commences philosophers problem with N philosophers. Max %d\n", MAX_PHILOSOPHERS);
+
+
   return VALID;
 }
 
@@ -375,9 +381,9 @@ static int producerConsumer2 (int argc, char * argv[]) {
 }
 
 static int testFifos (int argc, char * argv[]) {
-	execpn(processRead);
+	execpn(processRead, "fifo_test_read");
   yield();
-	execpn(processWrite);
+	execpn(processWrite, "fifo_test_write");
 	return VALID;
 }
 

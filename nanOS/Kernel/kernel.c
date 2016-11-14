@@ -9,6 +9,7 @@
 #include "init.h"
 #include "interrupts.h"
 #include "condVariable.h"
+#include "systemCalls.h"
 
 
 extern uint8_t text;
@@ -101,7 +102,7 @@ int main()
 	initialize_stack_memory_allocator();
 	initialize_conditional_variable();
 
-	exec_process((uint64_t)init, 0);
+	sys_exec((uint64_t)init, 0, "init");
 
 	ncPrint("[Kernel Main]");
 	ncNewline();

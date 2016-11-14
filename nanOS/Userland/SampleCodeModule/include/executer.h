@@ -8,9 +8,9 @@
 
 /* Recibe un string cuyos parámetros están separados por un único espacio. No hay espacios al
 ** comienzo ni al final. La función será ejecutada con dichos parámetros como argv[] */
-int execp(void * function_ptr, const char * arg);
+int execp(void * function_ptr, const char * arg, const char * name);
 
 /* Igual que arriba solo que no se pasan parámetros */
-int execpn(void * function_ptr);
+int execpn(void * function_ptr, const char * name);
 
 #endif

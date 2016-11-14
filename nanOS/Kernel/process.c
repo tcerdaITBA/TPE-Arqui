@@ -3,8 +3,9 @@
 #include "processManager.h"
 #include "videoDriver.h"
 #include "timer.h"
+#include "strings.h"
 
-
+#define MAX_PROCESS_NAME 64
 #define CHECK_BIT(var,pos) ((var) & (1<<(pos)));
 
 /* El stack frame y el llenado del mismo se tomó de
@@ -41,6 +42,7 @@ typedef struct {
 
 struct c_process {
 	status st;
+	char name[MAX_PROCESS_NAME];
 	uint64_t entry_point;
 	uint64_t rsp;
 	uint64_t stack_page;
@@ -71,7 +73,6 @@ static void unblock_foreground_process(process * p);
 
 static process * foreground = NULL;
 static uint64_t n_processes = 0;
-
 
 
 static void lock_table() {
@@ -113,9 +114,17 @@ static void clean_data_page(process * p) {
 	p->n_data_page = 0;
 }
 
-process * create_process(uint64_t new_process_rip, uint64_t params) {
+int get_name_process(char * buffer, process * p) {
+	return strcpy(buffer, p->name);
+}
+
+process * create_process(uint64_t new_process_rip, uint64_t params, const char * name) {
+
+	assign_quantum();
 
 	process * new_process = (process *) get_page(sizeof(* new_process));
+
+	strcpy(new_process->name, name);
 
 	new_process->stack_page = get_stack_page(); /* Pide al MemoryAllocator espacio para el stack */
 
@@ -135,6 +144,8 @@ process * create_process(uint64_t new_process_rip, uint64_t params) {
 		foreground = new_process; /* Pone en foreground al primer proceso */
 
 	new_process->open_fds = 0;
+
+	unassign_quantum();
 
 	return new_process;
 }

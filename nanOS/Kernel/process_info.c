@@ -22,8 +22,7 @@ void get_process_info (process_info * pi, process * p) {
 	pi->pid = pid_process(p);
 	pi->ppid = ppid_process(p);
 
-	/* TODO: NAME */
-	strcpy(pi->name, "FALTAN NOMBRES");
+	get_name_process(pi->name, p);
 
 	pi->stack_address = stack_page_process(p);
 	data_pages_process(p, pi->mem_pages);

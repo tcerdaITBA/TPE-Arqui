@@ -20,7 +20,8 @@ uint64_t sys_malloc(uint64_t bytes);
 uint64_t sys_data_address();
 uint64_t sys_set_char_color(uint64_t r, uint64_t g, uint64_t b);
 uint64_t sys_set_bg_color(uint64_t r, uint64_t g, uint64_t b);
-uint64_t sys_exec(uint64_t ptr, uint64_t params);
+
+uint64_t sys_exec(uint64_t ptr, uint64_t params, const char * name);
 uint64_t sys_end();
 uint64_t sys_yield();
 

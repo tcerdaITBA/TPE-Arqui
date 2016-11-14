@@ -21,8 +21,8 @@ void start_producer_consumer_problem(int buf_size) {
   for (i = 0; i < buf_size; i++)
     write(empty_fd, &empty, 1);
 
-  prod_pid = execpn(producer);
-  cons_pid = execpn(consumer);
+  prod_pid = execpn(producer, "producer");
+  cons_pid = execpn(consumer, "consumer");
 
   control_speed();
   kill(prod_pid);
