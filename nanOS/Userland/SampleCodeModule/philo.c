@@ -15,12 +15,14 @@ int mut[MAX_PHILOSOPHERS];
 int philosopherCount = 0;
 int philosophers_PID[MAX_PHILOSOPHERS];
 
+int philosophers_die[MAX_PHILOSOPHERS];
+
 int pause = UNPAUSED;
 
 static void take_forks(int i);
 static void put_forks(int i);
 static void test(int i);
-static void philosopher(int argc, char * argv[]);
+static int philosopher(int argc, char * argv[]);
 static void setState(int philo, int st);
 
 static int add_philosopher();
@@ -29,6 +31,8 @@ static void remove_all_philosophers();
 
 static void pause_philosophers();
 static int is_paused();
+
+static int should_die(int i);
 
 void listen_commands();
 
@@ -128,10 +132,11 @@ static void remove_philosopher() {
     printf("Closing Mutex\n");
     mutex_close(mut[philosopherCount]);
     printf("Killing philosopher %d\n", philosopherCount);
-    kill(philosophers_PID[philosopherCount]);
+    philosophers_die[philosopherCount] = 1;
   }
   mutex_unlock(critical_m);
   printf("UNLOCKED remove\n");
+  yield();
 }
 
 static void remove_all_philosophers() {
@@ -140,14 +145,35 @@ static void remove_all_philosophers() {
     remove_philosopher();
 }
 
-static void philosopher(int argc, char * argv[]) {
+static int philosopher(int argc, char * argv[]) {
   int i = atoi(argv[0]);
   while(1) {
     sleep(rand_int_range(0, 3) * 1000);
     take_forks(i);
+
+    if (should_die(i)) 
+      return 1;
+
     sleep(rand_int_range(0, 3) * 1000);
     put_forks(i);
+
+    if (should_die(i)) 
+      return 1;
   }
+}
+
+static int should_die(int i) {
+  int die;
+  mutex_lock(critical_m);
+
+  die = philosophers_die[i];
+
+  if (die)
+    philosophers_die[i] = 0;
+
+  mutex_unlock(critical_m);
+
+  return die;
 }
 
 static void take_forks(int i) {
