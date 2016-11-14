@@ -147,6 +147,9 @@ int mutex_unlock(int key) {
 
     process * p = dequeue_process(m);
 
+    while (is_delete_process(p))
+      p = dequeue_process(m);
+
     m->locked = UNLOCKED;
 
     if (p != NULL) {
