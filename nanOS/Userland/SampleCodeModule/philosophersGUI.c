@@ -2,8 +2,15 @@
 #include "philo.h"
 #include "time.h"
 #include "graphics.h"
+#include "math.h"
 
 char * stateStrings[3] = {"THINKING", "HUNGRY", "EATING"};
+
+int prevPhilosopherCount;
+
+static void get_state_color(int philoState, int * r, int * g, int * b);
+
+static void cleanTable(int x, int y, double offset);
 
 void renderText(int * philoState, int philosopherCount) {
 	if (philosopherCount == 0)
@@ -19,11 +26,21 @@ void renderText(int * philoState, int philosopherCount) {
 }
 
 void renderGraphics(int * philoState, int philosopherCount) {
+	if (philosopherCount == 0) {
+		printf("There are no philosophers left\n");
+		return;
+	}
+
 	int i;
 	int r, g, b;
-|	double dishAngle, dishXpos, dishYpos;
+	double dishAngle, dishXpos, dishYpos;
 	double dishSpace = (2 * PI * TABLE_RADIUS) / philosopherCount;
-	double dishRadius = dishSpace * 0.8;
+	double dishRadius = dishSpace * 0.4;
+
+	if (prevPhilosopherCount != philosopherCount) 
+		cleanTable(TABLE_X_POS, TABLE_Y_POS, dishRadius);
+
+	prevPhilosopherCount = philosopherCount;
 
 	for (i = 0; i < philosopherCount; i++) {
 		dishAngle = (2 * PI * i) / philosopherCount;
@@ -32,11 +49,11 @@ void renderGraphics(int * philoState, int philosopherCount) {
 
 		get_state_color(philoState[i], &r, &g, &b);
 
-		draw_filledCircle(dishXpos, dishYpos, dishRadius, );
+		draw_filledCircle2(dishXpos, dishYpos, dishRadius, r, g, b);
 	}
 }
 
-void get_state_color(int philoState, int * r, int * g, int * b) {
+static void get_state_color(int philoState, int * r, int * g, int * b) {
 	switch(philoState) {
 		case EATING:
 		*r = 255; *g = 0; *b = 0;
@@ -48,4 +65,8 @@ void get_state_color(int philoState, int * r, int * g, int * b) {
 		*r = 112; *g = 142; *b = 224;
 		break;
 	}
+}
+
+static void cleanTable(int x, int y, double offset) {
+	draw_filledCircle2(x, y, TABLE_RADIUS + offset*2, 0, 0 ,0);
 }

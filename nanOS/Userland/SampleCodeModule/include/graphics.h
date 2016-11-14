@@ -16,9 +16,4 @@ void draw_filledCircle2(int x0, int y0, int radius , char r, char g, char b);
 /* Dibuja una elipse */
 void draw_ellipse (int xc, int yc, int width, int height, char r, char g, char b);
 
-float sin(float x);
-double _cos(double x);
-
-#define PI 3.14159265359 
-
 #endif

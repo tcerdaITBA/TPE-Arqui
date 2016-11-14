@@ -14,6 +14,10 @@
 
 #define MAIN_MUTEX_NAME "MAIN_PHILOSOPHERS_MUTEX"
 
+#define TABLE_X_POS 300
+#define TABLE_Y_POS 300
+#define TABLE_RADIUS 100
+
 int start_philosophers_problem(int philoNumber);
 
 void renderText(int * philoState, int philosopherCount);

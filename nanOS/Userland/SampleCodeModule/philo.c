@@ -70,6 +70,7 @@ void listen_commands() {
         mutex_lock(critical_m);
         remove_philosopher();
         mutex_unlock(critical_m);
+        yield();
       }
       break;
       case 'p':
@@ -107,7 +108,7 @@ static int add_philosopher() {
     philosopherCount += 1;
     itoa(philo_index, name + strlen(name) - 3, 10);
 
-
+    philosophers_die[philo_index] = 0;
     mut[philo_index] = mutex_open(name);
 
     mutex_lock(mut[philo_index]);
@@ -124,10 +125,11 @@ static int add_philosopher() {
 
 static void remove_philosopher() {
   if (philosopherCount > 0) {
-    philosopherCount -= 1;
-    mutex_close(mut[philosopherCount]);
-    printf("Killing philosopher %d\n", philosopherCount);
-    philosophers_die[philosopherCount] = 1;
+    //philosopherCount -= 1;
+    int philo_index = philosopherCount - 1;
+    philosophers_die[philo_index] = 1;
+    mutex_close(mut[philo_index]);
+    printf("Killing philosopher %d\n", philo_index);
   }
 }
 
@@ -146,14 +148,18 @@ static int philosopher(int argc, char * argv[]) {
     sleep(rand_int_range(2, 5) * 1000);
     take_forks(i);
 
-    if (should_die(i))
+    if (should_die(i)) {
+      philosopherCount -= 1;
       return 1;
+    }
 
     sleep(rand_int_range(2, 5) * 1000);
     put_forks(i);
 
-    if (should_die(i))
+    if (should_die(i)) {
+      philosopherCount -= 1;
       return 1;
+    }  
   }
 }
 
@@ -190,7 +196,7 @@ static void put_forks(int i) {
 
 static void setState(int philo, int st) {
   state[philo] = st;
-  render(state, philosopherCount);
+  renderGraphics(state, philosopherCount);
 }
 
 static void test(int i) {
