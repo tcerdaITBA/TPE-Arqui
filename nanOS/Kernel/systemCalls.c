@@ -49,6 +49,8 @@ static uint64_t sys_cond_wait_wr(uint64_t cond_key, uint64_t lock_key, uint64_t 
 static uint64_t sys_cond_signal_wr(uint64_t key, uint64_t unused2, uint64_t unused3);
 static uint64_t sys_cond_broadcast_wr(uint64_t key, uint64_t unused2, uint64_t unused3);
 static uint64_t sys_cond_close_wr(uint64_t key, uint64_t unused2, uint64_t unused3);
+static uint64_t sys_get_pids_wr(uint64_t pid_array, uint64_t unused2, uint64_t unused3);
+
 
 static unsigned int fifo_to_fds(int key);
 static int fds_to_fifo(unsigned int fds);
@@ -95,7 +97,8 @@ static uint64_t (*syscalls[]) (uint64_t,uint64_t,uint64_t) = { 0,0,0, 		/* 0, 1,
 															   sys_cond_wait_wr,  /* 30 */
 															   sys_cond_signal_wr, /* 31 */
 															   sys_cond_broadcast_wr,  /* 32 */
-															   sys_cond_close_wr  /* 33 */
+															   sys_cond_close_wr,  /* 33 */
+																 sys_get_pids_wr		/* 34 */
 															};
 
 /* Ejecuta la system call correspondiente al valor de rax */
@@ -323,7 +326,9 @@ uint64_t sys_cond_close(int key) {
 	return cond_close(key);
 }
 
-
+uint64_t sys_get_pids(int * pid_array) {
+	return get_current_pids(pid_array);
+}
 
 /* WRAPPERS */
 /* Se usan para system calls que no reciben exactamente 3 parametros enteros.
@@ -442,4 +447,8 @@ static uint64_t sys_cond_broadcast_wr(uint64_t key, uint64_t unused2, uint64_t u
 
 static uint64_t sys_cond_close_wr(uint64_t key, uint64_t unused2, uint64_t unused3) {
 	return sys_cond_close(key);
+}
+
+static uint64_t sys_get_pids_wr(uint64_t pid_array, uint64_t unused2, uint64_t unused3) {
+	return sys_get_pids(pid_array);
 }

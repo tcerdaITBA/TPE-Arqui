@@ -47,4 +47,6 @@ uint64_t sys_cond_signal(int key);
 uint64_t sys_cond_broadcast(int key);
 uint64_t sys_cond_close(int key);
 
+uint64_t sys_get_pids(int * pid_array);
+
 #endif

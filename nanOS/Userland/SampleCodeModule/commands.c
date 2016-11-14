@@ -20,6 +20,8 @@
 /* Longitud maxima de un comando ingresado por el usuario */
 #define CMDS_SIZE (sizeof(commands)/sizeof(commands[0]))
 
+#define MAX_PROCESSES 128
+
 static void printWithTimeFormat(unsigned int n);
 static int isnum(const char *str);
 
@@ -42,6 +44,8 @@ static int read_test(int argc, char * argv[]);
 
 static int testFifos (int argc, char * argv[]);
 static int ps(int argc, char * argv[]);
+static void print_single_process(int pid);
+
 
 static int processWrite();
 static int processRead();
@@ -50,8 +54,6 @@ static int print_process(int argc, char * argv[]);
 
 static int print_process(int argc, char * argv[]) {
   int i;
-  char buffer[MAX_PROCESS_STRING];
-  process_info pi;
 
   if (argc < 1) {
     printf("Usage: print_process [PID1, PID2, ...]\n");
@@ -59,17 +61,31 @@ static int print_process(int argc, char * argv[]) {
   }
 
   for (i = 0; i < argc; i++) {
-    if (get_process_info(atoi(argv[i]), &pi)) {
-      process_string(&pi, buffer);
-      printf("%s\n", buffer);
-    }
+    print_single_process(atoi(argv[i]));
   }
 
   return VALID;
 }
 
+static void print_single_process(int pid) {
+  process_info pi;
+  char buffer[MAX_PROCESS_STRING];
+
+  if (get_process_info(pid, &pi)) {
+    process_string(&pi, buffer);
+    printf("%s\n", buffer);
+  }
+}
+
 static int ps(int argc, char * argv[]) {
-  print_processes();
+  int pid_array[MAX_PROCESSES], amount, i;
+
+  amount = get_current_pids(pid_array);
+
+  for (i = 0; pid_array[i] != -1; i++) {
+    print_single_process(pid_array[i]);
+  }
+
   return VALID;
 }
 
