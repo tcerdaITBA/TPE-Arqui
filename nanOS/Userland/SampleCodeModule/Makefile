@@ -2,7 +2,7 @@ include ../Makefile.inc
 
 MODULE=0000-sampleCodeModule.bin
 ASMSOURCES=$(wildcard *.asm)
-SOURCES=sampleCodeModule.c shell.c syscalls.c stdio.c strings.c time.c paint.c fractals.c ctype.c commands.c stdlib.c graphics.c philo.c philosophersGUI.c producerConsumer.c producerConsumer2.c random.c executer.c process_info.c
+SOURCES=sampleCodeModule.c shell.c syscalls.c stdio.c strings.c time.c paint.c fractals.c math.c ctype.c commands.c stdlib.c graphics.c philo.c philosophersGUI.c producerConsumer.c producerConsumer2.c random.c executer.c process_info.c
 ASMOBJECTS=$(ASMSOURCES:.asm=.o)
 COBJECTS=$(SOURCES:.c=.o)
 

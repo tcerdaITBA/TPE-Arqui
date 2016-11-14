@@ -1,6 +1,7 @@
 #include "paint.h"
 #include "stdlib.h"
 #include "syscalls.h"
+#include "math.h"
 
 #define OK 0
 #define ERROR 1
@@ -9,23 +10,6 @@ void draw_line(int x0, int y0,int x1, int y1, char r, char b, char g);
 void draw_filledCircle(int x0, int y0, int radius, char r, char g, char b);
 void draw_filledCircle2(int x0, int y0, int radius , char r, char g, char b);
 void draw_ellipse (int xc, int yc, int width, int height, char r, char g, char b);
-//TODO: cambiar de lugar estas funciones
-int abs(int n){
-	return n > 0 ? n : -n ;
-}
-
-/* Aproximacion de la raíz cuadrada (NO SIRVE POR EL MOMENTO)*/
-int sqrt(float n){
- float x = n;
- float y = 1;
- float e = 0.000001;
-
- while(x - y > e) {
- 	x = (x + y)/2;
- 	y = n/x;
- }
- return x;
-}
 
 /* MidPoint Circle Algorithm
 ** Fuente: wikipedia.org/wiki/Midpoint_circle_algorithm */
