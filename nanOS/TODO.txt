@@ -1,6 +1,4 @@
-Decidir cuando poner en background, por ejemplo con un '&'
-Hacer lo del los nombres para imprimir procesos
-Sacal la ultima coma que queda al imprimir Memory Address
+Sacar la ultima coma que queda al imprimir Memory Address
 Comando IPC
 
 Filsofos:

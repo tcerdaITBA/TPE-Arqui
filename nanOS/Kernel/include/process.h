@@ -61,4 +61,7 @@ void data_pages_process(process * p, void * page_array[]);
 
 int get_name_process(char * buffer, process * p);
 
+/* Devuelve los pids actuales. Termina el arreglo con -1 */
+int get_current_pids(int pid_array[]);
+
 #endif

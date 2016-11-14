@@ -153,3 +153,7 @@ int cond_broadcast(int key) {
 int cond_close(int key) {
   return _int80h(33, key, 0, 0);
 }
+
+int get_current_pids(int * pid_array) {
+  return _int80h(34, pid_array, 0, 0);
+}

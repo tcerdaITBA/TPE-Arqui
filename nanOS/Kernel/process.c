@@ -105,6 +105,25 @@ static int insert_process (process * p) {
 	return -1;
 }
 
+int get_current_pids(int pid_array[]) {
+	int i, j, processes_left;
+
+	lock_table();
+
+	processes_left = n_processes;
+
+	for (i = j = 0; i < MAX_PROCESSES && processes_left > 0; i++) {
+		if (process_table[i] != NULL) {
+			pid_array[j++] = pid_process(process_table[i]);
+			processes_left--;
+		}
+	}
+
+	pid_array[j] = -1;
+
+	unlock_table();
+}
+
 static void clean_data_page(process * p) {
 	int i;
 
