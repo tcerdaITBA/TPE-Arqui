@@ -16,6 +16,8 @@
 
 int start_philosophers_problem(int philoNumber);
 
-void render(int * philoState, int philosopherCount);
+void renderText(int * philoState, int philosopherCount);
+
+void renderGraphics(int * philoState, int philosopherCount);
 
 #endif

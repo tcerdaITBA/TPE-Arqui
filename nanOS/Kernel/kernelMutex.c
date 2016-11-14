@@ -25,7 +25,6 @@ static void queue_process(mutex *m, process * p);
 static mutex create_new_mutex(char * name);
 static int is_open(int key);
 
-
 static void lock_queue(mutex *m);
 static void unlock_queue(mutex *m);
 
