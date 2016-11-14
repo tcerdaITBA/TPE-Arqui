@@ -109,7 +109,6 @@ int mutex_close(int key) {
 
 int mutex_lock(int key) {
   if (is_open(key)) {
-
     mutex *m = &open_mutexes[key];
 
     process * p = get_current_process();
@@ -117,7 +116,6 @@ int mutex_lock(int key) {
     assign_quantum(); /* Si hay cambios de contexto debajo se rompe todo */
 
     if (!_unlocked(&m->locked)) {
-
       lock_queue(m);
 
       queue_process(m, p);
@@ -125,7 +123,6 @@ int mutex_lock(int key) {
       block_process(p);
 
       unlock_queue(m);
-
 
       yield_process();
     }
