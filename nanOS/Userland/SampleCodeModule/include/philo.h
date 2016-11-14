@@ -1,8 +1,8 @@
 #ifndef _PHILO_H_
 #define _PHILO_H_
 
-#define LEFT(x, N) (((x)+(N)-1) % (N))
-#define RIGHT(x, N) (((x)+1) % (N))
+#define LEFT(x, N) (((x)+(N)-1) % (N != 0 ? N : 1))
+#define RIGHT(x, N) (((x)+1) % (N != 0 ? N : 1))
 #define THINKING 0
 #define HUNGRY 1
 #define EATING 2

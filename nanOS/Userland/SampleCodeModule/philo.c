@@ -65,8 +65,11 @@ void listen_commands() {
         add_philosopher();
       break;
       case 'r':
-      if (!is_paused())
+      if (!is_paused()) {
+        mutex_lock(critical_m);
         remove_philosopher();
+        mutex_unlock(critical_m);
+      }
       break;
       case 'p':
       pause_philosophers();
@@ -125,7 +128,6 @@ static int add_philosopher() {
 
 static void remove_philosopher() {
   printf("Locked in remove\n");
-  mutex_lock(critical_m);
   printf("IN remove\n");
   if (philosopherCount > 0) {
     philosopherCount -= 1;
@@ -134,30 +136,31 @@ static void remove_philosopher() {
     printf("Killing philosopher %d\n", philosopherCount);
     philosophers_die[philosopherCount] = 1;
   }
-  mutex_unlock(critical_m);
   printf("UNLOCKED remove\n");
-  yield();
 }
 
 static void remove_all_philosophers() {
+  mutex_lock(critical_m);
   int i, philoCountAux = philosopherCount;
   for (i = 0; i < philoCountAux; i++)
     remove_philosopher();
+  mutex_unlock(critical_m);
+  mutex_close(critical_m);
 }
 
 static int philosopher(int argc, char * argv[]) {
   int i = atoi(argv[0]);
   while(1) {
-    sleep(rand_int_range(0, 3) * 1000);
+    sleep(rand_int_range(2, 5) * 1000);
     take_forks(i);
 
-    if (should_die(i)) 
+    if (should_die(i))
       return 1;
 
-    sleep(rand_int_range(0, 3) * 1000);
+    sleep(rand_int_range(2, 5) * 1000);
     put_forks(i);
 
-    if (should_die(i)) 
+    if (should_die(i))
       return 1;
   }
 }
