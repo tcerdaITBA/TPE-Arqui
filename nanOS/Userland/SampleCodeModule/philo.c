@@ -10,14 +10,13 @@
 #define PHILO_PROCESS_NAME "philosopher"
 
 int critical_m;
-int state[MAX_PHILOSOPHERS];
-int mut[MAX_PHILOSOPHERS];
 int philosopherCount = 0;
-int philosophers_PID[MAX_PHILOSOPHERS];
+int modify_cond_var;
+int finished_eating_cond;
 
-int philosophers_die[MAX_PHILOSOPHERS];
+static philosopher_data philo_array [MAX_PHILOSOPHERS];
 
-int pause = UNPAUSED;
+static int pause = UNPAUSED;
 
 static void take_forks(int i);
 static void put_forks(int i);
@@ -28,25 +27,35 @@ static void setState(int philo, int st);
 static int add_philosopher();
 static void remove_philosopher();
 static void remove_all_philosophers();
+static void release_resources();
+static void slow_die();
 
 static void pause_philosophers();
 static int is_paused();
 
 static int should_die(int i);
 
+static void (* render) (philosopher_data * philo_array, int philosopherCount);
+
 void listen_commands();
 
-int start_philosophers_problem(int philoNumber) {
+int start_philosophers_problem(int graphic, int philoNumber) {
   int i;
   philoNumber = philoNumber > MAX_PHILOSOPHERS ? MAX_PHILOSOPHERS : philoNumber;
 
+  if (graphic)
+    render = renderGraphics;
+  else
+    render = renderText;
+
   critical_m = mutex_open(MAIN_MUTEX_NAME);
+  modify_cond_var = cond_open(MODIFY_COND_NAME);
   srand(seconds() * minutes() * hour());
 
   philosopherCount = 0;
 
   for (i = 0; i < philoNumber; i++) {
-    philosophers_PID[i] = add_philosopher();
+    add_philosopher();
   }
 
   listen_commands();
@@ -59,9 +68,10 @@ void listen_commands() {
   while((c = getchar())) {
     switch (c) {
       case 'e':
-      if (!is_paused())
+      if (!is_paused()) {
         remove_all_philosophers();
-      return;
+        return;
+      }
       break;
       case 'a':
       if (!is_paused())
@@ -76,6 +86,11 @@ void listen_commands() {
       case 'p':
       pause_philosophers();
       break;
+      case 'q':
+      if (!is_paused()) {
+        slow_die();
+        return;
+      }
     }
   }
 }
@@ -108,16 +123,19 @@ static int add_philosopher() {
     philosopherCount += 1;
     itoa(philo_index, name + strlen(name) - 3, 10);
 
-    philosophers_die[philo_index] = 0;
-    mut[philo_index] = mutex_open(name);
+    philosopher_data * pd = &philo_array[philo_index];
+    pd->die = 0;
+    pd->mut = mutex_open(name);
 
-    mutex_lock(mut[philo_index]);
+    pd->cond_die = cond_open(name);
 
-    state[philo_index] = THINKING;
+    mutex_lock(pd->mut);
+
+    pd->state = THINKING;
     itoa(philo_index, args, 10);
 
     new_pid = execp(philosopher, args, PHILO_PROCESS_NAME);
-    philosophers_PID[philo_index] = new_pid;
+    pd->pid = new_pid;
   }
   mutex_unlock(critical_m);
   return new_pid;
@@ -126,24 +144,39 @@ static int add_philosopher() {
 static void remove_philosopher() {
   mutex_lock(critical_m);
   if (philosopherCount > 0) {
-    //philosopherCount -= 1;
+    int count = philosopherCount;
     int philo_index = philosopherCount - 1;
-    philosophers_die[philo_index] = 1;
-    mutex_close(mut[philo_index]);
-    printf("Killing philosopher %d\n", philo_index);
+    philo_array[philo_index].die = 1;
+    printf("Marking dead: %d\n", philo_index);
+    while (count == philosopherCount)
+      cond_wait(modify_cond_var, critical_m);
   }
   mutex_unlock(critical_m);
+}
+
+static void slow_die() {
+  int i;
+  int count = philosopherCount;
+  for (i = 0; i < count; i++) {
+    remove_philosopher(i);
+  }
+  release_resources();
+}
+
+static void release_resources() {
+  mutex_close(critical_m);
+  cond_close(modify_cond_var);
 }
 
 static void remove_all_philosophers() {
   mutex_lock(critical_m);
   int i, philoCountAux = philosopherCount;
   for (i = 0; i < philoCountAux; i++) {
-    kill(philosophers_PID[i]);
-    mutex_close(mut[i]);
+    kill(philo_array[i].pid);
+    mutex_close(philo_array[i].mut);
   }
   mutex_unlock(critical_m);
-  mutex_close(critical_m);
+  release_resources();
 }
 
 static int philosopher(int argc, char * argv[]) {
@@ -161,19 +194,28 @@ static int philosopher(int argc, char * argv[]) {
 
     if (should_die(i)) {
       return 1;
-    }  
+    }
   }
 }
 
 static int should_die(int i) {
   int die;
   mutex_lock(critical_m);
-
-  die = philosophers_die[i];
+  philosopher_data * pd = &philo_array[i];
+  die = pd->die;
 
   if (die) {
-    philosophers_die[i] = 0;
+    setState(i, DYING);
+    while(philo_array[LEFT(i, philosopherCount)].state == EATING \
+      && philo_array[RIGHT(i, philosopherCount)].state == EATING) {
+        cond_wait(pd->cond_die, critical_m);
+    }
+    pd->die = 0;
     philosopherCount -= 1;
+    mutex_close(pd->mut);
+    cond_close(pd->cond_die);
+    render(philo_array, philosopherCount);
+    cond_signal(modify_cond_var);
   }
 
   mutex_unlock(critical_m);
@@ -186,7 +228,7 @@ static void take_forks(int i) {
   setState(i, HUNGRY);
   test(i);
   mutex_unlock(critical_m);
-  mutex_lock(mut[i]);
+  mutex_lock(philo_array[i].mut);
 }
 
 static void put_forks(int i) {
@@ -194,19 +236,24 @@ static void put_forks(int i) {
 
   setState(i, THINKING);
   test(LEFT(i, philosopherCount));
+  cond_signal(philo_array[LEFT(i, philosopherCount)].cond_die);
+
   test(RIGHT(i, philosopherCount));
+  cond_signal(philo_array[RIGHT(i, philosopherCount)].cond_die);
+
   mutex_unlock(critical_m);
 }
 
 static void setState(int philo, int st) {
-  state[philo] = st;
-  renderGraphics(state, philosopherCount);
+  philo_array[philo].state = st;
+  render(philo_array, philosopherCount);
 }
 
 static void test(int i) {
-  if (state[i] == HUNGRY && state[LEFT(i, philosopherCount)] != EATING \
-    && state[RIGHT(i, philosopherCount)] != EATING) {
+  if (philo_array[i].state == HUNGRY \
+    && philo_array[LEFT(i, philosopherCount)].state != EATING \
+      && philo_array[RIGHT(i, philosopherCount)].state != EATING) {
     setState(i, EATING);
-    mutex_unlock(mut[i]);
+    mutex_unlock(philo_array[i].mut);
   }
 }

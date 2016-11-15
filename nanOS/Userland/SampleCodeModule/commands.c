@@ -30,9 +30,14 @@ static int fractals(int argc, char * argv[]);
 static int clear(int argc, char * argv[]);
 static int getTime(int argc, char * argv[]);
 static int echo(int argc, char * argv[]);
-static int philosophersProblem (int argc, char * argv[]);
+
+static int philosophersProblem (int argc, char * argv[], int graphic);
+static int philosophersProblemText (int argc, char * argv[]);
+static int philosophersProblemGUI (int argc, char * argv[]);
+
 static int producerConsumer (int argc, char * argv[]);
 static int producerConsumer2 (int argc, char * argv[]);
+
 static int set_GMT(int argc, char * argv[]);
 static int change_char_color (int argc, char * argv[]);
 static int change_bg_color (int argc, char * argv[]);
@@ -47,7 +52,6 @@ static int set_fg(int argc, char * argv[]);
 
 static int ps(int argc, char * argv[]);
 static void print_single_process(int pid);
-
 
 static int processWrite();
 static int processRead();
@@ -109,7 +113,7 @@ static int set_fg(int argc, char * argv[]) {
 
   if (!isnum(argv[0])) {
     printf("Argument must be a integer PID\n");
-    return INVALID_ARGS;    
+    return INVALID_ARGS;
   }
 
   pid = atoi(argv[0]);
@@ -133,7 +137,8 @@ static command commands[]= {{"help", help},
               {"char_color", change_char_color},
               {"bg_color", change_bg_color},
               {"test", test},
-							{"philo", philosophersProblem},
+							{"philo", philosophersProblemText},
+              {"philogui", philosophersProblemGUI},
 							{"prodcon", producerConsumer},
               {"prodcon2", producerConsumer2},
               {"write", write_test},
@@ -379,7 +384,7 @@ static int change_bg_color (int argc, char * argv[]) {
   return INVALID_ARGS;
 }
 
-static int philosophersProblem (int argc, char * argv[]) {
+static int philosophersProblem (int argc, char * argv[], int graphic) {
 	int p = DEFAULT_PHILOSOPHERS;
 
 	if (isnum(argv[0]))
@@ -390,8 +395,16 @@ static int philosophersProblem (int argc, char * argv[]) {
 		return INVALID_ARGS;
   }
 
-	start_philosophers_problem(p);
+	start_philosophers_problem(graphic, p);
 	return VALID;
+}
+
+static int philosophersProblemText (int argc, char * argv[]) {
+  return philosophersProblem(argc, argv, 0);
+}
+
+static int philosophersProblemGUI (int argc, char * argv[]) {
+  return philosophersProblem(argc, argv, 1);
 }
 
 static int producerConsumer (int argc, char * argv[]) {

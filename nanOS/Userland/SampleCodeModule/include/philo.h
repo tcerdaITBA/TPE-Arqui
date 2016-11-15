@@ -6,6 +6,7 @@
 #define THINKING 0
 #define HUNGRY 1
 #define EATING 2
+#define DYING 3
 
 #define UNPAUSED 1
 #define PAUSED 0
@@ -13,15 +14,24 @@
 #define MAX_PHILOSOPHERS 32
 
 #define MAIN_MUTEX_NAME "MAIN_PHILOSOPHERS_MUTEX"
+#define MODIFY_COND_NAME "MODIFY_COND"
 
-#define TABLE_X_POS 300
-#define TABLE_Y_POS 300
+#define TABLE_X_POS 500
+#define TABLE_Y_POS 400
 #define TABLE_RADIUS 100
 
-int start_philosophers_problem(int philoNumber);
+typedef struct philosopher_data {
+  int state;
+  int mut;
+  int pid;
+  int die;
+  int cond_die;
+} philosopher_data;
 
-void renderText(int * philoState, int philosopherCount);
+int start_philosophers_problem(int graphic, int philoNumber);
 
-void renderGraphics(int * philoState, int philosopherCount);
+void renderText(philosopher_data * philos, int philosopherCount);
+
+void renderGraphics(philosopher_data * philos, int philosopherCount);
 
 #endif

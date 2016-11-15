@@ -4,7 +4,7 @@
 #include "graphics.h"
 #include "math.h"
 
-char * stateStrings[3] = {"THINKING", "HUNGRY", "EATING"};
+char * stateStrings[] = {"THINKING", "HUNGRY", "EATING", "DYING"};
 
 int prevPhilosopherCount;
 
@@ -12,12 +12,12 @@ static void get_state_color(int philoState, int * r, int * g, int * b);
 
 static void cleanTable(int x, int y, double offset);
 
-void renderText(int * philoState, int philosopherCount) {
+void renderText(philosopher_data * philos, int philosopherCount) {
 	if (philosopherCount == 0)
 		printf("There are no philosophers left\n");
 	else {
 		for(int i = 0; i < philosopherCount; i++) {
-			printf("Philosopher %d: %s\n", i, stateStrings[philoState[i]]);
+			printf("Philosopher %d: %s\n", i, stateStrings[philos[i].state]);
 		}
 		putchar('\n');
 	}
@@ -25,7 +25,7 @@ void renderText(int * philoState, int philosopherCount) {
 	sleep(500);
 }
 
-void renderGraphics(int * philoState, int philosopherCount) {
+void renderGraphics(philosopher_data * philos, int philosopherCount) {
 	if (philosopherCount == 0) {
 		printf("There are no philosophers left\n");
 		return;
@@ -35,9 +35,9 @@ void renderGraphics(int * philoState, int philosopherCount) {
 	int r, g, b;
 	double dishAngle, dishXpos, dishYpos;
 	double dishSpace = (2 * PI * TABLE_RADIUS) / philosopherCount;
-	double dishRadius = dishSpace * 0.4;
+	double dishRadius = dishSpace * 0.35;
 
-	if (prevPhilosopherCount != philosopherCount) 
+	if (prevPhilosopherCount != philosopherCount)
 		cleanTable(TABLE_X_POS, TABLE_Y_POS, dishRadius);
 
 	prevPhilosopherCount = philosopherCount;
@@ -47,7 +47,7 @@ void renderGraphics(int * philoState, int philosopherCount) {
 		dishXpos = TABLE_RADIUS * cos(dishAngle) + TABLE_X_POS;
 		dishYpos = TABLE_RADIUS * sin(dishAngle) + TABLE_Y_POS;
 
-		get_state_color(philoState[i], &r, &g, &b);
+		get_state_color(philos[i].state, &r, &g, &b);
 
 		draw_filledCircle2(dishXpos, dishYpos, dishRadius, r, g, b);
 	}
@@ -63,6 +63,9 @@ static void get_state_color(int philoState, int * r, int * g, int * b) {
 		break;
 		case THINKING:
 		*r = 112; *g = 142; *b = 224;
+		break;
+		case DYING:
+		*r = 25; *g = 25; *b = 25;
 		break;
 	}
 }
