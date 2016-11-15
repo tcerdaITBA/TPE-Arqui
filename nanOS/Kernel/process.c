@@ -4,6 +4,7 @@
 #include "videoDriver.h"
 #include "timer.h"
 #include "strings.h"
+#include "kernelMutex.h"
 
 #define MAX_PROCESS_NAME 64
 #define CHECK_BIT(var,pos) ((var) & (1<<(pos)));
@@ -54,7 +55,6 @@ struct c_process {
 };
 
 static process * process_table[MAX_PROCESSES] = {NULL};
-static int64_t table_lock = UNLOCKED;
 
 int64_t _unlocked(int64_t * lock);
 
@@ -73,16 +73,21 @@ static void unblock_foreground_process(process * p);
 
 static process * foreground = NULL;
 static uint64_t n_processes = 0;
+static uint64_t table_mutex_key = -1;
 
 
 static void lock_table() {
-  while (!_unlocked(&table_lock))
-    yield_process();
+  mutex_lock(table_mutex_key);
 }
 
 static void unlock_table() {
-  table_lock = UNLOCKED;
+  mutex_unlock(table_mutex_key);
 }
+
+void initialize_process_mutex() {
+	table_mutex_key = mutex_open("__PROCESS_TABLE_MUTEX__");
+}
+
 
 /* Inserta proceso en la tabla. Devuelve el pid del proceso y -1 en caso de error */
 static int insert_process (process * p) {
@@ -105,6 +110,7 @@ static int insert_process (process * p) {
 	return -1;
 }
 
+/* Adquiere los pid de los procesos corriendo. Termina con -1 y devuelve la longitud del arreglo. */
 int get_current_pids(int pid_array[]) {
 	int i, j, processes_left;
 
@@ -122,6 +128,8 @@ int get_current_pids(int pid_array[]) {
 	pid_array[j] = -1;
 
 	unlock_table();
+
+	return j;
 }
 
 static void clean_data_page(process * p) {
@@ -139,8 +147,6 @@ int get_name_process(char * buffer, process * p) {
 
 process * create_process(uint64_t new_process_rip, uint64_t params, const char * name) {
 
-	assign_quantum();
-
 	process * new_process = (process *) get_page(sizeof(* new_process));
 
 	strcpy(new_process->name, name);
@@ -155,7 +161,7 @@ process * create_process(uint64_t new_process_rip, uint64_t params, const char *
 
 	clean_data_page(new_process);
 
-	insert_process(new_process);
+	insert_process(new_process); /* Agerga proceso a la tabla de procesos. Adentro usa un lock. */
 
 	if (new_process->pid != 0) /* No es el primer proceso */
 		new_process->ppid = pid_process(get_current_process());
@@ -163,8 +169,6 @@ process * create_process(uint64_t new_process_rip, uint64_t params, const char *
 		foreground = new_process; /* Pone en foreground al primer proceso */
 
 	new_process->open_fds = 0;
-
-	unassign_quantum();
 
 	return new_process;
 }
@@ -187,7 +191,6 @@ void remove_data_page(process * p, void * page) {
 	while (i < MAX_DATA_PAGES && p->data_page[i] != page) {
 		i++;
 	}
-
 
 	if (i < MAX_DATA_PAGES) {
 		p->n_data_page -= 1;
@@ -236,6 +239,7 @@ void destroy_process(process * p) {
 	}
 }
 
+/* Libera las páginas de datos usadas por el proceso. */
 static void free_data_pages(process * p) {
 	int i;
 
@@ -247,6 +251,7 @@ static void free_data_pages(process * p) {
 	}
 }
 
+/* Marca el proceso para borrar. El scheduler se encarga de quitarlo de su estructura. */
 int kill_process(process * p) {
 	if (p != NULL && p->pid != 1 && p->pid != 0)
 		p->st = DELETE;
@@ -309,9 +314,14 @@ void block_read_process(process * p) {
 }
 
 void set_foreground_process (process * p) {
-	if (foreground == get_current_process() && p != NULL) {
+	if (foreground == get_current_process())
+		set_foreground_force_process(p);
+}
+
+void set_foreground_force_process (process * p) {
+	if (p != NULL && p->pid != 0) {
 		foreground = p;
-		unblock_foreground_process(p);
+		unblock_foreground_process(p);		
 	}
 }
 

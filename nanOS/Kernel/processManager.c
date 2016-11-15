@@ -19,9 +19,9 @@ static void set_next_current();
 
 void _change_process(uint64_t rsp);
 
-static int64_t process_lock = UNLOCKED;
-
 extern int _unlocked(int64_t * locknum);
+
+static int is_superlocked();
 
 
 /* Proceso actualmente corriendo */
@@ -30,14 +30,18 @@ static list_node *prev = NULL;
 
 void _yield_process();
 
+static uint64_t superlock = UNLOCKED;
 
-static void lock_list() {
-	while (!_unlocked(&process_lock))
-		yield_process();
+void set_superlock() {
+	superlock = LOCKED;
 }
 
-static void unlock_list() {
-	process_lock = UNLOCKED;
+void unset_superlock() {
+	superlock = UNLOCKED;
+}
+
+static int is_superlocked() {
+	return superlock == LOCKED;
 }
 
 process * get_current_process() {
@@ -50,7 +54,7 @@ uint64_t next_process(uint64_t current_rsp) {
 
 	unassign_quantum();
 
-	if (current->quantum > 0)
+	if (is_superlocked() || current->quantum > 0)
 		return current_rsp;
 
 	current->quantum = QUANTUM;
@@ -67,7 +71,6 @@ uint64_t next_process(uint64_t current_rsp) {
 
 uint64_t exec_process(process * new_process) {
 	int pid;
-	assign_quantum();
 
 	add_process(new_process);
 
@@ -76,15 +79,12 @@ uint64_t exec_process(process * new_process) {
 	if (pid == 0)
 		_change_process(get_rsp_process(current->p));
 
-	unassign_quantum();
 
 	return pid;
 }
 
 static void add_process(process * p) {
-	lock_list();
-
-	assign_quantum(); /* Aseguramos que no haya un cambio de contexto */
+	set_superlock();
 
 	list_node *new_node = (list_node *) get_page(sizeof(*new_node));
 
@@ -101,9 +101,37 @@ static void add_process(process * p) {
 		current->next = new_node;
 	}
 
-	unlock_list();
+	unset_superlock();
+}
 
-	unassign_quantum(); /* Quitamos privilegio */
+void yield_process() {
+	current->next->quantum += 1; /* Quantum al siguiente proceso pues el actual quito tiempo */
+	current->quantum = 0;
+	_yield_process();
+}
+
+/* Se avanza con el proceso que está delante */
+void end_process() {
+
+	set_superlock();
+
+	list_node * n = current;
+
+	destroy_process(n->p);
+
+	prev->next = current->next;
+
+	current = current->next;
+
+	store_page((uint64_t) n);
+
+	set_next_current();
+
+	unset_superlock();
+
+	assign_quantum();  /* Se le da un quantum al nuevo proceso */
+
+	_change_process(get_rsp_process(current->p));
 }
 
 static void set_next_current() {
@@ -120,38 +148,6 @@ static void set_next_current() {
 
 		current = next;
 	}
-}
-
-void yield_process() {
-	current->next->quantum += 1; /* Quantum al siguiente proceso pues el actual quito tiempo */
-	current->quantum = 0;
-	_yield_process();
-}
-
-/* Se avanza con el proceso que está delante */
-void end_process() {
-
-	assign_quantum(); /* Aseguramos que no haya un cambio de contexto */
-
-	lock_list();
-
-	list_node * n = current;
-
-	destroy_process(n->p);
-
-	prev->next = current->next;
-
-	current = current->next;
-
-	store_page((uint64_t) n);
-
-	set_next_current();
-
-	unlock_list();
-
-	assign_quantum();
-
-	_change_process(get_rsp_process(current->p));
 }
 
 void assign_quantum() {

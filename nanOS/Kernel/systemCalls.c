@@ -277,7 +277,7 @@ uint64_t sys_set_foreground(uint64_t pid) {
 	process * p = get_process_by_pid(pid);
 
 	if (p == NULL)
-		return -1;
+		return 0;
 
 	set_foreground_process(p);
 
@@ -450,5 +450,5 @@ static uint64_t sys_cond_close_wr(uint64_t key, uint64_t unused2, uint64_t unuse
 }
 
 static uint64_t sys_get_pids_wr(uint64_t pid_array, uint64_t unused2, uint64_t unused3) {
-	return sys_get_pids(pid_array);
+	return sys_get_pids((int *) pid_array);
 }

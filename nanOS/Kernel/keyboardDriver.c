@@ -28,7 +28,7 @@ void store_scancode() {
   int k = get_key(); // Funcion de Assembler que devuelve el scancode
 
   if (k == ESCAPE) {
-    kill_process(get_foreground_process());
+    set_foreground_force_process(get_process_by_pid(ppid_process(get_foreground_process())));
     return;
   }
 

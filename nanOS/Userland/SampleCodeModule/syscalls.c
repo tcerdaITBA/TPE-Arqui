@@ -155,5 +155,5 @@ int cond_close(int key) {
 }
 
 int get_current_pids(int * pid_array) {
-  return _int80h(34, pid_array, 0, 0);
+  return _int80h(34, (uint64_t) pid_array, 0, 0);
 }

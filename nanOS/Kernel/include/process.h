@@ -20,6 +20,8 @@
 typedef struct c_process process;
 typedef char status;
 
+void initialize_process_mutex();
+
 process * create_process(uint64_t rip, uint64_t params, const char * name);
 void destroy_process(process * p);
 
@@ -41,6 +43,7 @@ process * get_process_by_pid (uint64_t pid);
 
 /* Quizas no tengan que estar aca */
 void set_foreground_process (process *p);
+void set_foreground_force_process (process * p);
 process * get_foreground_process();
 
 /* kill settea que hay que borrar el proceso. No lo borra. is_delete devuelve 1 si hay que borrarlo. */

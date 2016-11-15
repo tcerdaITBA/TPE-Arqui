@@ -1,4 +1,4 @@
-
+#include "memoryAllocator.h"
 #include "init.h"
 #include "dirs.h"
 #include "processManager.h"
@@ -12,6 +12,10 @@ void _hlt();
 void _sti();
 
 void init() {
+	initialize_memory_allocator_mutex();
+	initialize_stack_memory_allocator_mutex();
+	initialize_process_mutex();
+	
 	_sti();
 	sys_exec((uint64_t)sampleCodeModuleAddress, 0, "shell");
 	set_foreground_process (get_process_by_pid(1));

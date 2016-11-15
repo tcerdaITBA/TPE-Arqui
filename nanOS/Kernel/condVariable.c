@@ -25,7 +25,7 @@ static process * sync_dequeue(cond_variable * v);
 
 
 static int is_open(int key) {
-	return key < MAX_COND_VAR && open_conds[key].state == OPEN;
+	return key >= 0 && key < MAX_COND_VAR && open_conds[key].state == OPEN;
 }
 
 int initialize_conditional_variable() {

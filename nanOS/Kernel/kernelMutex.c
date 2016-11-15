@@ -1,4 +1,3 @@
-#include "memoryAllocator.h"
 #include "processManager.h"
 #include "kernelMutex.h"
 #include "strings.h"
@@ -33,7 +32,7 @@ static void unlock_array();
 
 
 static int is_open(int key) {
-  return key < MAX_MUTEXES && open_mutexes[key].state == OPEN;
+  return key >= 0 && key < MAX_MUTEXES && open_mutexes[key].state == OPEN;
 }
 
 static void lock_queue(mutex *m) {
@@ -89,8 +88,8 @@ static mutex create_new_mutex(char * name) {
 }
 
 int mutex_close(int key) {
+  lock_array();
   if (is_open(key)) {
-    lock_array();
 
     mutex * m = &open_mutexes[key];
 
@@ -103,6 +102,7 @@ int mutex_close(int key) {
     unlock_array();
     return 1;
   }
+  unlock_array();
   return NOT_OPEN_ERROR;
 }
 

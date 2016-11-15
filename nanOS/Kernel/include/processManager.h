@@ -19,4 +19,7 @@ process * get_current_process();
 void assign_quantum();
 void unassign_quantum();
 
+void set_superlock();
+void unset_superlock();
+
 #endif

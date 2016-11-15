@@ -18,11 +18,16 @@ typedef uint8_t page_index_t;
 #define MEMORY_PAGES_END ((STACK_SIZE + 1)* PAGE_SIZE + DATA_ADDRESS)
 
 void initialize_memory_allocator();
+void initialize_memory_allocator_mutex();
 uint64_t get_page(uint64_t size);
 uint64_t store_page(uint64_t address);
 
 void initialize_stack_memory_allocator();
+void initialize_stack_memory_allocator_mutex();
 uint64_t get_stack_page();
 uint64_t store_stack_page(uint64_t address);
+
+
+
 
 #endif

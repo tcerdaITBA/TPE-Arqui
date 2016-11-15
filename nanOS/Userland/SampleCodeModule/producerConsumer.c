@@ -2,6 +2,7 @@
 #include "stdio.h"
 #include "time.h"
 #include "executer.h"
+#include "random.h"
 
 static void producer();
 static void consumer();

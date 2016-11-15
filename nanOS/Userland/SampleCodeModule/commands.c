@@ -43,6 +43,8 @@ static int write_test(int argc, char * argv[]);
 static int read_test(int argc, char * argv[]);
 
 static int testFifos (int argc, char * argv[]);
+static int set_fg(int argc, char * argv[]);
+
 static int ps(int argc, char * argv[]);
 static void print_single_process(int pid);
 
@@ -78,9 +80,9 @@ static void print_single_process(int pid) {
 }
 
 static int ps(int argc, char * argv[]) {
-  int pid_array[MAX_PROCESSES], amount, i;
+  int pid_array[MAX_PROCESSES], i;
 
-  amount = get_current_pids(pid_array);
+  get_current_pids(pid_array);
 
   for (i = 0; pid_array[i] != -1; i++) {
     print_single_process(pid_array[i]);
@@ -95,6 +97,31 @@ typedef struct {
 	const char * name;  /* Nombre del comando */
 	int (*function) (int argc, char *argv[]);  /* Funcion correspondiente al comando */
 } command;
+
+
+static int set_fg(int argc, char * argv[]) {
+  int pid, valid;
+
+  if (argc != 1) {
+    printf("Usage: set_fg [PID]\n");
+    return INVALID_ARGS;
+  }
+
+  if (!isnum(argv[0])) {
+    printf("Argument must be a integer PID\n");
+    return INVALID_ARGS;    
+  }
+
+  pid = atoi(argv[0]);
+
+  valid = set_foreground(pid);
+
+  if (!valid) {
+    printf("Invalid pid\n");
+  }
+
+  return valid ? VALID : INVALID_ARGS;
+}
 
 /* COMMANDS ARRAY */
 static command commands[]= {{"help", help},
@@ -114,7 +141,8 @@ static command commands[]= {{"help", help},
 							{"test2", testFifos},
               {"kill", kill_command},
               {"print", print_process},
-              {"ps", ps}
+              {"ps", ps},
+              {"fg", set_fg}
 							};
 
 static int test_num = 0;

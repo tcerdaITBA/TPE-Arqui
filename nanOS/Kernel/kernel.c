@@ -98,6 +98,7 @@ int main()
 
 	load_idt();
 	load_vDriver();
+	
 	initialize_memory_allocator();
 	initialize_stack_memory_allocator();
 	initialize_conditional_variable();
