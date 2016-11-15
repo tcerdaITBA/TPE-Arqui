@@ -63,7 +63,17 @@ int start_philosophers_problem(int graphic, int philoNumber) {
   return 0;
 }
 
+static void print_colors_instructions() {
+  printf("What do the colours mean?\n");
+  printf("Red - EATING\n");
+  printf("Yellow - HUNGRY\n");
+  printf("Blue - THINKING\n");
+  printf("Grey - About to be removed\n");
+}
+
 void listen_commands() {
+  if (render == renderGraphics) 
+    print_colors_instructions();
   char c;
   while((c = getchar())) {
     switch (c) {
@@ -84,7 +94,12 @@ void listen_commands() {
       }
       break;
       case 'g':
-        render = render == renderGraphics ? renderText : renderGraphics;
+        if (render == renderGraphics)
+          render = renderText;
+        else {
+          render = renderGraphics;
+          print_colors_instructions();
+        }
       break;
       case 'p':
       pause_philosophers();
@@ -150,7 +165,6 @@ static void remove_philosopher() {
     int count = philosopherCount;
     int philo_index = philosopherCount - 1;
     philo_array[philo_index].die = 1;
-    printf("Marking dead: %d\n", philo_index);
     while (count == philosopherCount)
       cond_wait(modify_cond_var, critical_m);
   }

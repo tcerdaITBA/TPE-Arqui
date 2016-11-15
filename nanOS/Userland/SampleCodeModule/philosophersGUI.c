@@ -10,7 +10,7 @@ int prevPhilosopherCount;
 
 static void get_state_color(int philoState, int * r, int * g, int * b);
 
-static void cleanTable(int x, int y, double offset);
+static void cleanTable(int x, int radius, double offset);
 
 void renderText(philosopher_data * philos, int philosopherCount) {
 	if (philosopherCount == 0)
@@ -34,18 +34,19 @@ void renderGraphics(philosopher_data * philos, int philosopherCount) {
 	int i;
 	int r, g, b;
 	double dishAngle, dishXpos, dishYpos;
-	double dishSpace = (2 * PI * TABLE_RADIUS) / philosopherCount;
-	double dishRadius = dishSpace * 0.35;
+	double table_r = TABLE_RADIUS * (1 + philosopherCount * 0.1);
+	double dishSpace = (2 * PI * table_r) / philosopherCount;
+	double dishRadius = dishSpace * 0.4;
 
 	if (prevPhilosopherCount != philosopherCount)
-		cleanTable(TABLE_X_POS, TABLE_Y_POS, dishRadius);
+		cleanTable(TABLE_X_POS, table_r, dishRadius);
 
 	prevPhilosopherCount = philosopherCount;
 
 	for (i = 0; i < philosopherCount; i++) {
 		dishAngle = (2 * PI * i) / philosopherCount;
-		dishXpos = TABLE_RADIUS * cos(dishAngle) + TABLE_X_POS;
-		dishYpos = TABLE_RADIUS * sin(dishAngle) + TABLE_Y_POS;
+		dishXpos = table_r * cos(dishAngle) + TABLE_X_POS;
+		dishYpos = table_r * sin(dishAngle) + TABLE_Y_POS;
 
 		get_state_color(philos[i].state, &r, &g, &b);
 
@@ -56,20 +57,26 @@ void renderGraphics(philosopher_data * philos, int philosopherCount) {
 static void get_state_color(int philoState, int * r, int * g, int * b) {
 	switch(philoState) {
 		case EATING:
-		*r = 255; *g = 0; *b = 0;
+		*r = 255; *g = 0; *b = 0; /* Rojo */
 		break;
 		case HUNGRY:
-		*r = 255; *g = 187; *b = 0;
+		*r = 255; *g = 187; *b = 0; /* Amarillo */
 		break;
 		case THINKING:
-		*r = 112; *g = 142; *b = 224;
+		*r = 112; *g = 142; *b = 224; /* Celeste */
 		break;
 		case DYING:
-		*r = 25; *g = 25; *b = 25;
+		*r = 25; *g = 25; *b = 25; /* Gris */
 		break;
 	}
 }
 
-static void cleanTable(int x, int y, double offset) {
-	draw_filledCircle2(x, y, TABLE_RADIUS + offset*2, 0, 0 ,0);
+static void cleanTable(int x, int radius, double offset) {
+	int i, j;
+	int max_y_res = screen_Yresolution();
+	for (i = x - offset * 2 - radius; i <= x + offset * 2 + radius; i++) {
+		for (j = 0; j <= max_y_res; j++) {
+			paint(0, i, j);
+		}
+	}
 }

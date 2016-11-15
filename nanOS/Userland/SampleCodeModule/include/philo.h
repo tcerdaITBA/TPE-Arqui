@@ -11,13 +11,13 @@
 #define UNPAUSED 1
 #define PAUSED 0
 
-#define MAX_PHILOSOPHERS 32
+#define MAX_PHILOSOPHERS 16
 
 #define MAIN_MUTEX_NAME "MAIN_PHILOSOPHERS_MUTEX"
 #define MODIFY_COND_NAME "MODIFY_COND"
 
-#define TABLE_X_POS 500
-#define TABLE_Y_POS 400
+#define TABLE_X_POS 600
+#define TABLE_Y_POS 350
 #define TABLE_RADIUS 100
 
 typedef struct philosopher_data {
