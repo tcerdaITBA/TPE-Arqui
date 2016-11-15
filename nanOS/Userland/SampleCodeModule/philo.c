@@ -43,6 +43,8 @@ int start_philosophers_problem(int philoNumber) {
   critical_m = mutex_open(MAIN_MUTEX_NAME);
   srand(seconds() * minutes() * hour());
 
+  philosopherCount = 0;
+
   for (i = 0; i < philoNumber; i++) {
     philosophers_PID[i] = add_philosopher();
   }
@@ -67,9 +69,7 @@ void listen_commands() {
       break;
       case 'r':
       if (!is_paused()) {
-        mutex_lock(critical_m);
         remove_philosopher();
-        mutex_unlock(critical_m);
         yield();
       }
       break;
@@ -124,6 +124,7 @@ static int add_philosopher() {
 }
 
 static void remove_philosopher() {
+  mutex_lock(critical_m);
   if (philosopherCount > 0) {
     //philosopherCount -= 1;
     int philo_index = philosopherCount - 1;
@@ -131,13 +132,16 @@ static void remove_philosopher() {
     mutex_close(mut[philo_index]);
     printf("Killing philosopher %d\n", philo_index);
   }
+  mutex_unlock(critical_m);
 }
 
 static void remove_all_philosophers() {
   mutex_lock(critical_m);
   int i, philoCountAux = philosopherCount;
-  for (i = 0; i < philoCountAux; i++)
-    remove_philosopher();
+  for (i = 0; i < philoCountAux; i++) {
+    kill(philosophers_PID[i]);
+    mutex_close(mut[i]);
+  }
   mutex_unlock(critical_m);
   mutex_close(critical_m);
 }
@@ -149,7 +153,6 @@ static int philosopher(int argc, char * argv[]) {
     take_forks(i);
 
     if (should_die(i)) {
-      philosopherCount -= 1;
       return 1;
     }
 
@@ -157,7 +160,6 @@ static int philosopher(int argc, char * argv[]) {
     put_forks(i);
 
     if (should_die(i)) {
-      philosopherCount -= 1;
       return 1;
     }  
   }
@@ -169,8 +171,10 @@ static int should_die(int i) {
 
   die = philosophers_die[i];
 
-  if (die)
+  if (die) {
     philosophers_die[i] = 0;
+    philosopherCount -= 1;
+  }
 
   mutex_unlock(critical_m);
 
