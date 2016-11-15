@@ -40,9 +40,10 @@ static void producer() {
 
   while(1) {
     read(empty_fd,  &message, 1);
-    printf("Produce\n");
+    int item = rand_int();
+    printf("Produced: %d\n", item);
     sleep(producerSleep * SLEEP_MULTIPLIER);
-    write(full_fd, &full, 1);
+    write(full_fd, &item, sizeof(int));
   }
 }
 
@@ -50,14 +51,14 @@ static void consumer() {
   int empty_fd = fifo_open(PRODUCER_FIFO);
   int full_fd = fifo_open(CONSUMER_FIFO);
 
-  char message;
-  char empty = EMPTY_SLOT;
+  int item;
+  char message = EMPTY_SLOT;
 
   while(1) {
-    read(full_fd,  &message, 1);
-    printf("Consume\n");
+    read(full_fd,  &item, sizeof(int));
+    printf("Consumed: %d\n", item);
     sleep(consumerSleep * SLEEP_MULTIPLIER);
-    write(empty_fd, &empty, 1);
+    write(empty_fd, &message, 1);
   }
 }
 
