@@ -11,13 +11,13 @@
 #include "kernelMutex.h"
 #include "fifo.h"
 #include "condVariable.h"
+#include "defs.h"
+#include "ipc_info.h"
 
 #define ERR_COLOR 255,0,0  // Rojo
 
 #define INIT 0
 #define SHELL 1
-
-#define FILE_DESCRIPTORS 3
 
 #define SYS_SIZE (sizeof(syscalls)/sizeof(syscalls[0]))
 
@@ -50,6 +50,9 @@ static uint64_t sys_cond_signal_wr(uint64_t key, uint64_t unused2, uint64_t unus
 static uint64_t sys_cond_broadcast_wr(uint64_t key, uint64_t unused2, uint64_t unused3);
 static uint64_t sys_cond_close_wr(uint64_t key, uint64_t unused2, uint64_t unused3);
 static uint64_t sys_get_pids_wr(uint64_t pid_array, uint64_t unused2, uint64_t unused3);
+static uint64_t sys_get_conds_info_wr(uint64_t info_array, uint64_t unused2, uint64_t unused3);
+static uint64_t sys_get_mutexes_info_wr(uint64_t info_array, uint64_t unused2, uint64_t unused3);
+static uint64_t sys_get_fifos_info_wr(uint64_t info_array, uint64_t unused2, uint64_t unused3);
 
 
 static unsigned int fifo_to_fds(int key);
@@ -81,24 +84,27 @@ static uint64_t (*syscalls[]) (uint64_t,uint64_t,uint64_t) = { 0,0,0, 		/* 0, 1,
 															   sys_set_bg_color,    /* 14 */
 															   sys_exec_wr,			/* 15 */
 															   sys_end_wr,			/* 16 */
-															   sys_yield_wr,			/* 17 */
+															   sys_yield_wr,		/* 17 */
 															   sys_mutex_op_wr,		/* 18 */
 															   sys_mutex_cl_wr,		/* 19 */
-															   sys_mutex_lock_wr, 		/* 20 */
+															   sys_mutex_lock_wr, 	/* 20 */
 															   sys_mutex_unlock_wr,	/* 21 */
 															   sys_set_foreground_wr, /* 22 */
-																 sys_fifo_op_wr, /* 23 */
-																 sys_fifo_cl_wr, /* 24 */
+															   sys_fifo_op_wr, /* 23 */
+															   sys_fifo_cl_wr, /* 24 */
 															   sys_kill_wr, /* 25 */
 															   sys_pid_wr,   /* 26 */
 															   sys_ppid_wr,   /* 27 */
 															   sys_process_info_wr, /* 28 */
-															   sys_cond_open_wr,  /* 29 */
+															   sys_cond_open_wr,   /* 29 */
 															   sys_cond_wait_wr,  /* 30 */
 															   sys_cond_signal_wr, /* 31 */
 															   sys_cond_broadcast_wr,  /* 32 */
 															   sys_cond_close_wr,  /* 33 */
-																 sys_get_pids_wr		/* 34 */
+															   sys_get_pids_wr,		/* 34 */
+															   sys_get_conds_info_wr,  /* 35 */
+															   sys_get_mutexes_info_wr,  /* 36 */
+															   sys_get_fifos_info_wr /* 37 */
 															};
 
 /* Ejecuta la system call correspondiente al valor de rax */
@@ -330,6 +336,19 @@ uint64_t sys_get_pids(int * pid_array) {
 	return get_current_pids(pid_array);
 }
 
+uint64_t sys_get_conds_info(cond_info info_array[]) {
+	return get_conds_info(info_array);
+}
+
+uint64_t sys_get_mutexes_info(mutex_info info_array[]) {
+	return get_mutexes_info(info_array);
+}
+
+uint64_t sys_get_fifos_info(fifo_info info_array[]) {
+	return get_fifos_info(info_array);
+}
+
+
 /* WRAPPERS */
 /* Se usan para system calls que no reciben exactamente 3 parametros enteros.
 ** En la wrapper se filtran los parametros innecesarios y se hacen los casteos
@@ -451,4 +470,16 @@ static uint64_t sys_cond_close_wr(uint64_t key, uint64_t unused2, uint64_t unuse
 
 static uint64_t sys_get_pids_wr(uint64_t pid_array, uint64_t unused2, uint64_t unused3) {
 	return sys_get_pids((int *) pid_array);
+}
+
+static uint64_t sys_get_conds_info_wr(uint64_t info_array, uint64_t unused2, uint64_t unused3) {
+	return sys_get_conds_info((cond_info *) info_array);
+}
+
+static uint64_t sys_get_mutexes_info_wr(uint64_t info_array, uint64_t unused2, uint64_t unused3) {
+	return sys_get_mutexes_info((mutex_info *) info_array);
+}
+
+static uint64_t sys_get_fifos_info_wr(uint64_t info_array, uint64_t unused2, uint64_t unused3) {
+	return sys_get_fifos_info((fifo_info *) info_array);
 }

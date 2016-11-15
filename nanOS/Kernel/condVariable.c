@@ -4,6 +4,7 @@
 #include "processManager.h"
 #include "queueADT.h"
 #include "strings.h"
+#include "ipc_info.h"
 
 #define COND_LOCK_IDENTIFIER "COND_ARRAY_LOCK"
 
@@ -22,7 +23,7 @@ static int is_open(int key);
 static void create_new_cond(int key, char * name);
 static void sync_enqueue(cond_variable * v, process * p);
 static process * sync_dequeue(cond_variable * v);
-
+static void fill_conds_info(cond_info * c_info, int key);
 
 static int is_open(int key) {
 	return key >= 0 && key < MAX_COND_VAR && open_conds[key].state == OPEN;
@@ -136,4 +137,20 @@ static process * sync_dequeue(cond_variable * v) {
 		p = dequeue(v->process_queue);
 	mutex_unlock(v->lock_queue);
 	return p;
+}
+
+int get_conds_info(cond_info info_array[]) {
+  int i, j;
+
+  for (i = j = 0; i < MAX_COND_VAR; i++) {
+    if (is_open(i))
+      fill_conds_info(&info_array[j++], i);
+  }
+  
+  return j;
+}
+
+static void fill_conds_info(cond_info * c_info, int key) {
+  strcpy(c_info->name, open_conds[key].name);
+  c_info->key = key;
 }

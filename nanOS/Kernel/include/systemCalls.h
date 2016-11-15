@@ -8,6 +8,7 @@
 #include <stdint.h>
 
 #include "process_info.h"
+#include "ipc_info.h"
 
 uint64_t sys_write(uint64_t fds, const char * str, uint64_t len);
 uint64_t sys_read(uint64_t fds, char * str, uint64_t len);
@@ -48,5 +49,9 @@ uint64_t sys_cond_broadcast(int key);
 uint64_t sys_cond_close(int key);
 
 uint64_t sys_get_pids(int * pid_array);
+
+uint64_t sys_get_conds_info(cond_info info_array[]);
+uint64_t sys_get_mutexes_info(mutex_info info_array[]);
+uint64_t sys_get_fifos_info(fifo_info info_array[]);
 
 #endif

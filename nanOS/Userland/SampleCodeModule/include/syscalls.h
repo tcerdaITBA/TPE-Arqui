@@ -5,6 +5,8 @@
 
 #include "process_info.h"
 
+#include "ipc_info.h"
+
 #define STDOUT 0
 #define STDIN 1
 #define STDERR 2
@@ -56,5 +58,9 @@ int cond_broadcast(int cond_key);
 int cond_close(int cond_key);
 
 int get_current_pids(int * pid_array);
+
+int get_conds_info(cond_info info_array[]);
+int get_mutexes_info(mutex_info info_array[]);
+int get_fifos_info(fifo_info info_array[]);
 
 #endif

@@ -8,6 +8,8 @@
 #include "memoryAllocator.h"
 #include "videoDriver.h"
 #include "timer.h"
+#include "defs.h"
+#include "ipc_info.h"
 
 typedef struct {
   char buffer[BUF_SIZE];
@@ -44,6 +46,8 @@ static void release_readers(queueADT q);
 static circular_buffer create_circular_buffer();
 static int write_circular_buffer(circular_buffer * c_buf, const void * source, int bytes);
 static int read_circular_buffer(circular_buffer * c_buf, void * dest, int bytes);
+
+static void fill_fifo_info(fifo_info * f_info, int key);
 
 
 int fifo_open(char * name) {
@@ -246,4 +250,20 @@ static int read_circular_buffer(circular_buffer * c_buf, void * dest, int bytes)
   c_buf->buf_fill -= read_bytes;
 
   return read_bytes;
+}
+
+int get_fifos_info(fifo_info info_array[]) {
+  int i, j;
+
+  for (i = j = 0; i < MAX_FIFOS; i++) {
+    if (open_fifos[i].state == OPEN)
+      fill_fifo_info(&info_array[j++], i);
+  }
+  
+  return j;
+}
+
+static void fill_fifo_info(fifo_info * f_info, int key) {
+  strcpy(f_info->name, open_fifos[key].name);
+  f_info->fds = key + FILE_DESCRIPTORS;
 }

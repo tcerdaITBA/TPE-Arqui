@@ -157,3 +157,15 @@ int cond_close(int key) {
 int get_current_pids(int * pid_array) {
   return _int80h(34, (uint64_t) pid_array, 0, 0);
 }
+
+int get_conds_info(cond_info info_array[]) {
+  return _int80h(35, (uint64_t) info_array, 0, 0);
+}
+
+int get_mutexes_info(mutex_info info_array[]) {
+  return _int80h(36, (uint64_t) info_array, 0, 0);
+}
+
+int get_fifos_info(fifo_info info_array[]) {
+  return _int80h(37, (uint64_t) info_array, 0, 0);
+}

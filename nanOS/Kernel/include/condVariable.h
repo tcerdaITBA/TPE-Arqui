@@ -1,7 +1,7 @@
 #ifndef COND_VARIABLE_H
 #define COND_VARIABLE_H
 
-#define MAX_COND_VAR 256
+#define MAX_COND_VAR 128
 
 #define COND_NAME_LEN 64
 

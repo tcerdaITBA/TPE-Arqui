@@ -27,5 +27,7 @@
 #define LOCKED 0
 #define UNLOCKED 1
 
+#define FILE_DESCRIPTORS 3
+
 #endif
 

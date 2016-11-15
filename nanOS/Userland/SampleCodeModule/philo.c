@@ -83,6 +83,9 @@ void listen_commands() {
         yield();
       }
       break;
+      case 'g':
+        render = render == renderGraphics ? renderText : renderGraphics;
+      break;
       case 'p':
       pause_philosophers();
       break;

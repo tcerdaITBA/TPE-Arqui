@@ -3,7 +3,7 @@
 
 #define MAX_FIFOS 128
 
-#define FIFO_NAME_LEN 256
+#define FIFO_NAME_LEN 64
 #define BUF_SIZE 1024
 
 #define FIFO_NOT_OPEN_ERROR -1

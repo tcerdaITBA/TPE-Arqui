@@ -3,6 +3,7 @@
 #include "strings.h"
 #include "process.h"
 #include "queueADT.h"
+#include "ipc_info.h"
 
 typedef struct {
   char name[MUTEX_NAME_LEN];
@@ -30,6 +31,7 @@ static void unlock_queue(mutex *m);
 static void lock_array();
 static void unlock_array();
 
+static void fill_mutex_info(mutex_info * m_info, int mutex_key);
 
 static int is_open(int key) {
   return key >= 0 && key < MAX_MUTEXES && open_mutexes[key].state == OPEN;
@@ -160,6 +162,23 @@ int mutex_unlock(int key) {
     return 1;
   }
   return NOT_OPEN_ERROR;
+}
+
+int get_mutexes_info(mutex_info info_array[]) {
+  int i, j;
+
+  for (i = j = 0; i < MAX_MUTEXES; i++) {
+    if (is_open(i))
+      fill_mutex_info(&info_array[j++], i);
+  }
+
+  return j;
+}
+
+static void fill_mutex_info(mutex_info * m_info, int mutex_key) {
+  strcpy(m_info->name, open_mutexes[mutex_key].name);
+  m_info->locked = open_mutexes[mutex_key].locked;
+  m_info->key = mutex_key;
 }
 
 static void queue_process(mutex *m, process * p) {

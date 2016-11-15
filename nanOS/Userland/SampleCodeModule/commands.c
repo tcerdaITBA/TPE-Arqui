@@ -57,6 +57,7 @@ static int processWrite();
 static int processRead();
 
 static int print_process(int argc, char * argv[]);
+static int print_ipcs(int argc, char * argv[]);
 
 static int print_process(int argc, char * argv[]) {
   int i;
@@ -118,6 +119,8 @@ static int set_fg(int argc, char * argv[]) {
 
   pid = atoi(argv[0]);
 
+  yield();
+
   valid = set_foreground(pid);
 
   if (!valid) {
@@ -147,12 +150,13 @@ static command commands[]= {{"help", help},
               {"kill", kill_command},
               {"print", print_process},
               {"ps", ps},
-              {"fg", set_fg}
+              {"fg", set_fg},
+              {"ipcs", print_ipcs}
 							};
 
 static int test_num = 0;
 
-static int test(int argc, char * argv[]) {
+static int test (int argc, char * argv[]) {
   int tn = test_num++;
 
   int m_key = mutex_open("test_mutex");
@@ -479,4 +483,9 @@ static int kill_command(int argc, char * argv[]) {
     printf("Killed process with PID %d\n", pid);
 
   return valid ? VALID : INVALID_ARGS;
+}
+
+static int print_ipcs(int argc, char * argv[]) {
+  print_ipc_info();
+  return VALID;
 }
