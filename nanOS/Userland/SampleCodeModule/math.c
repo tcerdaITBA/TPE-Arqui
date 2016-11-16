@@ -1,5 +1,7 @@
 #include "math.h"
-
+/* Fuente:
+http://stackoverflow.com/questions/2284860/how-does-c-compute-sin-and-other-math-functions
+*/
 int abs(int n){
 	return n > 0 ? n : -n ;
 }
