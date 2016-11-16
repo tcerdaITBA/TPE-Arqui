@@ -142,11 +142,15 @@ static process * sync_dequeue(cond_variable * v) {
 int get_conds_info(cond_info info_array[]) {
   int i, j;
 
+  mutex_lock(array_lock);
+
   for (i = j = 0; i < MAX_COND_VAR; i++) {
     if (is_open(i))
       fill_conds_info(&info_array[j++], i);
   }
   
+  mutex_unlock(array_lock);
+
   return j;
 }
 

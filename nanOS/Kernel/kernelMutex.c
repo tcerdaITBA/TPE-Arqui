@@ -91,6 +91,7 @@ static mutex create_new_mutex(char * name) {
 
 int mutex_close(int key) {
   lock_array();
+
   if (is_open(key)) {
 
     mutex * m = &open_mutexes[key];
@@ -104,31 +105,35 @@ int mutex_close(int key) {
     unlock_array();
     return 1;
   }
+
   unlock_array();
   return NOT_OPEN_ERROR;
 }
 
 int mutex_lock(int key) {
   if (is_open(key)) {
-    mutex *m = &open_mutexes[key];
 
+    set_superlock();
+
+    mutex *m = &open_mutexes[key];
     process * p = get_current_process();
 
-    assign_quantum(); /* Si hay cambios de contexto debajo se rompe todo */
-
     if (!_unlocked(&m->locked)) {
-      lock_queue(m);
 
-      queue_process(m, p);
+    /* Encolar y bloquear debe ser atomico. 
+    ** Si se encola y no bloquea, puede que se desencole y desbloquee y luego bloquearse.
+    ** Si se bloquea y no encola, como esta bloqueado no se encolara, entonces no se desencolara y nunca desbloqueara.
+    ** El superlock asegura que el proceso actual volvera a correr dada una interrupcion de timer tick. */
+
+      queue_process(m, p); 
 
       block_process(p);
 
-      unlock_queue(m);
-
+      unset_superlock();
       yield_process();
     }
     else
-      unassign_quantum();
+      unset_superlock();
 
     return 1;
   }
@@ -137,11 +142,10 @@ int mutex_lock(int key) {
 
 int mutex_unlock(int key) {
   if (is_open(key)) {
+
+    set_superlock();
+
     mutex *m = &open_mutexes[key];
-
-    assign_quantum();
-
-    lock_queue(m);
 
     process * p = dequeue_process(m);
 
@@ -155,9 +159,7 @@ int mutex_unlock(int key) {
       m->locked = LOCKED;
     }
 
-    unlock_queue(m);
-
-    unassign_quantum();
+    unset_superlock();
 
     return 1;
   }
@@ -167,10 +169,14 @@ int mutex_unlock(int key) {
 int get_mutexes_info(mutex_info info_array[]) {
   int i, j;
 
+  lock_array();
+
   for (i = j = 0; i < MAX_MUTEXES; i++) {
     if (is_open(i))
       fill_mutex_info(&info_array[j++], i);
   }
+
+  unlock_array();
 
   return j;
 }

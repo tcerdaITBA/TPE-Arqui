@@ -102,6 +102,7 @@ int main()
 	initialize_memory_allocator();
 	initialize_stack_memory_allocator();
 	initialize_conditional_variable();
+	initialize_fifo_mutex();
 
 	sys_exec((uint64_t)init, 0, "init");
 

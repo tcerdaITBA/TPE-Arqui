@@ -105,7 +105,7 @@ static void add_process(process * p) {
 }
 
 void yield_process() {
-	current->next->quantum += 1; /* Quantum al siguiente proceso pues el actual quito tiempo */
+	current->next->quantum += 1; /* Quantum al siguiente proceso pues el actual quitó tiempo */
 	current->quantum = 0;
 	_yield_process();
 }

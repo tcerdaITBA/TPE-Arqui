@@ -35,6 +35,7 @@ typedef struct {
 } read_request;
 
 static fifo open_fifos[MAX_FIFOS];
+static int fifo_array_lock;
 
 static int try_read(read_request * r);
 static fifo create_new_fifo(char * name);
@@ -49,26 +50,33 @@ static int read_circular_buffer(circular_buffer * c_buf, void * dest, int bytes)
 
 static void fill_fifo_info(fifo_info * f_info, int key);
 
+void initialize_fifo_mutex() {
+  fifo_array_lock = mutex_open("__FIFO_ARRAY_MUTEX__");
+}
 
 int fifo_open(char * name) {
   int k;
 
-  assign_quantum();
+  mutex_lock(fifo_array_lock);
 
   for (k = 0; k < MAX_FIFOS && open_fifos[k].state == OPEN; k++) {
     if (strcmp(name, open_fifos[k].name) == 0) {
       set_file_open(get_current_process(), k);
+      mutex_unlock(fifo_array_lock);
       return k;
     }
   }
 
-  if (k == MAX_FIFOS)
+  if (k == MAX_FIFOS) {
+    mutex_unlock(fifo_array_lock);
     return MAX_FIFOS_OPEN_ERROR;
+  }
 
   open_fifos[k] = create_new_fifo(name);
-  set_file_open(get_current_process(), k);
 
-  unassign_quantum();
+  mutex_unlock(fifo_array_lock);
+
+  set_file_open(get_current_process(), k);
 
   return k;
 }
@@ -191,13 +199,19 @@ int fifo_read(int key, void * buf, int bytes) {
 
 /* TODO: hacer algo con los fds */
 int fifo_close(int key) {
+  mutex_lock(fifo_array_lock);
+
   if (is_open(key)) {
     fifo * f = &open_fifos[key];
     release_readers(f->read_queue);
     destroy_queue(f->read_queue);
     f->state = CLOSED;
+
+    mutex_unlock(fifo_array_lock);
     return 1;
   }
+
+  mutex_unlock(fifo_array_lock);
   return FIFO_NOT_OPEN_ERROR;
 }
 
@@ -255,11 +269,15 @@ static int read_circular_buffer(circular_buffer * c_buf, void * dest, int bytes)
 int get_fifos_info(fifo_info info_array[]) {
   int i, j;
 
+  mutex_lock(fifo_array_lock);
+
   for (i = j = 0; i < MAX_FIFOS; i++) {
     if (open_fifos[i].state == OPEN)
       fill_fifo_info(&info_array[j++], i);
   }
   
+  mutex_unlock(fifo_array_lock);
+
   return j;
 }
 
