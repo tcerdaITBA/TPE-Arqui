@@ -21,16 +21,13 @@ void _change_process(uint64_t rsp);
 
 extern int _unlocked(int64_t * locknum);
 
-static int is_superlocked();
-
-
 /* Proceso actualmente corriendo */
 static list_node *current = NULL;
 static list_node *prev = NULL;
 
 void _yield_process();
 
-static uint64_t superlock = UNLOCKED;
+static int64_t superlock = UNLOCKED;
 
 void set_superlock() {
 	superlock = LOCKED;
@@ -38,10 +35,6 @@ void set_superlock() {
 
 void unset_superlock() {
 	superlock = UNLOCKED;
-}
-
-static int is_superlocked() {
-	return superlock == LOCKED;
 }
 
 process * get_current_process() {
@@ -54,7 +47,10 @@ uint64_t next_process(uint64_t current_rsp) {
 
 	unassign_quantum();
 
-	if (is_superlocked() || current->quantum > 0)
+	if (current->quantum > 0)
+		return current_rsp;
+
+	if (!_unlocked(&superlock))
 		return current_rsp;
 
 	current->quantum = QUANTUM;
@@ -65,6 +61,8 @@ uint64_t next_process(uint64_t current_rsp) {
 	current = current->next;
 
 	set_next_current();
+
+	unset_superlock();
 
 	return get_rsp_process(current->p);
 }
@@ -84,13 +82,14 @@ uint64_t exec_process(process * new_process) {
 }
 
 static void add_process(process * p) {
-	set_superlock();
 
 	list_node *new_node = (list_node *) get_page(sizeof(*new_node));
 
 	new_node->p = p;
 	new_node->quantum = QUANTUM;
 
+	set_superlock();
+	
 	if (current == NULL) {
 		current = new_node;
 		current->next = current;
@@ -123,11 +122,11 @@ void end_process() {
 
 	current = current->next;
 
-	store_page((uint64_t) n);
-
 	set_next_current();
 
 	unset_superlock();
+
+	store_page((uint64_t) n);
 
 	assign_quantum();  /* Se le da un quantum al nuevo proceso */
 

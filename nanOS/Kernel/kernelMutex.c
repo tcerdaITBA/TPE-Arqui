@@ -25,9 +25,6 @@ static void queue_process(mutex *m, process * p);
 static mutex create_new_mutex(char * name);
 static int is_open(int key);
 
-static void lock_queue(mutex *m);
-static void unlock_queue(mutex *m);
-
 static void lock_array();
 static void unlock_array();
 
@@ -35,15 +32,6 @@ static void fill_mutex_info(mutex_info * m_info, int mutex_key);
 
 static int is_open(int key) {
   return key >= 0 && key < MAX_MUTEXES && open_mutexes[key].state == OPEN;
-}
-
-static void lock_queue(mutex *m) {
-  while (!_unlocked(&m->queue_lock))
-    yield_process();
-}
-
-static void unlock_queue(mutex *m) {
-  m->queue_lock = UNLOCKED;
 }
 
 static void lock_array() {
