@@ -75,18 +75,15 @@ int set_bg_color (uint64_t r, uint64_t g, uint64_t b) {
 }
 
 int exec(void * ptr, uint64_t params, const char * name) {
-  int pid = _int80h(15, (uint64_t) ptr, params, (uint64_t) name);
-  add_pid(pid);
-  return pid;
+  return _int80h(15, (uint64_t) ptr, params, (uint64_t) name);
 }
 
 void end() {
-  remove_pid(pid());
   _int80h(16, 0, 0, 0);
 }
 
 void yield() {
-    _int80h(17, 0, 0, 0);
+  _int80h(17, 0, 0, 0);
 }
 
 int mutex_open(char * name) {
@@ -118,7 +115,6 @@ int fifo_close(int key) {
 }
 
 int kill(uint64_t pid) {
-  remove_pid(pid);
   return _int80h(25, pid, 0, 0);
 }
 

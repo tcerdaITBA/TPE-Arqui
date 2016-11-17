@@ -32,8 +32,6 @@ int shell() {
     load_fractals(data_address());
     set_fractals_resolution(screen_Xresolution(), screen_Yresolution()); // fractales en resolucion bien manija
 
-    execpn(process_info_manager, "pid_logger"); /* Proceso que corre en background guardando los pid que se van creando y destruyendo */
-
     while (run) {
         printf("> ");
         readline_no_spaces(buffer, len);
