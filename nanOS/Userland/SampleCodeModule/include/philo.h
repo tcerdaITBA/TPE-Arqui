@@ -34,4 +34,8 @@ void renderText(philosopher_data * philos, int philosopherCount);
 
 void renderGraphics(philosopher_data * philos, int philosopherCount);
 
+void print_colors_instructions();
+
+void print_commands();
+
 #endif

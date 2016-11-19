@@ -14,6 +14,7 @@
 #include "time.h"
 #include "executer.h"
 #include "process_info.h"
+#include "shell.h"
 
 #include <stdint.h>
 
@@ -151,7 +152,8 @@ static command commands[]= {{"help", help},
               {"print", print_process},
               {"ps", ps},
               {"fg", set_fg},
-              {"ipcs", print_ipcs}
+              {"ipcs", print_ipcs},
+              {"shell", shell}
 							};
 
 static int test_num = 0;
@@ -225,7 +227,6 @@ int execute(const char *name, const char *args, int foreground) {
       pid = execp (commands[i].function, args, name);
       if (foreground)
 			 set_foreground(pid);
-      printf("PID: %d\n", pid);
     }
 	}
 	return valid;
@@ -248,9 +249,12 @@ static int help(int argc, char * argv[]){
   printf("                      If no parameter is sent a random fractal will be drawed.\n");
   printf(" char_color [r,g,b]   Changes character color.\n");
   printf(" bg_color   [r,g,b]   Changes background color. Clears screen.\n");
-  printf(" prodcon    [size]    Commences producer consumer problem resolved with fifos\n");
-  printf(" prodcon2   [size]    Commences producer consumer problem resolved with variable conditions\n");
-  printf(" philo      [N]       Commences philosophers problem with N philosophers. Max %d\n", MAX_PHILOSOPHERS);
+  printf(" prodcon    [size]    Commences producer consumer problem resolved with fifos.\n");
+  printf(" prodcon2   [size]    Commences producer consumer problem resolved with variable conditions.\n");
+  printf(" philo      [N]       Commences philosophers problem with N philosophers. Max %d.\n", MAX_PHILOSOPHERS);
+  printf(" philogui   [N]       Commences philosophers problem with graphics.\n");
+  printf(" shell                User shell.\n" );
+  printf(" fg         [PID]     Gives foreground to process.\n");
 
 
   return VALID;

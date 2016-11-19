@@ -54,6 +54,26 @@ void renderGraphics(philosopher_data * philos, int philosopherCount) {
 	}
 }
 
+void print_colors_instructions() {
+  printf("What do the colours mean?\n");
+  printf("Red - EATING\n");
+  printf("Yellow - HUNGRY\n");
+  printf("Blue - THINKING\n");
+  printf("Grey - About to be removed\n");
+}
+
+void print_commands() {
+  printf("\nCommands\n");
+  printf("h     Prints this help.\n");
+  printf("w     Adds a philosopher.\n");
+  printf("s     Removes a philosopher.\n");
+  printf("e     Removes all philosophers instantly. Terminates philosophers problem.\n");
+  printf("q     Removes philosophers one by one. Terminates philosophers problem.\n");
+  printf("p     Toggles pause. Philosophers may not be modified during pause.\n");
+  printf("g     Toggles graphic and text mode.\n");
+  putchar('\n');
+}
+
 static void get_state_color(int philoState, int * r, int * g, int * b) {
 	switch(philoState) {
 		case EATING:

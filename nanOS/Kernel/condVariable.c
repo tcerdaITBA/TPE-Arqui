@@ -6,7 +6,7 @@
 #include "strings.h"
 #include "ipc_info.h"
 
-#define COND_LOCK_IDENTIFIER "COND_ARRAY_LOCK"
+#define COND_LOCK_IDENTIFIER "__COND_ARRAY_LOCK__"
 
 typedef struct {
   	char name[COND_NAME_LEN];

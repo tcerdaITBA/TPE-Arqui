@@ -29,9 +29,6 @@ int shell() {
     int arguments_flag; // 1 si se enviaron argumentos
     int foreground;
 
-    load_fractals(data_address());
-    set_fractals_resolution(screen_Xresolution(), screen_Yresolution()); // fractales en resolucion bien manija
-
     while (run) {
         printf("> ");
         readline_no_spaces(buffer, len);

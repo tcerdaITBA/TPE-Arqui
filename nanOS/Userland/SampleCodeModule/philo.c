@@ -54,6 +54,8 @@ int start_philosophers_problem(int graphic, int philoNumber) {
 
   philosopherCount = 0;
 
+  print_commands();
+
   for (i = 0; i < philoNumber; i++) {
     add_philosopher();
   }
@@ -63,35 +65,27 @@ int start_philosophers_problem(int graphic, int philoNumber) {
   return 0;
 }
 
-static void print_colors_instructions() {
-  printf("What do the colours mean?\n");
-  printf("Red - EATING\n");
-  printf("Yellow - HUNGRY\n");
-  printf("Blue - THINKING\n");
-  printf("Grey - About to be removed\n");
-}
-
 void listen_commands() {
   if (render == renderGraphics) 
     print_colors_instructions();
   char c;
   while((c = getchar())) {
     switch (c) {
+      case 'h':
+        print_commands();
       case 'e':
       if (!is_paused()) {
         remove_all_philosophers();
         return;
       }
       break;
-      case 'a':
+      case 'w':
       if (!is_paused())
         add_philosopher();
       break;
-      case 'r':
-      if (!is_paused()) {
+      case 's':
+      if (!is_paused())
         remove_philosopher();
-        yield();
-      }
       break;
       case 'g':
         if (render == renderGraphics)
@@ -102,7 +96,7 @@ void listen_commands() {
         }
       break;
       case 'p':
-      pause_philosophers();
+        pause_philosophers();
       break;
       case 'q':
       if (!is_paused()) {
@@ -161,6 +155,7 @@ static int add_philosopher() {
 
 static void remove_philosopher() {
   mutex_lock(critical_m);
+
   if (philosopherCount > 0) {
     int count = philosopherCount;
     int philo_index = philosopherCount - 1;
@@ -168,6 +163,7 @@ static void remove_philosopher() {
     while (count == philosopherCount)
       cond_wait(modify_cond_var, critical_m);
   }
+
   mutex_unlock(critical_m);
 }
 
@@ -199,14 +195,14 @@ static void remove_all_philosophers() {
 static int philosopher(int argc, char * argv[]) {
   int i = atoi(argv[0]);
   while(1) {
-    sleep(rand_int_range(2, 5) * 1000);
+    sleep(rand_int_range(2, 7) * 1000);
     take_forks(i);
 
     if (should_die(i)) {
       return 1;
     }
 
-    sleep(rand_int_range(2, 5) * 1000);
+    sleep(rand_int_range(2, 7) * 1000);
     put_forks(i);
 
     if (should_die(i)) {
