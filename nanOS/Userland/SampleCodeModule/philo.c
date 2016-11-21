@@ -202,6 +202,7 @@ static void remove_all_philosophers() {
   for (i = 0; i < philoCountAux; i++) {
     kill(philo_array[i].pid);
     mutex_close(philo_array[i].mut);
+    cond_close(philo_array[i].cond_die);
   }
   mutex_unlock(critical_m);
   release_resources();
