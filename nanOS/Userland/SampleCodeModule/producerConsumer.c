@@ -21,6 +21,7 @@ void start_producer_consumer_problem(int buf_size) {
   int i;
   char empty = EMPTY_SLOT;
 
+  /* Llena el fifo de slots vacíos con cantidad de mensajes igual al tamaño del buffer */
   for (i = 0; i < buf_size; i++)
     write(empty_fd, &empty, 1);
 
@@ -42,6 +43,7 @@ static void producer() {
 
   char message;
 
+  /* Lee espacios vacíos en empty_fd y escribe ítems en full_fd */
   while(1) {
     read(empty_fd,  &message, 1);
     int item = rand_int();
@@ -58,6 +60,7 @@ static void consumer() {
   int item;
   char message = EMPTY_SLOT;
 
+  /* Lee ítems en full_fd y escribe slots vacíos en empt_fd */
   while(1) {
     read(full_fd,  &item, sizeof(int));
     printf("Consumed: %d\n", item);

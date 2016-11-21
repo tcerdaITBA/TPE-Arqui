@@ -89,7 +89,7 @@ static void add_process(process * p) {
 	new_node->quantum = QUANTUM;
 
 	set_superlock();
-	
+
 	if (current == NULL) {
 		current = new_node;
 		current->next = current;

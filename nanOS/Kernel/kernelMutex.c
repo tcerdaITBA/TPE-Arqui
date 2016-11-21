@@ -8,7 +8,6 @@
 typedef struct {
   char name[MUTEX_NAME_LEN];
   int64_t locked;
-  int64_t queue_lock;
   int64_t state;
   queueADT process_queue;
 } mutex;
@@ -73,7 +72,6 @@ static mutex create_new_mutex(char * name) {
   m.process_queue = create_queue();
   m.state = OPEN;
   m.locked = UNLOCKED;
-  m.queue_lock = UNLOCKED;
   return m;
 }
 
@@ -108,12 +106,12 @@ int mutex_lock(int key) {
 
     if (!_unlocked(&m->locked)) {
 
-    /* Encolar y bloquear debe ser atomico. 
+    /* Encolar y bloquear debe ser atomico.
     ** Si se encola y no bloquea, puede que se desencole y desbloquee y luego bloquearse.
     ** Si se bloquea y no encola, como esta bloqueado no se encolara, entonces no se desencolara y nunca desbloqueara.
     ** El superlock asegura que el proceso actual volvera a correr dada una interrupcion de timer tick. */
 
-      queue_process(m, p); 
+      queue_process(m, p);
 
       block_process(p);
 

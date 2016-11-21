@@ -6,6 +6,7 @@
 #include "random.h"
 #include "executer.h"
 #include "stdlib.h"
+#include "ctype.h"
 
 #define PHILO_PROCESS_NAME "philosopher"
 
@@ -35,6 +36,8 @@ static int is_paused();
 
 static int should_die(int i);
 
+/* Se puede cambiar para imprimir de distinta forma los filósofos. En
+** este caso se cambia entre modo texto y modo gráfico */
 static void (* render) (philosopher_data * philo_array, int philosopherCount);
 
 void listen_commands();
@@ -66,47 +69,56 @@ int start_philosophers_problem(int graphic, int philoNumber) {
 }
 
 void listen_commands() {
-  if (render == renderGraphics) 
+  if (render == renderGraphics)
     print_colors_instructions();
   char c;
   while((c = getchar())) {
-    switch (c) {
-      case 'h':
-        print_commands();
-      case 'e':
-      if (!is_paused()) {
-        remove_all_philosophers();
-        return;
-      }
-      break;
-      case 'w':
-      if (!is_paused())
-        add_philosopher();
-      break;
-      case 's':
-      if (!is_paused())
-        remove_philosopher();
-      break;
-      case 'g':
-        if (render == renderGraphics)
-          render = renderText;
-        else {
-          render = renderGraphics;
-          print_colors_instructions();
+    if(!isspace(c)) {
+      switch (c) {
+        case 'h':
+          print_commands();
+          break;
+        case 'e':
+        if (!is_paused()) {
+          remove_all_philosophers();
+          return;
         }
-      break;
-      case 'p':
-        pause_philosophers();
-      break;
-      case 'q':
-      if (!is_paused()) {
-        slow_die();
-        return;
+        break;
+        case 'w':
+        if (!is_paused())
+          add_philosopher();
+        break;
+        case 's':
+        if (!is_paused())
+          remove_philosopher();
+        break;
+        case 'g':
+          if (render == renderGraphics)
+            render = renderText;
+          else {
+            render = renderGraphics;
+            print_colors_instructions();
+          }
+        break;
+        case 'p':
+          pause_philosophers();
+        break;
+        case 'q':
+        if (!is_paused()) {
+          slow_die();
+          return;
+        }
+        break;
+        default:
+          printf("Invalid command %c\n", c);
+          print_commands();
+          break;
       }
     }
   }
 }
 
+/* Bloquea el mismo mutex que usan los filósofos para que se queden pausados */
 static void pause_philosophers() {
   if (!is_paused()) {
     pause = PAUSED;
@@ -167,6 +179,7 @@ static void remove_philosopher() {
   mutex_unlock(critical_m);
 }
 
+/* Remueve un filósofo a la vez en lugar de hacerles kill */
 static void slow_die() {
   int i;
   int count = philosopherCount;
@@ -181,6 +194,8 @@ static void release_resources() {
   cond_close(modify_cond_var);
 }
 
+/* Cierra todos los mutexes abiertos para el problema y le hace kill a
+** todos los filósofos corriendo */
 static void remove_all_philosophers() {
   mutex_lock(critical_m);
   int i, philoCountAux = philosopherCount;
@@ -196,21 +211,21 @@ static int philosopher(int argc, char * argv[]) {
   int i = atoi(argv[0]);
   while(1) {
     sleep(rand_int_range(2, 7) * 1000);
-    take_forks(i);
 
     if (should_die(i)) {
       return 1;
     }
+
+    take_forks(i);
 
     sleep(rand_int_range(2, 7) * 1000);
     put_forks(i);
-
-    if (should_die(i)) {
-      return 1;
-    }
   }
 }
 
+/* Si el filósofo fue marcado para morir, se lo pone en estado DYING, y espera
+** a que alguno de los dos filósofos a su lado terminen de comer para
+** efectivamente desaparecer */
 static int should_die(int i) {
   int die;
   mutex_lock(critical_m);
@@ -257,6 +272,7 @@ static void put_forks(int i) {
   mutex_unlock(critical_m);
 }
 
+/* Además de settear el estado, imprime en pantalla el estado de los filósofos */
 static void setState(int philo, int st) {
   philo_array[philo].state = st;
   render(philo_array, philosopherCount);
