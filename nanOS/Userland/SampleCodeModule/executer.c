@@ -41,7 +41,7 @@ static void executer(void ** params) {
 	entry_point function;
 	char ** argv;
 	int argc;
-	int ret_value;
+	/* int ret_value; */
 
 	memcpy(memory, params, PAGE);
 
@@ -52,7 +52,8 @@ static void executer(void ** params) {
 	while (argv[argc] != NULL)
 		argc++;
 
-	ret_value = (*function)(argc, argv);
+	/* Si bien no se ultiliza el valor de retorno, se deja explicito como seria su uso */
+	/* ret_value = */ (*function)(argc, argv);
 
 	free(memory);
 	set_foreground(ppid());

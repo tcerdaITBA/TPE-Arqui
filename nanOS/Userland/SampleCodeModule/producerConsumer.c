@@ -41,7 +41,6 @@ static void producer() {
   int full_fd = fifo_open(CONSUMER_FIFO);
 
   char message;
-  char full = FULL_SLOT;
 
   while(1) {
     read(empty_fd,  &message, 1);
